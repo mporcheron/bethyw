@@ -60,7 +60,7 @@
 // type, or perhaps used integers. But with a enum both in code and to anyone
 // who just glances at the code can infer the meaning.
 enum DataType {
-  None, AreaCodeCSV, WelshStatsJSON
+  None, AuthorityCodeCSV, WelshStatsJSON
 };
 
 
@@ -123,7 +123,7 @@ class Area {
 protected:
   std::string mLocalAuthorityCode;
   std::unordered_map<std::string, std::string> mNames;
-  std::unordered_map<std::string, Measure> mMeasures;
+  std::map<std::string, Measure> mMeasures;
   
 public:
   Area(const std::string &localAuthorityCode);
@@ -144,7 +144,7 @@ public:
   
   void addMeasure(std::string &ident, const Measure &stat);
   Measure& getMeasure(std::string &ident);
-  std::unordered_map<std::string, Measure>& getAllMeasures();
+  std::map<std::string, Measure>& getAllMeasures();
 };
 
 
@@ -173,7 +173,7 @@ public:
   virtual ~DataContainer() = default;
 
   // Parses the list of Welsh areas used in the statistics website, including
-  // their local area code, English, and Welsh names.
+  // their local authority code, English, and Welsh names.
   virtual void populate(std::istream &is, const DataType &type) noexcept(false) 
                                                                             = 0;
 };
@@ -204,7 +204,7 @@ public:
   
   // Parses the list of Welsh areas used in the statistics website, including
   // their local area code, English, and Welsh names as a CSV file.
-  void populateFromAreaCodeCSV(std::istream &is) noexcept(false);
+  void populateFromAuthorityCodeCSV(std::istream &is) noexcept(false);
   
   // Parse the data files from the statistics website.
   void populateFromWelshStatsJSON(std::istream &is) noexcept(false);

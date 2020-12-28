@@ -20,7 +20,7 @@
 
 #include "../sources.h"
 
-SCENARIO( "a InputFile can be constructed with a valid filename", "[InputFile][import]" ) {
+SCENARIO( "a valid source file can be opened and read", "[InputFile][import]" ) {
 
   auto file_exists = [](const std::string &path) {
     // fstream destructor closes the file
@@ -30,10 +30,10 @@ SCENARIO( "a InputFile can be constructed with a valid filename", "[InputFile][i
   const std::string test_file = "data/areas.csv";
   REQUIRE(file_exists(test_file));
 
-  GIVEN( "a valid constructed InputSource instance" ) {
+  GIVEN( "a valid constructed InputFile instance" ) {
     InputFile input(test_file);
 
-    THEN( "the source is set correctly" ) {
+    THEN( "the source  member variable is set correctly" ) {
       REQUIRE(input.getSource() == test_file);
     }
 
@@ -44,7 +44,7 @@ SCENARIO( "a InputFile can be constructed with a valid filename", "[InputFile][i
     
     std::istream &stream = input.open();
 
-    THEN( "the stream remains open after the open() returns" ) {
+    THEN( "the stream remains open after open() returns" ) {
       REQUIRE_NOTHROW(stream.seekg(1, stream.beg));
       REQUIRE_FALSE(stream.eof());
       REQUIRE_FALSE(stream.fail());
@@ -53,7 +53,7 @@ SCENARIO( "a InputFile can be constructed with a valid filename", "[InputFile][i
 }
 
 
-SCENARIO( "a InputFile can be constructed with an invalid filename", "[InputFile][import]" ) {
+SCENARIO( "an invalid source file is opened for reading", "[InputFile][import]" ) {
 
   auto file_exists = [](const std::string &path) {
     // fstream destructor closes the file
@@ -63,10 +63,10 @@ SCENARIO( "a InputFile can be constructed with an invalid filename", "[InputFile
   const std::string test_file = "data/jibberish.json";
   REQUIRE_FALSE(file_exists(test_file));
 
-  GIVEN( "a valid constructed InputSource instance" ) {
+  GIVEN( "a valid constructed InputFile instance" ) {
     InputFile input(test_file);
 
-    THEN( "the source is set correctly" ) {
+    THEN( "the member source is set correctly" ) {
       REQUIRE(input.getSource() == test_file);
     }
 

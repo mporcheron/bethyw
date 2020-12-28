@@ -29,7 +29,7 @@ int main(int argc, char *argv[]) {
     // README.md
 
     options.add_options()
-        ("f,inputfiles",
+        ("d,inputdir",
           "Directory for input data passed in as files.",
           cxxopts::value<std::string>())
         // ("o,output", "Save an ascii file to the provided path.",  cxxopts::value<std::string>())
@@ -47,18 +47,27 @@ int main(int argc, char *argv[]) {
       std::exit(0);
     }
 
-    const std::string dirData = result["inputfiles"].as<std::string>() + DIR_SEP;
+    // Read the data directory argument
+    // TODO map: replace block with std::string dirData = result…
+    std::string dirData;
+    try {
+       dirData = result["inputdir"].as<std::string>() + DIR_SEP;
+    } catch(std::domain_error &err) {
+      std::cout << options.help() << std::endl;
+      std::exit(0);
+    }
 
     // Load in the list of local areas used in the statistics
     Areas data = Areas();
     const std::string fileAreas = dirData + InputFiles::AREAS;
     try {
       InputSource *source = new InputFile(fileAreas);
+      // TODO map: replace below two lines with source->open();
       std::istream &stream = source->open();
-      data.populate(stream, DataType::AreaCodeCSV);
+      data.populate(stream, DataType::AuthorityCodeCSV);
     } catch(const std::runtime_error &ex) {
-      std::cout << fileAreas << " error:\n" << ex.what() <<  "\n" << std::endl;
-      abort();
+      std::cout << fileAreas << " error:\n" << ex.what() << std::endl;
+      std::exit(1);
     }
 
     // Load data files
@@ -69,7 +78,7 @@ int main(int argc, char *argv[]) {
         std::istream &stream = source->open();
         data.populate(stream, DataType::WelshStatsJSON);
     } catch(const std::runtime_error &ex) {
-        std::cout << "Source error:\n" << ex.what() << "\n" << std::endl;
+        std::cout << "Source error:\n" << ex.what() << std::endl;
         abort();
     }
 
@@ -79,7 +88,7 @@ int main(int argc, char *argv[]) {
     for(auto iter = areas.begin(); iter != areas.end(); ++iter){
       std::cout << (iter->second).getName("eng") << std::endl;
 
-      std::unordered_map<std::string, Measure> measures =
+      std::map<std::string, Measure> measures =
                                               (iter->second).getAllMeasures();
 
       for(auto iter2 = measures.begin(); iter2 != measures.end(); ++iter2){

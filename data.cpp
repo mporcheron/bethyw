@@ -105,7 +105,7 @@ Measure& Area::getMeasure(std::string &ident) {
   return mMeasures.at(ident);
 }
 
-std::unordered_map<std::string, Measure>& Area::getAllMeasures() {
+std::map<std::string, Measure>& Area::getAllMeasures() {
   return mMeasures;
 }
 
@@ -116,24 +116,24 @@ std::unordered_map<std::string, Measure>& Area::getAllMeasures() {
 Areas::Areas() : mData() {}
 
 // Parse input for the areas data. At the moment, you only need to worry about
-// parsing the provided CSV format (where DataType equals AreaCodeCSV). We have
+// parsing the provided CSV format (where DataType equals AuthorityCodeCSV). We have
 // the type variable here in case of future needs.
 //
 // If an unexpected type is passed, throws a std::runtime_error.
 void Areas::populate(std::istream &is, const DataType &type) noexcept(false) {
   // TODO Implement a function that accepts an open input stream, and calls 
-  // either Areas::populateFromAreaCodeCSV or Areas::populateFromWelshStatsJSON
-  // depending on the DataType. Throw an appropriate exception unexpected 
-  // situations. Hint: to determine whether a generic stream is open, try 
-  // seeking and investigate the different failbits in std::basic_ios!
+  // either Areas::populateFromAuthorityCodeCSV or 
+  // Areas::populateFromWelshStatsJSON depending on the DataType.
+  //
+  // Throw an std::runtime_error in unexpected situations.
   is.seekg(1, is.beg);
   if (is.eof() || is.fail()) {
     throw std::runtime_error("Areas::populate: Stream not open");
   }
   is.seekg(0, is.beg);
     
-  if (type == AreaCodeCSV) {
-    Areas::populateFromAreaCodeCSV(is);
+  if (type == AuthorityCodeCSV) {
+    Areas::populateFromAuthorityCodeCSV(is);
   } else if (type == WelshStatsJSON) {
     Areas::populateFromWelshStatsJSON(is);
   } else {
@@ -146,10 +146,12 @@ void Areas::populate(std::istream &is, const DataType &type) noexcept(false) {
 // the name of the columns, and then each row is a new set of data.
 //
 // In this case, we use this parser to parse areas.csv
-void Areas::populateFromAreaCodeCSV(std::istream &is) noexcept(false) {
+void Areas::populateFromAuthorityCodeCSV(std::istream &is) noexcept(false) {
   // TODO Implement this parsing function. You can assume the columns will 
-  // remain in the same ordering in your implementation. Parse the file and 
-  // throw a std::runtime_error if anything is wrong.
+  // remain in the same ordering in your implementation as they are in the data 
+  // file provided in the coursework.
+  //
+  // Parse the file and throw a std::runtime_error if anything is wrong.
   //
   // Once you have parsed a row of CSV data, you need to construct an Area 
   // object. You should add each Area object to the Areas class member variable 
@@ -158,7 +160,7 @@ void Areas::populateFromAreaCodeCSV(std::istream &is) noexcept(false) {
   // First row is our column titles, skip it
   std::string line;
   if(!std::getline(is, line)) {
-    throw std::runtime_error("Areas::populateFromAreaCodeCSV: "
+    throw std::runtime_error("Areas::populateFromAuthorityCodeCSV: "
       "File contains no data");
   }
 
@@ -257,29 +259,29 @@ void Areas::populateFromWelshStatsJSON(std::istream &is) noexcept(false) {
   }
   
   // Column titles in the JSON data
-  const std::string COL_AREA_CODE = "Localauthority_Code";
+  const std::string COL_AUTHORITY_CODE = "Localauthority_Code";
   const std::string COL_AREA_NAME_ENG = "Localauthority_ItemName_ENG";
   const std::string COL_MEASURE_NAME_ENG = "Measure_ItemName_ENG";
   const std::string COL_YEAR = "Year_Code";
   const std::string COL_VALUE = "Data";
 
-  std::string currLocalAreaCode, currMeasureName;
+  std::string currLocalAuthorityCode, currMeasureName;
   Area *area;
   Measure *m;
   for (auto& el : j["value"].items()) {
     auto &data = el.value();
 
     // Check if this is the same as the last local area or not
-    if (data[COL_AREA_CODE] != currLocalAreaCode) {
-      auto search = mData.find(data[COL_AREA_CODE]);
+    if (data[COL_AUTHORITY_CODE] != currLocalAuthorityCode) {
+      auto search = mData.find(data[COL_AUTHORITY_CODE]);
       if (search != mData.end()) {
         area = &(search->second);
       } else {
-        area = new Area(data[COL_AREA_CODE]);
+        area = new Area(data[COL_AUTHORITY_CODE]);
         area->setName("eng",  data[COL_AREA_NAME_ENG]);
-        mData.insert({data[COL_AREA_CODE], *area});
+        mData.insert({data[COL_AUTHORITY_CODE], *area});
       }
-      currLocalAreaCode = data[COL_AREA_CODE];
+      currLocalAuthorityCode = data[COL_AUTHORITY_CODE];
       std::cout << "" << area->getName("eng") << std::endl;
     }
     
@@ -299,7 +301,6 @@ void Areas::populateFromWelshStatsJSON(std::istream &is) noexcept(false) {
     
     m->addDatum(year, value);
     area->addMeasure(currMeasureName, *m);
-    std::cout  << "  " << currMeasureName << " " << year << " " << value << std::endl;
   }
 }
 

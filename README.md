@@ -22,7 +22,9 @@ You should also work out ways to test your code with different inputs etc. to ma
 The following data files are stored in the _data_ directory. I have given the URL where I downloaded these files from. A reminder: do not replace or modify the file I have provided you—your coursework will be marked with a copy of the specific version given.
 
 * areas.csv - A manually created list of areas in Wales
-* popu1009.json - [Population Density by area](http://open.statswales.gov.wales/en-gb/dataset/popu1009)
+* popu1009.json - [Population Density by local authority](http://open.statswales.gov.wales/en-gb/dataset/popu1009)
+* popu1003.json - [Age distribution of population by gender and local authority](http://open.statswales.gov.wales/en-gb/dataset/popu1003)
+* popu0003.json - [Population estimates by local authority and year](http://open.statswales.gov.wales/en-gb/dataset/popu0003)
 
 ### Third-party libraries used
 
@@ -62,14 +64,14 @@ Upon successful compilation, there will be a binary executable, _bethyw-test_ in
 Your program should take a number of arguments (only the first has been implemented for you!):
 
 ```
--f <directory> 
+-d <directory> 
              Name of the data directory (you can vary this to test your code with different variations of the data)
 -d [<dataset>, <dataset>, ..., <dataset>] 
              List of specific comma-separated datasets to parse
 -a [<area>, <area>, ... <area>|all]
-             List of specific areas to collate statistics for, or all areas (if ommitted assume all)
+             List of specific areas to collate statistics for, or all areas (if omitted assume all)
 -m <measure>
-             Specific meaausure to examine (optional)
+             Specific measure to examine (optional)
 -y <year>
              Specific year to examine (optional)
 ```
@@ -86,16 +88,24 @@ There are a number of sample outputs in the _sample-outputs_ directory for the e
 
 This coursework can feel like quite a lot at first, but the reality is you have to write very little code, but figuring out the layout of an existing program given to you is half the challenge! When you work in industry, you will rarely be starting with a clean sheet. 
 
-There are a number of tasks you should go about completing for this coursdework. As a suggestion, I've ordered them in the way I think you should tackle them (and coincidently, in the order of the unit tests!)
+There are a number of tasks you should go about completing for this coursework. As a suggestion, I've ordered them in the way I think you should tackle them (and coincidently, in the order of the unit tests!)
 
-#### 1. Reading in the areas.csv file
-The first task you should do is read in the _areas.csv_ file. In _main.cpp_, the code that calls the right functions has already been written for you, but you will have to edit the `sources.h` and `sources.cpp`.
+#### 1. Reading in the _areas.csv_ file
+The first task you should do is read in the _areas.csv_ file. In _main.cpp_, the code that calls the right functions has already been written for you, but you will have to edit the `sources.h` and `sources.cpp`. These two files are
+responsible only for opening/retrieving sources.
 
 * Your program should be called with the `-f <directory>` arguments, and if `<directory>` is valid and `areas.csv` exists in that directory, it should load it.
 * If these arguments are not provided, print out the help information.
-* If an invalid directory is provided, print out "Invalid data directory." only.
-* If _areas.csv_ is not in the directory, print out the following and then abort:
+* If _areas.csv_ is not a valid file, print out the following and then abort:
 ```
 <directory>/areas.csv error:
 InputFile::import: Failed to open file
 ```
+
+#### 2. Parsing _areas.csv_ 
+Next you will need to parse _areas.csv_. This will require looking at the _data.h_ and _data.cpp_ files, both of which have a lot of comments to read through. Do that first.
+
+As you should see, the parsing is triggered through the `populate()` function, which takes a stream and an enum of the type of data to be parsed. For your benefit, this enum has been provided at the top of of _data.h_. `populate()` should hand off the parsing to `populateFromAuthorityCodeCSV()` and `populateFromWelshStatsJSON()`, depending on the enum value. You will have to implement all three of these functions eventually, although initially just the first two to parse _areas.csv_.
+
+To implement `populateFromAuthorityCodeCSV()`, you will have to implement the functions for the `Area` class in _data.cpp_ too. Read the TODO comments in each function and implement them appropriately.
+
