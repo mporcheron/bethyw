@@ -89,4 +89,13 @@ This coursework can feel like quite a lot at first, but the reality is you have 
 There are a number of tasks you should go about completing for this coursdework. As a suggestion, I've ordered them in the way I think you should tackle them (and coincidently, in the order of the unit tests!)
 
 #### 1. Reading in the areas.csv file
-The first task you should do is read in the _areas.csv_ file. In _main.cpp_, the code that calls the right functions has already been written for you. Your program should be called with the `-f <directory>` arguments, and if `<directory>` is valid and `areas.csv` exists in that directory, it should load it.
+The first task you should do is read in the _areas.csv_ file. In _main.cpp_, the code that calls the right functions has already been written for you, but you will have to edit the `sources.h` and `sources.cpp`.
+
+* Your program should be called with the `-f <directory>` arguments, and if `<directory>` is valid and `areas.csv` exists in that directory, it should load it.
+* If these arguments are not provided, print out the help information.
+* If an invalid directory is provided, print out "Invalid data directory." only.
+* If _areas.csv_ is not in the directory, print out the following and then abort:
+```
+<directory>/areas.csv error:
+InputFile::import: Failed to open file
+```
