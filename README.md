@@ -88,5 +88,5 @@ This coursework can feel like quite a lot at first, but the reality is you have 
 
 There are a number of tasks you should go about completing for this coursdework. As a suggestion, I've ordered them in the way I think you should tackle them (and coincidently, in the order of the unit tests!)
 
-1. Reading in the areas.csv file
-   The first task you should do is read in the _areas.csv_ file. In _main.cpp_, the code that calls the right functions has already been written for you. Your program should be called with the `-f <directory>` arguments, and if `<directory>` is valid and `areas.csv` exists in that directory, it should load it.
+#### 1. Reading in the areas.csv file
+The first task you should do is read in the _areas.csv_ file. In _main.cpp_, the code that calls the right functions has already been written for you. Your program should be called with the `-f <directory>` arguments, and if `<directory>` is valid and `areas.csv` exists in that directory, it should load it.
