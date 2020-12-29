@@ -27,6 +27,9 @@ InputSource::InputSource(const std::string &source)
     : mSource(source)
 {}
 
+const std::string InputSource::getSource() const {
+  return mSource;
+}
 
 
 

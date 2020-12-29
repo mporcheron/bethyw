@@ -84,17 +84,15 @@ int main(int argc, char *argv[]) {
 
     // Print out test data
     std::cout << "There are " << data.size() << " areas" << std::endl;
-    std::unordered_map<std::string, Area> areas = data.getAll();
-    for(auto iter = areas.begin(); iter != areas.end(); ++iter){
-      std::cout << (iter->second).getName("eng") << std::endl;
+    auto &areas = data.getAllAreas();
+    for(auto itAreas = areas.begin(); itAreas != areas.end(); itAreas++) {
+      std::cout << (itAreas->second).getName("eng") << std::endl;
 
-      std::map<std::string, Measure> measures =
-                                              (iter->second).getAllMeasures();
-
-      for(auto iter2 = measures.begin(); iter2 != measures.end(); ++iter2){
-        std::cout << iter2->second << std::endl;
+      auto &measures = (itAreas->second).getAllMeasures();
+      for(auto itMeas = measures.begin(); itMeas != measures.end(); itMeas++) {
+        Measure &m = itMeas->second;
+        std::cout << m << std::endl;
       }
-
     }
 
     return 0;

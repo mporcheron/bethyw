@@ -29,11 +29,9 @@
                   instead of geographic areas.
  */
 
-#include <any>
 #include <map>
 #include <iostream>
 #include <string>
-#include <unordered_map>
 #include <variant>
 
 
@@ -101,9 +99,16 @@ private:
 public:
   Measure(std::string &label);
   ~Measure() = default;
-  void addDatum(const int &year, const Measure_t &datum);
+  void addDatum(const int &key, const Measure_t &value);
   friend std::ostream& operator<<(std::ostream &os, const Measure &st);
-
+  
+  Measure(const Measure& other) : mLabel(other.mLabel), mDataByYear(other.mDataByYear) {
+    std::cout << "   > Copy Measure " << mLabel << std::endl;
+  }
+  Measure& operator=(const Measure& other) = default;
+  Measure(Measure&& other) = default;
+  Measure& operator=(Measure&& ither) = default;
+  
   static std::string to_string(const Measure_t& input) {
     return std::visit(MeasureValueToString{}, input);
   }
@@ -122,27 +127,27 @@ public:
 class Area {
 protected:
   std::string mLocalAuthorityCode;
-  std::unordered_map<std::string, std::string> mNames;
+  std::map<std::string, std::string> mNames;
   std::map<std::string, Measure> mMeasures;
   
 public:
   Area(const std::string &localAuthorityCode);
   ~Area() = default;
   
-  Area(const Area& other) = default;
+  Area(const Area& other) : mLocalAuthorityCode(other.mLocalAuthorityCode), mNames(other.mNames), mMeasures(other.mMeasures){
+    std::cout << ">> Copy Area " << getName("eng") << std::endl;
+  }
   Area& operator=(const Area& other) = default;
   Area(Area&& other) = default;
   Area& operator=(Area&& ither) = default;
 
-  const std::string& getLocalAuthorityCode() const {
-    return mLocalAuthorityCode;
-  }
-  
-  // Set name adds a name for a specific language using ISO 639-2/B codes
+  const std::string& getLocalAuthorityCode() const;
+
+  // Get/set name adds a name for a specific language using ISO 639-2/B codes
   void setName(const std::string &lang, const std::string &name);
   const std::string& getName(const std::string &lang) const;
   
-  void addMeasure(std::string &ident, const Measure &stat);
+  void addMeasure(std::string &ident, Measure &stat);
   Measure& getMeasure(std::string &ident);
   std::map<std::string, Measure>& getAllMeasures();
 };
@@ -164,10 +169,10 @@ class DataContainer {
 protected:
   DataContainer() = default;
 
-  DataContainer(const DataContainer& other) = default;
-  DataContainer& operator=(const DataContainer& other) = default;
-  DataContainer(DataContainer&& other) = default;
-  DataContainer& operator=(DataContainer&& ither) = default;
+  DataContainer(const DataContainer& other) = delete;
+  DataContainer& operator=(const DataContainer& other) = delete;
+  DataContainer(DataContainer&& other) = delete;
+  DataContainer& operator=(DataContainer&& ither) = delete;
 
 public:
   virtual ~DataContainer() = default;
@@ -185,18 +190,18 @@ public:
 
 
 // A class that stores all areas.
-class Areas : public DataContainer { //<std::unordered_map<std::string, Area>> {
+class Areas : public DataContainer {
 protected:
-  std::unordered_map<std::string, Area> mData;
+  std::map<std::string, Area> mData; // TODO map: remove details
 
 public:
   Areas();
   virtual ~Areas() = default;
 
-  Areas(const Areas& other) = default;
-  Areas& operator=(const Areas& other) = default;
-  Areas(Areas&& other) = default;
-  Areas& operator=(Areas&& ither) = default;
+  Areas(const Areas& other) = delete;
+  Areas& operator=(const Areas& other) = delete;
+  Areas(Areas&& other) = delete;
+  Areas& operator=(Areas&& ither) = delete;
 
   // Parses the list of Welsh areas used in the statistics website, including
   // their local area code, English, and Welsh names.
@@ -210,8 +215,9 @@ public:
   void populateFromWelshStatsJSON(std::istream &is) noexcept(false);
 
   // Various simple getters.
-  std::unordered_map<std::string, Area> getAll();
-  Area& get(const std::string &areaCode);
+  // TODO map: remove getAllAreas()
+  std::map<std::string, Area>& getAllAreas();
+  Area& getArea(const std::string &areaCode);
   const int size() const;
 };
 

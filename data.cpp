@@ -17,7 +17,6 @@
 #include <iostream>
 #include <string>
 #include <sstream>
-#include <unordered_map>
 
 #include "libs/cxxopts/cxxopts.hpp"
 #include "libs/nlohmann/json.hpp"
@@ -31,9 +30,9 @@ using json = nlohmann::json;
 
 Measure::Measure(std::string &label) : mLabel(label), mDataByYear() {}
 
-void Measure::addDatum(const int &year, const Measure_t &datum) {
+void Measure::addDatum(const int &key, const Measure_t &value) {
   // TODO: Insert the datum point into the internal map
-  mDataByYear.insert_or_assign(year, datum);
+  mDataByYear.emplace(key, std::move(value));
 }
 
 std::ostream& operator<<(std::ostream &os, const Measure &st) {
@@ -80,10 +79,14 @@ Area::Area(
           mNames(),
           mMeasures() {}
 
+const std::string& Area::getLocalAuthorityCode() const {
+  return mLocalAuthorityCode;
+}
+
 // Insert a <}}language, name for the area> pair into the names map.
 void Area::setName(const std::string &lang, const std::string &name) {
   // TODO: Add a language and name pair to the map.
-  mNames.insert_or_assign(lang, name);
+  mNames.emplace(lang, std::move(name));
 }
 
 // Search the unordered map in names for a key. if you don't find the value,
@@ -94,9 +97,9 @@ const std::string& Area::getName(const std::string &lang) const {
   return mNames.at(lang);
 }
 
-void Area::addMeasure(std::string &ident, const Measure &stat) {
+void Area::addMeasure(std::string &ident, Measure &stat) {
   // TODO: Insert the Measure into the internal map.
-  mMeasures.insert_or_assign(ident, stat);
+  mMeasures.emplace(ident, std::move(stat));
 }
 
 Measure& Area::getMeasure(std::string &ident) {
@@ -143,7 +146,7 @@ void Areas::populate(std::istream &is, const DataType &type) noexcept(false) {
 
 // Parse the areas CSV and construct the Area object. This is a simple dataset
 // that is a comma-separated values file (CSV), where the first row gives 
-// the name of the columns, and then each row is a new set of data.
+// the name of the columns, and then each row is a set of data.
 //
 // In this case, we use this parser to parse areas.csv
 void Areas::populateFromAuthorityCodeCSV(std::istream &is) noexcept(false) {
@@ -187,7 +190,7 @@ void Areas::populateFromAuthorityCodeCSV(std::istream &is) noexcept(false) {
       getline(s, cell, ',');
       area.setName("cym", cell);
       
-      mData.insert_or_assign(areaCode, area);
+      mData.emplace(areaCode, std::move(area));
       
       lineNo++;
     }
@@ -265,50 +268,46 @@ void Areas::populateFromWelshStatsJSON(std::istream &is) noexcept(false) {
   const std::string COL_YEAR = "Year_Code";
   const std::string COL_VALUE = "Data";
 
-  std::string currLocalAuthorityCode, currMeasureName;
-  Area *area;
-  Measure *m;
+  std::string localAuthorityCode;
   for (auto& el : j["value"].items()) {
     auto &data = el.value();
 
-    // Check if this is the same as the last local area or not
-    if (data[COL_AUTHORITY_CODE] != currLocalAuthorityCode) {
-      auto search = mData.find(data[COL_AUTHORITY_CODE]);
-      if (search != mData.end()) {
-        area = &(search->second);
-      } else {
-        area = new Area(data[COL_AUTHORITY_CODE]);
-        area->setName("eng",  data[COL_AREA_NAME_ENG]);
-        mData.insert({data[COL_AUTHORITY_CODE], *area});
-      }
-      currLocalAuthorityCode = data[COL_AUTHORITY_CODE];
-      std::cout << "" << area->getName("eng") << std::endl;
-    }
-    
-    if (data[COL_MEASURE_NAME_ENG] != currMeasureName) {
-      currMeasureName = data[COL_MEASURE_NAME_ENG];
-      
-      try {
-        m = &(area->getMeasure(currMeasureName));
-      } catch(std::out_of_range &ex) {
-        m = new Measure(currMeasureName);
-      }
-      
-    }
-    
+    std::string localAuthorityCode = data[COL_AUTHORITY_CODE];
+    std::string measureName = data[COL_MEASURE_NAME_ENG]; 
     int year = std::stoi((std::string) data[COL_YEAR]);
     double value = data[COL_VALUE];
     
-    m->addDatum(year, value);
-    area->addMeasure(currMeasureName, *m);
+    auto existingArea = mData.find(localAuthorityCode);
+    if (existingArea != mData.end()) {
+      Area &area = existingArea->second;
+     
+      try {
+        Measure &existingMeasure = area.getMeasure(measureName);
+        existingMeasure.addDatum(year, value);
+      } catch(std::out_of_range &ex) {
+        Measure newMeasure = Measure(measureName);
+        newMeasure.addDatum(year, value);
+        area.addMeasure(measureName, newMeasure);
+      }
+    } else {
+      Area area = Area(localAuthorityCode);
+      area.setName("eng",  data[COL_AREA_NAME_ENG]);
+
+      Measure newMeasure = Measure(measureName);
+      newMeasure.addDatum(year, value);
+      area.addMeasure(measureName, newMeasure);
+    }
   }
 }
 
-std::unordered_map<std::string, Area> Areas::getAll() {
+// TODO map: remove getAllAreas()
+std::map<std::string, Area>& Areas::getAllAreas() {
+  // TODO: Once you have chosen the type of inner container to use, you
+  // will need to set the type here
   return mData;
 }
 
-Area& Areas::get(const std::string &areaCode) {
+Area& Areas::getArea(const std::string &areaCode) {
   // TODO: To implement this, find the item in the map or throw an
   // std::out_of_range exception.
   return mData.at(areaCode);

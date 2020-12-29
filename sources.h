@@ -58,9 +58,7 @@ public:
 
   virtual ~InputSource() = default;
 
-  virtual const std::string getSource() const {
-    return mSource;
-  }
+  virtual const std::string getSource() const;
   
   // Every input source will have it's own mechanism for opening the source.
   virtual std::istream& open() noexcept(false) = 0;
