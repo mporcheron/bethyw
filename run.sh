@@ -1,4 +1,4 @@
 #!/bin/zsh
 
 set -x
-./bin/bethyw -d data
+./bin/bethyw --dir data

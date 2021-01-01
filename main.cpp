@@ -15,7 +15,8 @@
 #include "libs/cxxopts/cxxopts.hpp"
 
 #include "data.h"
-#include "sources.h"
+#include "input.h"
+#include "parse.h"
 
 
 
@@ -23,22 +24,29 @@
 int main(int argc, char *argv[]) {
     cxxopts::Options options(
       "bethyw",
-      "This program is designed to parse Official UK/Welsh Government statistics data files and answer \"what is…?\" questions.");
-
-    // TODO: Implement the additional program arguments as specified in 
-    // README.md
+      "This program is designed to parse Official UK/Welsh Government"
+      " statistics data files and answer \"what is…?\" questions.");
 
     options.add_options()
-        ("d,inputdir",
-          "Directory for input data passed in as files.",
+        ("dir",
+          "Directory for input data passed in as files",
           cxxopts::value<std::string>())
-        // ("o,output", "Save an ascii file to the provided path.",  cxxopts::value<std::string>())
-        // ("s,steps","The number of steps to simulate the world.", cxxopts::value<int>()->default_value("10"))
-        // ("e,every","Print world to the console every N steps. 0 disables printing.", cxxopts::value<int>()->default_value("0"))
-        // ("t,toroidal", "Simulate the Game of Life on a torus.", cxxopts::value<bool>()->default_value("false"))
+        ("d,datasets",
+          "The dataset(s) to import and analyse",
+          cxxopts::value<std::string>())
+        ("m,measures",
+          "Select a subset of measures from the dataset(s)",
+          cxxopts::value<std::string>())
+        ("y,years",
+          "Focus on a particular year (YYYY) or "
+            "inclusive range of years (YYYY-ZZZZ)",
+          cxxopts::value<std::string>()->default_value("false"))
+        ("a,action",
+          "Action to take. Valid values for arg: average, trend, "
+            "or print (default).",
+          cxxopts::value<std::string>()->implicit_value("print"))
         ("h,help", "Print usage.");
 
-    // Parse the command line arguments
     auto result = options.parse(argc, argv);
 
     // Print the help usage for this program
@@ -48,18 +56,18 @@ int main(int argc, char *argv[]) {
     }
 
     // Read the data directory argument
-    // TODO map: replace block with std::string dirData = result…
-    std::string dirData;
+    // TODO map: replace block with std::string dir = result…
+    std::string dir;
     try {
-       dirData = result["inputdir"].as<std::string>() + DIR_SEP;
+       dir = result["dir"].as<std::string>() + DIR_SEP;
     } catch(std::domain_error &err) {
-      std::cout << options.help() << std::endl;
+      std::cerr << options.help() << std::endl;
       std::exit(0);
     }
 
     // Load in the list of local areas used in the statistics
     Areas data = Areas();
-    const std::string fileAreas = dirData + InputFiles::AREAS;
+    const std::string fileAreas = dir + InputFiles::AREAS.file;
     try {
       InputSource *source = new InputFile(fileAreas);
       // TODO map: replace below two lines with source->open();
@@ -71,7 +79,7 @@ int main(int argc, char *argv[]) {
     }
 
     // Load data files
-    const std::string filePopDens = dirData + InputFiles::POPULATION_DENSITY;
+    const std::string filePopDens = dir + InputFiles::POPULATION_DENSITY.file;
     try {
         // Test open the data file
         InputSource *source = new InputFile(filePopDens);

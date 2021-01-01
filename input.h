@@ -1,5 +1,5 @@
-#ifndef SOURCE_H_
-#define SOURCE_H_
+#ifndef INPUT_H_
+#define INPUT_H_
 
 /*
   +---------------------------------------+
@@ -21,7 +21,7 @@
 #include <cstring>
 #include <fstream>
 
-#include "data.h"
+#include "parse.h"
 
 
 
@@ -88,15 +88,4 @@ public:
 
 
 
-// This namespace stores all the files in the data directory as const char* 
-// consts, allowing for them to be substituted at compile-time into our code
-namespace InputFiles {
-  const char* const AREAS = "areas.csv";
-  const char* const POPULATION_DENSITY = "popu1009.json";
-};
-
-
-
-
-
-#endif // SOURCE_H_
+#endif // INPUT_H_

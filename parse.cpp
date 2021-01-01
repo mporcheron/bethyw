@@ -21,7 +21,7 @@
 #include "libs/cxxopts/cxxopts.hpp"
 #include "libs/nlohmann/json.hpp"
 
-#include "data.h"
+#include "parse.h"
 
 using json = nlohmann::json;
 
@@ -116,40 +116,16 @@ std::map<std::string, Measure>& Area::getAllMeasures() {
 
 
 
-Areas::Areas() : mData() {}
-
-// Parse input for the areas data. At the moment, you only need to worry about
-// parsing the provided CSV format (where DataType equals AuthorityCodeCSV). We have
-// the type variable here in case of future needs.
-//
-// If an unexpected type is passed, throws a std::runtime_error.
-void Areas::populate(std::istream &is, const DataType &type) noexcept(false) {
-  // TODO Implement a function that accepts an open input stream, and calls 
-  // either Areas::populateFromAuthorityCodeCSV or 
-  // Areas::populateFromWelshStatsJSON depending on the DataType.
-  //
-  // Throw an std::runtime_error in unexpected situations.
-  is.seekg(1, is.beg);
-  if (is.eof() || is.fail()) {
-    throw std::runtime_error("Areas::populate: Stream not open");
-  }
-  is.seekg(0, is.beg);
-    
-  if (type == AuthorityCodeCSV) {
-    Areas::populateFromAuthorityCodeCSV(is);
-  } else if (type == WelshStatsJSON) {
-    Areas::populateFromWelshStatsJSON(is);
-  } else {
-    throw std::runtime_error("Areas::populate: Unexpected data type");
-  }
-}
+template <>
+Areas<>::Areas() : mData() {}
 
 // Parse the areas CSV and construct the Area object. This is a simple dataset
 // that is a comma-separated values file (CSV), where the first row gives 
 // the name of the columns, and then each row is a set of data.
 //
 // In this case, we use this parser to parse areas.csv
-void Areas::populateFromAuthorityCodeCSV(std::istream &is) noexcept(false) {
+template <>
+void Areas<>::populateFromAuthorityCodeCSV(std::istream &is) noexcept(false) {
   // TODO Implement this parsing function. You can assume the columns will 
   // remain in the same ordering in your implementation as they are in the data 
   // file provided in the coursework.
@@ -201,7 +177,8 @@ void Areas::populateFromAuthorityCodeCSV(std::istream &is) noexcept(false) {
   }
 }
 
-void Areas::populateFromWelshStatsJSON(std::istream &is) noexcept(false) {
+template <>
+void Areas<>::populateFromWelshStatsJSON(std::istream &is) noexcept(false) {
   // TODO: Implement the partsing of the data from JSON files.
   //
   // Data from Welsh Statistics is in the JSON format, and contains three
@@ -300,19 +277,41 @@ void Areas::populateFromWelshStatsJSON(std::istream &is) noexcept(false) {
   }
 }
 
-// TODO map: remove getAllAreas()
-std::map<std::string, Area>& Areas::getAllAreas() {
-  // TODO: Once you have chosen the type of inner container to use, you
-  // will need to set the type here
-  return mData;
+// Parse input for the areas data. At the moment, you only need to worry about
+// parsing the provided CSV format (where DataType equals AuthorityCodeCSV). We have
+// the type variable here in case of future needs.
+//
+// If an unexpected type is passed, throws a std::runtime_error.
+template <>
+void Areas<>::populate(std::istream &is, const DataType &type) noexcept(false) {
+  // TODO Implement a function that accepts an open input stream, and calls 
+  // either Areas::populateFromAuthorityCodeCSV or 
+  // Areas::populateFromWelshStatsJSON depending on the DataType.
+  //
+  // Throw an std::runtime_error in unexpected situations.
+  is.seekg(1, is.beg);
+  if (is.eof() || is.fail()) {
+    throw std::runtime_error("Areas::populate: Stream not open");
+  }
+  is.seekg(0, is.beg);
+    
+  if (type == AuthorityCodeCSV) {
+    populateFromAuthorityCodeCSV(is);
+  } else if (type == WelshStatsJSON) {
+    populateFromWelshStatsJSON(is);
+  } else {
+    throw std::runtime_error("Areas::populate: Unexpected data type");
+  }
 }
 
-Area& Areas::getArea(const std::string &areaCode) {
+template <>
+Area& Areas<>::getArea(const std::string &areaCode) {
   // TODO: To implement this, find the item in the map or throw an
   // std::out_of_range exception.
   return mData.at(areaCode);
 }
 
-const int Areas::size() const {
+template <>
+const int Areas<>::size() const {
   return mData.size();
 }
