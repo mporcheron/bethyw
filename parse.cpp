@@ -15,6 +15,7 @@
 
 #include <fstream>
 #include <iostream>
+#include <iterator>
 #include <string>
 #include <sstream>
 
@@ -28,14 +29,14 @@ using json = nlohmann::json;
 
 
 
-Measure::Measure(std::string &label) : mLabel(label), mDataByYear() {}
+Measure::Measure(std::string &label) : mLabel(label), mData() {}
 
 void Measure::addDatum(const int &key, const Measure_t &value) {
   // TODO: Insert the datum point into the internal map
-  mDataByYear.emplace(key, std::move(value));
+  mData.emplace(key, std::move(value));
 }
 
-std::ostream& operator<<(std::ostream &os, const Measure &st) {
+std::ostream& operator<<(std::ostream &os, const Measure &measure) {
   // TODO: implement the << overload operator, so that we print the statistic
   // data in the following format:
   // <label>\n
@@ -51,11 +52,11 @@ std::ostream& operator<<(std::ostream &os, const Measure &st) {
   // function I've included in the declaration of Measure to do this for the 
   // value (which is a Measure_t). You can do that by calling 
   // Measure::to_string(<variable of Measure_t type>);
-  os << st.mLabel << std::endl;
+  os << measure.mLabel << std::endl;
 
   // Iterate through and print the years and save the values to a stringstream
   std::stringstream values;
-  for (auto it = st.mDataByYear.begin(); it != st.mDataByYear.end(); ++it) {
+  for (auto it = measure.mData.begin(); it != measure.mData.end(); ++it) {
     std::string year = std::to_string(it->first);
     std::string value = Measure::to_string(it->second);
 
@@ -97,27 +98,11 @@ const std::string& Area::getName(const std::string &lang) const {
   return mNames.at(lang);
 }
 
-void Area::addMeasure(std::string &ident, Measure &stat) {
-  // TODO: Insert the Measure into the internal map.
-  mMeasures.emplace(ident, std::move(stat));
-}
-
-Measure& Area::getMeasure(std::string &ident) {
-  // TODO: To implement this, find the item in the map or throw an
-  // std::out_of_range exception.
-  return mMeasures.at(ident);
-}
-
-std::map<std::string, Measure>& Area::getAllMeasures() {
-  return mMeasures;
-}
-
-
 
 
 
 template <>
-Areas<>::Areas() : mData() {}
+Areas<>::Areas() : mAreas() {}
 
 // Parse the areas CSV and construct the Area object. This is a simple dataset
 // that is a comma-separated values file (CSV), where the first row gives 
@@ -166,7 +151,7 @@ void Areas<>::populateFromAuthorityCodeCSV(std::istream &is) noexcept(false) {
       getline(s, cell, ',');
       area.setName("cym", cell);
       
-      mData.emplace(areaCode, std::move(area));
+      this->emplace(areaCode, std::move(area));
       
       lineNo++;
     }
@@ -254,17 +239,17 @@ void Areas<>::populateFromWelshStatsJSON(std::istream &is) noexcept(false) {
     int year = std::stoi((std::string) data[COL_YEAR]);
     double value = data[COL_VALUE];
     
-    auto existingArea = mData.find(localAuthorityCode);
-    if (existingArea != mData.end()) {
+    auto existingArea = mAreas.find(localAuthorityCode);
+    if (existingArea != mAreas.end()) {
       Area &area = existingArea->second;
      
       try {
-        Measure &existingMeasure = area.getMeasure(measureName);
+        Measure &existingMeasure = area.at(measureName);
         existingMeasure.addDatum(year, value);
       } catch(std::out_of_range &ex) {
         Measure newMeasure = Measure(measureName);
         newMeasure.addDatum(year, value);
-        area.addMeasure(measureName, newMeasure);
+        area.emplace(measureName, std::move(newMeasure));
       }
     } else {
       Area area = Area(localAuthorityCode);
@@ -272,7 +257,7 @@ void Areas<>::populateFromWelshStatsJSON(std::istream &is) noexcept(false) {
 
       Measure newMeasure = Measure(measureName);
       newMeasure.addDatum(year, value);
-      area.addMeasure(measureName, newMeasure);
+      area.emplace(measureName, std::move(newMeasure));
     }
   }
 }
@@ -302,16 +287,4 @@ void Areas<>::populate(std::istream &is, const DataType &type) noexcept(false) {
   } else {
     throw std::runtime_error("Areas::populate: Unexpected data type");
   }
-}
-
-template <>
-Area& Areas<>::getArea(const std::string &areaCode) {
-  // TODO: To implement this, find the item in the map or throw an
-  // std::out_of_range exception.
-  return mData.at(areaCode);
-}
-
-template <>
-const int Areas<>::size() const {
-  return mData.size();
 }

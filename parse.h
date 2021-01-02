@@ -31,6 +31,7 @@
 
 #include <map>
 #include <iostream>
+#include <set>
 #include <string>
 #include <variant>
 
@@ -79,6 +80,9 @@ enum DataType {
 // define, using the using keyword, the type for this data.
 using Measure_t = std::variant<int, double, std::string>;
 
+// We derive Measure_c as the container for the year:value mappings
+using Measure_c = std::map<int, Measure_t>;
+
 // Becayse of the way std::variant is implemented in C++, we need to write 
 // a function that converts the values from std::variant in the above map 
 // (mDataByYear) and returns them as a std::string
@@ -90,11 +94,12 @@ struct MeasureValueToString {
   std::string operator()(const std::string& value) { return value; }
 };
 
+
 // Finally, we have the Measure class
 class Measure {
 private:
   std::string mLabel;
-  std::map<int, Measure_t> mDataByYear;
+  Measure_c mData;
 
 public:
   Measure(std::string &label);
@@ -102,7 +107,9 @@ public:
   void addDatum(const int &key, const Measure_t &value);
   friend std::ostream& operator<<(std::ostream &os, const Measure &st);
   
-  Measure(const Measure& other) : mLabel(other.mLabel), mDataByYear(other.mDataByYear) {
+  Measure(const Measure& other)
+      : mLabel(other.mLabel),
+        mData(other.mData) {
     std::cout << "   > Copy Measure " << mLabel << std::endl;
   }
   Measure& operator=(const Measure& other) = default;
@@ -112,6 +119,22 @@ public:
   static std::string to_string(const Measure_t& input) {
     return std::visit(MeasureValueToString{}, input);
   }
+  
+  // Wrapper around underlying iterator functions for ease
+  Measure_c::iterator begin() { return mData.begin(); }
+  Measure_c::const_iterator cbegin() { return mData.begin(); }
+  
+  Measure_c::iterator end() { return mData.end(); }
+  Measure_c::const_iterator cend() { return mData.cend(); }
+  
+  Measure_c::reverse_iterator rbegin() { return mData.rbegin(); }
+  Measure_c::const_reverse_iterator crbegin() { return mData.crbegin(); }
+  
+  Measure_c::reverse_iterator rend() { return mData.rend(); }
+  Measure_c::const_reverse_iterator crend() { return mData.crend(); }
+  
+  Measure_t& at(const int &year) { return mData.at(year); }
+  size_t size() const noexcept { return mData.size(); }
 };
 
 
@@ -124,17 +147,22 @@ public:
 //
 // We store the data in a std::map, where the key is a simple identifier for 
 // the data (as a std::string) and the value is a Measure class.
+using Area_c = std::map<std::string, Measure>;
+
 class Area {
 protected:
   std::string mLocalAuthorityCode;
   std::map<std::string, std::string> mNames;
-  std::map<std::string, Measure> mMeasures;
+  Area_c mMeasures;
   
 public:
   Area(const std::string &localAuthorityCode);
   ~Area() = default;
   
-  Area(const Area& other) : mLocalAuthorityCode(other.mLocalAuthorityCode), mNames(other.mNames), mMeasures(other.mMeasures){
+  Area(const Area& other)
+      : mLocalAuthorityCode(other.mLocalAuthorityCode),
+        mNames(other.mNames),
+        mMeasures(other.mMeasures){
     std::cout << ">> Copy Area " << getName("eng") << std::endl;
   }
   Area& operator=(const Area& other) = default;
@@ -147,9 +175,30 @@ public:
   void setName(const std::string &lang, const std::string &name);
   const std::string& getName(const std::string &lang) const;
   
-  void addMeasure(std::string &ident, Measure &stat);
-  Measure& getMeasure(std::string &ident);
-  std::map<std::string, Measure>& getAllMeasures();
+  // TODO map: remove all these functions
+  void emplace(std::string &ident, Measure &&stat) {
+    mMeasures.emplace(ident, std::move(stat));
+  }
+  
+  // Wrapper around underlying iterator functions for ease
+  Area_c::iterator begin() { return mMeasures.begin(); }
+  Area_c::const_iterator cbegin() { return mMeasures.begin(); }
+  
+  Area_c::iterator end() { return mMeasures.end(); }
+  Area_c::const_iterator cend() { return mMeasures.cend(); }
+  
+  Area_c::reverse_iterator rbegin() { return mMeasures.rbegin(); }
+  Area_c::const_reverse_iterator crbegin() { return mMeasures.crbegin(); }
+  
+  Area_c::reverse_iterator rend() { return mMeasures.rend(); }
+  Area_c::const_reverse_iterator crend() { return mMeasures.crend(); }
+  
+  Measure& at(const std::string &ident) { return mMeasures.at(ident); }  
+  size_t size() const noexcept { return mMeasures.size(); }
+  
+  friend bool operator==(const Area &lhs, const Area &rhs);
+  friend bool operator!=(const Area &lhs, const Area &rhs);
+  friend bool operator<(const Area &lhs, const Area &rhs);
 };
 
 
@@ -189,15 +238,20 @@ public:
 
 
 
+// We store the each area in a set
+using Areas_c = std::map<std::string, Area>;
+
 // A class that stores all areas.
-typedef std::map<std::string, Area> AreasContainer;
-template <class Container = AreasContainer>
+template <class Container = Areas_c>
 class Areas : public DataContainer {
+
+private:
+  Areas();
+
 protected:
-  Container mData; // TODO map: remove details
+  Areas_c mAreas;
 
 public:
-  Areas();
   virtual ~Areas() = default;
 
   Areas(const Areas& other) = delete;
@@ -205,6 +259,18 @@ public:
   Areas(Areas&& other) = delete;
   Areas& operator=(Areas&& ither) = delete;
   
+  // This implements the Singleton design principle. We have a private 
+  // constructor which means Areas can only be constructed from within.
+  // Only one function in this class will actually construct an Areas()
+  // object, getInstance(). On the first time this function is called,
+  // getInstance() will instantiate an Areas() object, and save it to a 
+  // local static variable. That means each successive time getInstance()
+  // is called, the same instance will be returned.
+  static Areas &getInstance() {
+    static Areas instance;
+    return instance;
+  }
+
   // Parses the list of Welsh areas used in the statistics website, including
   // their local area code, English, and Welsh names as a CSV file.
   virtual void populateFromAuthorityCodeCSV(std::istream &is) noexcept(false);
@@ -215,17 +281,28 @@ public:
   // Parses the list of Welsh areas used in the statistics website, including
   // their local area code, English, and Welsh names.
   virtual void populate(std::istream &is, const DataType &type) noexcept(false);
-
-  // Various simple getters.
-  Container& getAllAreas() {
-    return mData;
+  
+  // Wrapper around underlying iterator functions for ease
+  // TODO map: remove all of these
+  void emplace(std::string &ident, Area &&stat) {
+    mAreas.emplace(ident, std::move(stat));
   }
-
-  Area& getArea(const std::string &areaCode);
-  const int size() const;
+  
+  Areas_c::iterator begin() { return mAreas.begin(); }
+  Areas_c::const_iterator cbegin() { return mAreas.begin(); }
+  
+  Areas_c::iterator end() { return mAreas.end(); }
+  Areas_c::const_iterator cend() { return mAreas.cend(); }
+  
+  Areas_c::reverse_iterator rbegin() { return mAreas.rbegin(); }
+  Areas_c::const_reverse_iterator crbegin() { return mAreas.crbegin(); }
+  
+  Areas_c::reverse_iterator rend() { return mAreas.rend(); }
+  Areas_c::const_reverse_iterator crend() { return mAreas.crend(); }
+  
+  Area& at(const std::string &areaCode) { return mAreas.at(areaCode); }
+  size_t size() const noexcept { return mAreas.size(); }
 };
-
-
 
 
 #endif // PARSE_H_

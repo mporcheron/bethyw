@@ -66,7 +66,7 @@ int main(int argc, char *argv[]) {
     }
 
     // Load in the list of local areas used in the statistics
-    Areas data = Areas();
+    auto &data = Areas<>::getInstance();
     const std::string fileAreas = dir + InputFiles::AREAS.file;
     try {
       InputSource *source = new InputFile(fileAreas);
@@ -92,13 +92,12 @@ int main(int argc, char *argv[]) {
 
     // Print out test data
     std::cout << "There are " << data.size() << " areas" << std::endl;
-    auto &areas = data.getAllAreas();
-    for(auto itAreas = areas.begin(); itAreas != areas.end(); itAreas++) {
-      std::cout << (itAreas->second).getName("eng") << std::endl;
+    for(auto itAreas = data.begin(); itAreas != data.end(); itAreas++) {
+      Area &area = itAreas->second;
+      std::cout << area.getName("eng") << std::endl;
 
-      auto &measures = (itAreas->second).getAllMeasures();
-      for(auto itMeas = measures.begin(); itMeas != measures.end(); itMeas++) {
-        Measure &m = itMeas->second;
+      for(auto itArea = area.begin(); itArea != area.end(); itArea++) {
+        Measure &m = itArea->second;
         std::cout << m << std::endl;
       }
     }
