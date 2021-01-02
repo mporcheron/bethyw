@@ -33,6 +33,8 @@
 #include <iostream>
 #include <set>
 #include <string>
+#include <tuple>
+#include <unordered_set>
 #include <variant>
 
 
@@ -61,6 +63,24 @@
 enum DataType {
   None, AuthorityCodeCSV, WelshStatsJSON
 };
+
+
+
+
+
+// Data from the different sources typically has different column headings
+// for the same value (e.g. some might say "Year" whereas others might say
+// "Year_Code"). Here we create another enum for these column headings for
+// the parser.
+
+// Each input passed to the Areas() object will have to specifiy a 
+// an unordered map to match each of these enum values into a string that
+// the source contains.
+enum SourceColumns {
+  AUTH_CODE, AUTH_NAME, MEASURE_CODE, MEASURE_NAME, YEAR, VALUE
+};
+
+using SourceColumnsMatch = std::unordered_map<SourceColumns,std::string>;
 
 
 
@@ -98,17 +118,18 @@ struct MeasureValueToString {
 // Finally, we have the Measure class
 class Measure {
 private:
+  std::string mCode;
   std::string mLabel;
   Measure_c mData;
 
 public:
-  Measure(std::string &label);
+  Measure(std::string &code, std::string &label);
   ~Measure() = default;
-  void addDatum(const int &key, const Measure_t &value);
   friend std::ostream& operator<<(std::ostream &os, const Measure &st);
   
   Measure(const Measure& other)
-      : mLabel(other.mLabel),
+      : mCode(other.mCode),
+        mLabel(other.mLabel),
         mData(other.mData) {
     std::cout << "   > Copy Measure " << mLabel << std::endl;
   }
@@ -118,6 +139,14 @@ public:
   
   static std::string to_string(const Measure_t& input) {
     return std::visit(MeasureValueToString{}, input);
+  }
+  
+  const std::string& getCode() const {
+    return mCode;
+  }
+  
+  const std::string& getLabel() const {
+    return mLabel;
   }
   
   // Wrapper around underlying iterator functions for ease
@@ -132,6 +161,10 @@ public:
   
   Measure_c::reverse_iterator rend() { return mData.rend(); }
   Measure_c::const_reverse_iterator crend() { return mData.crend(); }
+  
+  void emplace(const int &key, Measure_t &&value) {
+    mData.emplace(key, std::move(value));
+  }
   
   Measure_t& at(const int &year) { return mData.at(year); }
   size_t size() const noexcept { return mData.size(); }
@@ -228,8 +261,19 @@ public:
 
   // Parses the list of Welsh areas used in the statistics website, including
   // their local authority code, English, and Welsh names.
-  virtual void populate(std::istream &is, const DataType &type) noexcept(false) 
-                                                                            = 0;
+  virtual void populate(
+      std::istream &is,
+      const DataType &type,
+      const SourceColumnsMatch &cols) noexcept(false) = 0;
+  
+  // Same as above, but limiting the range to a select number of measures
+  // and years.
+  virtual void populate(
+      std::istream &is,
+      const DataType &type,
+      const SourceColumnsMatch &cols,
+      const std::unordered_set<std::string> &measures,
+      const std::tuple<unsigned int,unsigned int> &years) noexcept(false) = 0;
 };
 
 
@@ -273,14 +317,33 @@ public:
 
   // Parses the list of Welsh areas used in the statistics website, including
   // their local area code, English, and Welsh names as a CSV file.
-  virtual void populateFromAuthorityCodeCSV(std::istream &is) noexcept(false);
+  virtual void populateFromAuthorityCodeCSV(
+      std::istream &is,
+      const SourceColumnsMatch &cols) noexcept(false);
   
   // Parse the data files from the statistics website.
-  virtual void populateFromWelshStatsJSON(std::istream &is) noexcept(false);
+  virtual void populateFromWelshStatsJSON(
+      std::istream &is,
+      const SourceColumnsMatch &cols,
+      const std::unordered_set<std::string> * const measures = nullptr,
+      const std::tuple<unsigned int,unsigned int> * const years = nullptr)
+        noexcept(false);
 
   // Parses the list of Welsh areas used in the statistics website, including
   // their local area code, English, and Welsh names.
-  virtual void populate(std::istream &is, const DataType &type) noexcept(false);
+  virtual void populate(
+      std::istream &is,
+      const DataType &type,
+      const SourceColumnsMatch &cols) noexcept(false);
+  
+  // Same as above, but limiting the range to a select number of measures
+  // and years.
+  virtual void populate(
+      std::istream &is,
+      const DataType &type,
+      const SourceColumnsMatch &cols,
+      const std::unordered_set<std::string> &measures,
+      const std::tuple<unsigned int,unsigned int> &years) noexcept(false);
   
   // Wrapper around underlying iterator functions for ease
   // TODO map: remove all of these
