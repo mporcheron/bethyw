@@ -41,6 +41,8 @@ namespace InputFiles {
 
   const InputFileSource POPULATION_DENSITY
     = {"popden", "popu1009.json", DataType::WelshStatsJSON};
+
+  const InputFileSouce DATASETS[10];
 };
 
 
