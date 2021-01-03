@@ -39,8 +39,13 @@ void BethYw::run(int argc, char *argv[]) {
       cxxopts::value<std::string>())(
     
       "d,datasets",
-      "The dataset(s) to import and analyse as a comma-separated list "
+      "The dataset(s) to import and analyse as a comma-separated list of codes "
       "(omit or set to 'all' to import and analyse all datasets)",
+      cxxopts::value<std::vector<std::string>>())(
+    
+      "a,areas",
+      "The areas(s) to import and analyse as a comma-separated list of "
+      "authority codes (omit or set to 'all' to import and analyse all areas)",
       cxxopts::value<std::vector<std::string>>())(
     
       "m,measures",
@@ -53,9 +58,8 @@ void BethYw::run(int argc, char *argv[]) {
       "inclusive range of years (YYYY-ZZZZ)",
       cxxopts::value<std::string>()->default_value("0"))(
     
-      "a,action",
-      "Action to take. Valid values for arg: average, trend, "
-      "or all (default).",
+      "o,output",
+      "Output desired. Valid values: average, trend, or all (default).",
       cxxopts::value<std::string>()->default_value("all"))(
     
       "h,help",
@@ -77,12 +81,15 @@ void BethYw::run(int argc, char *argv[]) {
     BethYw::help(std::cerr, 1);
   }
 
-  BethYw::loadAreas(dir);
+  // Import areas
+  auto areasToImport = BethYw::parseAreasArg();
+  BethYw::loadAreas(dir, areasToImport);
 
+  // Now import the rest of the data
   auto datasetsToImport = BethYw::parseDatasetsArg();
-  auto measuresToImport = BethYw::parseMeaauresArg();
+  auto measuresToImport = BethYw::parseMeasuresArg();
   auto yearsToImport    = BethYw::parseYearsArg();
-  auto action           = BethYw::parseActionArg();
+  auto output           = BethYw::parseOutputArg();
 
   // Load datasets into the Areas object
   auto &data = Areas<>::getInstance();
@@ -95,8 +102,9 @@ void BethYw::run(int argc, char *argv[]) {
       data.populate(stream,
                     dataset->PARSER,
                     dataset->COLS,
-                    measuresToImport,
-                    yearsToImport);
+                    &areasToImport,
+                    &measuresToImport,
+                    &yearsToImport);
     } catch (const std::runtime_error &ex) {
       std::cout << "Source error:\n" << ex.what() << std::endl;
       std::exit(1);
@@ -104,7 +112,7 @@ void BethYw::run(int argc, char *argv[]) {
   }
  
   // Take the appropriate action
-  switch (action) {
+  switch (output) {
     case ALL:
     BethYw::printAll();
     break;
@@ -164,6 +172,30 @@ void BethYw::help(std::ostream &os, const int &exitCode) {
   in data.h.
  */
 std::vector<InputFileSource> BethYw::parseDatasetsArg() {
+  // TODO map: swap this function to the following:
+  // // This function is incomplete, but to get you started...
+  //
+  // // Retrieve all the parsed arguments
+  // auto &args = BethYw::args();
+  //
+  // // Retrieve all valid datasets (this is an unordered_map), see data.h
+  // auto &allDatasets = InputFiles::DATASETS;
+  //
+  // // Create the container for the return type
+  // std::vector<InputFileSource> datasetsToImport;
+  //
+  // // You can get the std::vector of arguments from cxxopts like this:
+  // auto inputDatasets = args["datasets"].as<std::vector<std::string>>();
+  // // You now to check this and compare the strings in this vector to the
+  // // keys in allDatasets above. Populate datasetsToImport with the values
+  // // from map allDatasets above and then return this vector
+  //
+  // // You'll want to ignore/remove the following lines of code, they simply
+  // // import all datasets (for now).
+  // for(auto const& dataset: allDatasets)
+  //     datasetsToImport.push_back(dataset.second);
+  // return datasetsToImport;
+  
   auto &args = BethYw::args();
   auto &allDatasets = InputFiles::DATASETS;
   std::vector<InputFileSource> datasetsToImport;
@@ -208,6 +240,38 @@ std::vector<InputFileSource> BethYw::parseDatasetsArg() {
 }
 
 /*
+  TODO: Parse the areas argument, which is optional. If it doesn't exist or
+  exists and contains "all" as value, all measures should be imported.
+
+  Unlike above:
+    * we can't check the validity of the values as it depends
+      on each individual file imported. Therefore, we simply fetch the list
+      of areas and later pass it to the Areas::populate() function.
+    * we want to strip 'all' out of the vector as in the Areas::populate()
+      function an empty vector is considerd to be 'import all areas'.
+
+  Therefore, this function should return an unordered set of strings of areas
+  to import, or if all areas should be imported, the set should be empty.  
+*/
+std::unordered_set<std::string> BethYw::parseAreasArg() {
+  auto &args = BethYw::args();
+  std::unordered_set<std::string> areas(0);
+  try {
+    auto temp = args["areas"].as<std::vector<std::string>>();
+    areas = std::unordered_set<std::string>(temp.begin(), temp.end());
+  } catch (std::domain_error &ex) {
+  }
+
+  for (auto it = areas.begin(); it != areas.end(); it++) {
+    if (*it == "all") {
+      areas.clear();
+      break;
+    }
+  }
+  return areas;
+}
+
+/*
   TODO: Parse the measures argument, which is optional. If it doesn't exist or
   exists and contains "all" as value, all measures should be imported.
 
@@ -221,7 +285,7 @@ std::vector<InputFileSource> BethYw::parseDatasetsArg() {
   Therefore, this function should return an unordered set of strings of measures
   to import, or if all measures should be imported, the set should be empty.  
 */
-std::unordered_set<std::string> BethYw::parseMeaauresArg() {
+std::unordered_set<std::string> BethYw::parseMeasuresArg() {
   auto &args = BethYw::args();
   std::unordered_set<std::string> measures(0);
   try {
@@ -276,21 +340,21 @@ std::tuple<unsigned int, unsigned int> BethYw::parseYearsArg() {
 }
 
 /*
-  TODO: Parse the action argument and return a value from the Action enum.
+  TODO: Parse the output argument and return a value from the Output enum.
 
-  Now take the appropriate action by parsing the action argument. There are
-  three possible actions:
+  Now take the appropriate action by parsing the output argument. There are
+  three possible output:
     * If omitted or equal to "all", we print all the data imported out.
     * If equal to "average", an average value for all the imported data
       is printed out
     * If equal to "trend", the percentage difference between the first year
       and last year that were imported is printed out
 */
-BethYw::Action BethYw::parseActionArg() {
+BethYw::Output BethYw::parseOutputArg() {
   auto &args = BethYw::args();
-  BethYw::Action action = ALL;
+  BethYw::Output action = ALL;
   try {
-    std::string value = args["action"].as<std::string>();
+    std::string value = args["output"].as<std::string>();
     if (value == "average") {
       action = AVERAGE;
     } else if (value == "trend") {
@@ -313,7 +377,8 @@ BethYw::Action BethYw::parseActionArg() {
   filename of the areas file, open it, and then pass the file to the
   Areas<>::populate() function.
 */
-void BethYw::loadAreas(const std::string &dir) {
+void BethYw::loadAreas(const std::string &dir,
+                       std::unordered_set<std::string> &filter) {
   auto &data = Areas<>::getInstance();
 
   const std::string fileAreas = dir + InputFiles::AREAS.FILE;
@@ -322,7 +387,10 @@ void BethYw::loadAreas(const std::string &dir) {
     InputSource *source = new InputFile(fileAreas);
     // TODO map: replace below two lines with source->open();
     std::istream &stream = source->open();
-    data.populate(stream, InputFiles::AREAS.PARSER, InputFiles::AREAS.COLS);
+    data.populate(stream,
+                  InputFiles::AREAS.PARSER,
+                  InputFiles::AREAS.COLS,
+                  &filter);
   } catch (const std::runtime_error &ex) {
     std::cout << fileAreas << " error:\n" << ex.what() << std::endl;
     std::exit(1);
@@ -436,7 +504,8 @@ void BethYw::loadAreas(const std::string &dir) {
     ...
 */
 void BethYw::printAll() {
-  // std::cout << "Print all the information" << std::endl;
+  // TODO map: replace function with
+  // std::cout << "Print all the information!" << std::endl;
   
   auto &areas = Areas<>::getInstance();
   for (auto area = areas.begin(); area != areas.end(); area++) {

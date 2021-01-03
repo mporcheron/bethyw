@@ -21,37 +21,21 @@
   about the datasets in the data directory.
 */
 struct InputFileSource {
-  // name is the name given to this dataset
+  // NAME is the name given to this dataset
   const std::string NAME;
 
-  // file is the name of the file in the data/ directory
+  // FILE is the name of the file in the data directory
   const std::string FILE;
 
-  // parser is a DataType that tells the populate() function in Areas how
+  // PARSER is a DataType that tells the populate() function in Areas how
   // to parse the text from the file
   const DataType PARSER;
 
-  // cols is a map of the column headings for this dataset
+  // COLS is a map of the column headings for this dataset
   // the key is a SourceColumns enum value, which is defined in parse.h
   // the value is the name of the column in the data file
   const std::unordered_map<SourceColumns, std::string> COLS;
-
-  // Allow for duplicate checking
-  // friend bool operator==(const InputFileSource &lhs,
-  //                        const InputFileSource &rhs);
-  // friend bool operator!=(const InputFileSource &lhs,
-  //                        const InputFileSource &rhs);
 };
-
-// bool operator==(const InputFileSource &lhs, const InputFileSource &rhs) {
-//   return lhs.NAME == rhs.NAME &&
-//          lhs.FILE == rhs.FILE &&
-//          lhs.PARSER == rhs.PARSER;
-// }
-//
-// bool operator!=(const InputFileSource &lhs, const InputFileSource &rhs) {
-//   return !(lhs == rhs);
-// }
 
 /*
   In this namespace, we store all the static data for the various datasets

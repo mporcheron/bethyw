@@ -27,9 +27,9 @@ namespace BethYw {
 class ImportAllValues {};
 
 /*
-  These are the possible actions to take once data is imported.
+  These are the possible outputs once data is imported.
 */
-enum Action { ALL, AVERAGE, TREND };
+enum Output { ALL, AVERAGE, TREND };
 
 /*
   Run Beth Yw?, parsing the command line arguments and acting upon them.
@@ -56,6 +56,12 @@ cxxopts::ParseResult& args(int argc = 0, char *argv[] = nullptr);
 void help(std::ostream &os, const int &errorCode);
 
 /*
+  Parse the areas argument and return a std::unordered_set of all the 
+  areas to import, or an empty set if all areas should be imported.
+*/
+std::unordered_set<std::string> parseAreasArg();
+
+/*
   Parse the datasets argument and return a std::vector of all the datasets
   to import. InputFileSource is declared in data.h.
 */
@@ -65,7 +71,7 @@ std::vector<InputFileSource> parseDatasetsArg();
   Parse the measures argument and return a std::unordered_set of all the 
   measures to import, or an empty set if all measures should be imported.
 */
-std::unordered_set<std::string> parseMeaauresArg();
+std::unordered_set<std::string> parseMeasuresArg();
 
 /*
   Parse the years argument and return a std::tuple of the range of years
@@ -74,15 +80,15 @@ std::unordered_set<std::string> parseMeaauresArg();
 std::tuple<unsigned int, unsigned int> parseYearsArg();
 
 /*
-  Parse the action argument and return a value from the Action enum.
+  Parse the output argument and return a value from the Output enum.
 */
-Action parseActionArg();
+Output parseOutputArg();
 
 /*
   Load the areas.csv file from the directory `dir`. Parse the file and
   create the appropriate Area objects inside an Areas object.
 */
-void loadAreas(const std::string &dir);
+void loadAreas(const std::string &dir, std::unordered_set<std::string> &filter);
 
 /*
   Dump all the information requested into the standard output.

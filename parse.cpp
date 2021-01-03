@@ -113,7 +113,9 @@ template <> Areas<>::Areas() : mAreas() {}
 // In this case, we use this parser to parse areas.csv
 template <>
 void Areas<>::populateFromAuthorityCodeCSV(
-    std::istream &is, const SourceColumnsMatch &cols) noexcept(false) {
+    std::istream &is, const SourceColumnsMatch &cols,
+    const std::unordered_set<std::string> * const areasFilter)
+    noexcept(false) {
   // TODO Implement this parsing function. You can assume the columns will
   // remain in the same ordering in your implementation as they are in the data
   // file provided in the coursework.
@@ -130,6 +132,8 @@ void Areas<>::populateFromAuthorityCodeCSV(
     throw std::runtime_error("Areas::populateFromAuthorityCodeCSV: "
                              "File contains no data");
   }
+  
+  bool areasFilterEnabled = areasFilter != nullptr && !areasFilter->empty();
 
   // Parse the data
   unsigned int lineNo = 2;
@@ -144,6 +148,11 @@ void Areas<>::populateFromAuthorityCodeCSV(
 
       // First column is the area code
       getline(s, areaCode, ',');
+      
+      if (areasFilterEnabled && areasFilter->count(areaCode) == 0) {
+        continue;
+      }
+      
       Area area = Area(areaCode);
 
       // Second column is the title in English
@@ -168,9 +177,12 @@ void Areas<>::populateFromAuthorityCodeCSV(
 
 template <>
 void Areas<>::populateFromWelshStatsJSON(
-    std::istream &is, const SourceColumnsMatch &cols,
-    const std::unordered_set<std::string> *const measures,
-    const std::tuple<unsigned int, unsigned int> *const years) noexcept(false) {
+    std::istream &is,
+    const SourceColumnsMatch &cols,
+    const std::unordered_set<std::string> * const areasFilter,
+    const std::unordered_set<std::string> * const measuresFilter,
+    const std::tuple<unsigned int, unsigned int> * const yearsFilter)
+    noexcept(false) {
   // TODO: Implement the partsing of the data from JSON files.
   //
   // Data from Welsh Statistics is in the JSON format, and contains three
@@ -239,37 +251,46 @@ void Areas<>::populateFromWelshStatsJSON(
   const std::string COL_YEAR = cols.at(YEAR);
   const std::string COL_VALUE = cols.at(VALUE);
 
-  // Determine if we're limiting measures and years or not
-  bool limitingMeasures = true;
-  bool limitingYears = true;
-  limitingMeasures = measures->size() > 0 && measures->count("all") == 0;
-  limitingYears = std::get<0>(*years) != 0 && std::get<1>(*years) != 0;
+  // Determine whether the respective area, measures, and years filters
+  // are enabled or not
+  bool areasFilterEnabled =
+                          areasFilter != nullptr &&
+                          !areasFilter->empty();
+  bool measuresFilterEnabled = 
+                          measuresFilter != nullptr &&
+                          !measuresFilter->empty();
+  bool yearsFilterEnabled = 
+                          yearsFilter != nullptr &&
+                          std::get<0>(*yearsFilter) != 0 &&
+                          std::get<1>(*yearsFilter) != 0;
+  
 
   std::string localAuthorityCode;
   for (auto &el : j["value"].items()) {
     auto &data = el.value();
 
+
+    std::string localAuthorityCode = data[COL_AUTHORITY_CODE];
+    if (areasFilterEnabled && areasFilter->count(localAuthorityCode) == 0) {
+      continue;
+    }
+
     std::string measureCode = data[COL_MEASURE_CODE];
 
     // If there is a limiting set of measures, and this measure is not
     // in it. skip it
-    if (limitingMeasures) {
-      if (measures->count(measureCode) == 0) {
-        continue;
-      }
+    if (measuresFilterEnabled && measuresFilter->count(measureCode) == 0) {
+      continue;
     }
 
     int year = std::stoi((std::string)data[COL_YEAR]);
 
     // Likewise, if there is a limiting range of years and our year is not
     // within it, skip it.
-    if (limitingYears) {
-      if (year < std::get<0>(*years) || year > std::get<1>(*years)) {
-        continue;
-      }
+    if (yearsFilterEnabled && (year < std::get<0>(*yearsFilter) || year > std::get<1>(*yearsFilter))) {
+      continue;
     }
-
-    std::string localAuthorityCode = data[COL_AUTHORITY_CODE];
+    
     std::string measureName = data[COL_MEASURE_NAME];
 
     double value = data[COL_VALUE];
@@ -303,8 +324,10 @@ void Areas<>::populateFromWelshStatsJSON(
 //
 // If an unexpected type is passed, throws a std::runtime_error.
 template <>
-void Areas<>::populate(std::istream &is, const DataType &type,
-                       const SourceColumnsMatch &cols) noexcept(false) {
+void Areas<>::populate(
+    std::istream &is,
+    const DataType &type,
+    const SourceColumnsMatch &cols) noexcept(false) {
   // TODO Implement a function that accepts an open input stream, and calls
   // either Areas::populateFromAuthorityCodeCSV or
   // Areas::populateFromWelshStatsJSON depending on the DataType.
@@ -332,9 +355,13 @@ void Areas<>::populate(std::istream &is, const DataType &type,
 // If an unexpected type is passed, throws a std::runtime_error.
 template <>
 void Areas<>::populate(
-    std::istream &is, const DataType &type, const SourceColumnsMatch &cols,
-    const std::unordered_set<std::string> &measures,
-    const std::tuple<unsigned int, unsigned int> &years) noexcept(false) {
+    std::istream &is,
+    const DataType &type,
+    const SourceColumnsMatch &cols,
+    const std::unordered_set<std::string> * const areasFilter,
+    const std::unordered_set<std::string> * const measuresFilter,
+    const std::tuple<unsigned int, unsigned int> * const yearsFilter)
+    noexcept(false) {
   // TODO Implement a function that accepts an open input stream, and calls
   // either Areas::populateFromAuthorityCodeCSV or
   // Areas::populateFromWelshStatsJSON depending on the DataType.
@@ -347,9 +374,9 @@ void Areas<>::populate(
   is.seekg(0, is.beg);
 
   if (type == AuthorityCodeCSV) {
-    populateFromAuthorityCodeCSV(is, cols);
+    populateFromAuthorityCodeCSV(is, cols, areasFilter);
   } else if (type == WelshStatsJSON) {
-    populateFromWelshStatsJSON(is, cols, &measures, &years);
+    populateFromWelshStatsJSON(is, cols, areasFilter, measuresFilter, yearsFilter);
   } else {
     throw std::runtime_error("Areas::populate: Unexpected data type");
   }

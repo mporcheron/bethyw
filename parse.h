@@ -215,6 +215,10 @@ public:
   friend std::ostream &operator<<(std::ostream &os, const Area &st);
 };
 
+// We include some synonyms for our filter types
+using StringFilterSet = std::unordered_set<std::string>;
+using YearFilterTuple = std::tuple<unsigned int, unsigned int>;
+
 // Generic Data class. All of our containers will inherit from this class, which
 // will in turn contain data inside an STL container. Note this this innter
 // container is unspecified at this stage (i.e. we will use the template type
@@ -238,15 +242,21 @@ public:
 
   // Parses the list of Welsh areas used in the statistics website, including
   // their local authority code, English, and Welsh names.
-  virtual void populate(std::istream &is, const DataType &type,
-                        const SourceColumnsMatch &cols) noexcept(false) = 0;
+  virtual void populate(
+      std::istream &is,
+      const DataType &type,
+      const SourceColumnsMatch &cols) noexcept(false) = 0;
 
   // Same as above, but limiting the range to a select number of measures
   // and years.
   virtual void populate(
-      std::istream &is, const DataType &type, const SourceColumnsMatch &cols,
-      const std::unordered_set<std::string> &measures,
-      const std::tuple<unsigned int, unsigned int> &years) noexcept(false) = 0;
+      std::istream &is,
+      const DataType &type,
+      const SourceColumnsMatch &cols,
+      const StringFilterSet * const containersFilter = nullptr,
+      const StringFilterSet * const measuresFilter = nullptr,
+      const YearFilterTuple * const yearsFilter = nullptr)
+      noexcept(false) = 0;
 };
 
 // We store the each area in a set
@@ -283,29 +293,38 @@ public:
 
   // Parses the list of Welsh areas used in the statistics website, including
   // their local area code, English, and Welsh names as a CSV file.
-  virtual void
-  populateFromAuthorityCodeCSV(std::istream &is,
-                               const SourceColumnsMatch &cols) noexcept(false);
+  virtual void populateFromAuthorityCodeCSV(
+      std::istream &is,
+      const SourceColumnsMatch &cols,
+      const std::unordered_set<std::string> * const areas = nullptr)
+      noexcept(false);
 
   // Parse the data files from the statistics website.
   virtual void populateFromWelshStatsJSON(
-      std::istream &is, const SourceColumnsMatch &cols,
-      const std::unordered_set<std::string> *const measures = nullptr,
-      const std::tuple<unsigned int, unsigned int> *const years =
-          nullptr) noexcept(false);
+      std::istream &is,
+      const SourceColumnsMatch &cols,
+      const std::unordered_set<std::string> * const areas = nullptr,
+      const std::unordered_set<std::string> * const measures = nullptr,
+      const std::tuple<unsigned int, unsigned int> * const years = nullptr)
+      noexcept(false);
 
   // Parses the list of Welsh areas used in the statistics website, including
   // their local area code, English, and Welsh names.
-  virtual void populate(std::istream &is, const DataType &type,
-                        const SourceColumnsMatch &cols) noexcept(false);
+  virtual void populate(
+      std::istream &is,
+      const DataType &type,
+      const SourceColumnsMatch &cols) noexcept(false);
 
-  // Same as above, but limiting the range to a select number of measures
+  // Same as above, but limiting the range to a select number of areas, measures
   // and years.
-  virtual void
-  populate(std::istream &is, const DataType &type,
-           const SourceColumnsMatch &cols,
-           const std::unordered_set<std::string> &measures,
-           const std::tuple<unsigned int, unsigned int> &years) noexcept(false);
+  virtual void populate(
+      std::istream &is,
+      const DataType &type,
+      const SourceColumnsMatch &cols,
+      const StringFilterSet * const areasFilter = nullptr,
+      const StringFilterSet * const measuresFilter = nullptr,
+      const YearFilterTuple * const yearsFilter = nullptr)
+      noexcept(false);
 
   // Wrapper around underlying iterator functions for ease
   // TODO map: remove all of these
