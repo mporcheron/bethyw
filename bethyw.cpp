@@ -183,7 +183,7 @@ void BethYw::help(std::ostream &os, const int &exitCode) {
   where the dataset corresponds to the value in the map InputFiles::DATASETS 
   in data.h.
  */
-std::vector<InputFileSource> BethYw::parseDatasetsArg() {
+std::vector<BethYw::InputFileSource> BethYw::parseDatasetsArg() {
   // TODO map: swap this function to the following:
   // // This function is incomplete, but to get you started...
   //

@@ -16,6 +16,8 @@
 
 #include "parse.h"
 
+namespace BethYw {
+
 /*
   This is a simple container that we use for statically storing information
   about the datasets in the data directory.
@@ -60,5 +62,7 @@ const std::unordered_map<std::string, InputFileSource> DATASETS{
     }}
   }};
 }; // namespace InputFiles
+
+}; // namespace BethYw
 
 #endif // DATA_H_
