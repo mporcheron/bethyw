@@ -16,8 +16,8 @@
 
   TODO: This file contains numerous functions you must implement. Each one
   is denoted with a TODO in the block comment. Note that some code has been
-  provided in some functions to get you started, but you should read through 
-  this code and make sure it is safe. You may need to remove or modify the 
+  provided in some functions to get you started, but you should read through
+  this code and make sure it is safe. You may need to remove or modify the
   provided code to get your program to work fully.
 */
 
@@ -46,31 +46,31 @@ void BethYw::run(int argc, char *argv[]) {
       "dir",
       "Directory for input data passed in as files",
       cxxopts::value<std::string>()->default_value("data"))(
-    
+
       "d,datasets",
       "The dataset(s) to import and analyse as a comma-separated list of codes "
       "(omit or set to 'all' to import and analyse all datasets)",
       cxxopts::value<std::vector<std::string>>())(
-    
+
       "a,areas",
       "The areas(s) to import and analyse as a comma-separated list of "
       "authority codes (omit or set to 'all' to import and analyse all areas)",
       cxxopts::value<std::vector<std::string>>())(
-    
+
       "m,measures",
       "Select a subset of measures from the dataset(s) "
       "(omit or set to 'all' to import and analyse all measures)",
       cxxopts::value<std::vector<std::string>>())(
-    
+
       "y,years",
       "Focus on a particular year (YYYY) or "
       "inclusive range of years (YYYY-ZZZZ)",
       cxxopts::value<std::string>()->default_value("0"))(
-    
+
       "o,output",
       "Output desired. Valid values: average, trend, or all",
       cxxopts::value<std::string>()->default_value("all"))(
-    
+
       "h,help",
       "Print usage.");
 
@@ -119,7 +119,7 @@ void BethYw::run(int argc, char *argv[]) {
       std::exit(1);
     }
   }
- 
+
   // Take the appropriate action
   switch (output) {
     case ALL:
@@ -154,7 +154,7 @@ cxxopts::Options& BethYw::cxxopts() {
 
 /*
   We're using cxxopts for command-line argument parsing and help generation. We
-  store the parsed result in a static variable in this function so that is can 
+  store the parsed result in a static variable in this function so that is can
   be easily re-retrieved.
 */
 cxxopts::ParseResult& BethYw::args(int argc, char *argv[]) {
@@ -164,7 +164,7 @@ cxxopts::ParseResult& BethYw::args(int argc, char *argv[]) {
 
 /*
   We're using cxxopts for command-line argument parsing and help generation. We
-  store the parsed result in a static variable in this function so that is can 
+  store the parsed result in a static variable in this function so that is can
   be easily re-retrieved.
 */
 void BethYw::help(std::ostream &os, const int &exitCode) {
@@ -173,14 +173,14 @@ void BethYw::help(std::ostream &os, const int &exitCode) {
 }
 
 /*
-  TODO: Parse the datasets argument. The datasets argument is optional, and if 
-  it is not included, all datasets should be imported. If it is included, it 
-  should  be a comma-separated list of datasets to import (based on their key 
-  in the map InputFiles::DATASETS in data.h). If the argument contains the 
+  TODO: Parse the datasets argument. The datasets argument is optional, and if
+  it is not included, all datasets should be imported. If it is included, it
+  should  be a comma-separated list of datasets to import (based on their key
+  in the map InputFiles::DATASETS in data.h). If the argument contains the
   value "all", all datasets should be imported.
 
-  This function should return a list of datasets to import as a std::vector, 
-  where the dataset corresponds to the value in the map InputFiles::DATASETS 
+  This function should return a list of datasets to import as a std::vector,
+  where the dataset corresponds to the value in the map InputFiles::DATASETS
   in data.h.
  */
 std::vector<BethYw::InputFileSource> BethYw::parseDatasetsArg() {
@@ -207,7 +207,7 @@ std::vector<BethYw::InputFileSource> BethYw::parseDatasetsArg() {
   // for(auto const& dataset: allDatasets)
   //     datasetsToImport.push_back(dataset.second);
   // return datasetsToImport;
-  
+
   auto &args = BethYw::args();
   auto &allDatasets = InputFiles::DATASETS;
   std::vector<InputFileSource> datasetsToImport;
@@ -247,7 +247,7 @@ std::vector<BethYw::InputFileSource> BethYw::parseDatasetsArg() {
       datasetsToImport.push_back(dataset->second);
     }
   }
-  
+
   return datasetsToImport;
 }
 
@@ -263,7 +263,7 @@ std::vector<BethYw::InputFileSource> BethYw::parseDatasetsArg() {
       function an empty vector is considerd to be 'import all areas'.
 
   Therefore, this function should return an unordered set of strings of areas
-  to import, or if all areas should be imported, the set should be empty.  
+  to import, or if all areas should be imported, the set should be empty.
 */
 std::unordered_set<std::string> BethYw::parseAreasArg() {
   auto &args = BethYw::args();
@@ -295,7 +295,7 @@ std::unordered_set<std::string> BethYw::parseAreasArg() {
       function an empty vector is considerd to be 'import all measures'.
 
   Therefore, this function should return an unordered set of strings of measures
-  to import, or if all measures should be imported, the set should be empty.  
+  to import, or if all measures should be imported, the set should be empty.
 */
 std::unordered_set<std::string> BethYw::parseMeasuresArg() {
   auto &args = BethYw::args();
@@ -347,7 +347,7 @@ std::tuple<unsigned int, unsigned int> BethYw::parseYearsArg() {
     std::cerr << "Unknown error parsing years argument." << std::endl;
     std::exit(1);
   }
-  
+
   return years;
 }
 
@@ -371,7 +371,7 @@ BethYw::Output BethYw::parseOutputArg() {
       action = AVERAGE;
     } else if (value == "trend") {
       action = TREND;
-    } 
+    }
   } catch (std::domain_error &ex) {
   }
 
@@ -412,7 +412,7 @@ void BethYw::loadAreas(const std::string &dir,
 /*
   TODO: Simply dump all the information requested into the standard output.
 
-  Output should be formatted like the following to pass the tests. Note: 
+  Output should be formatted like the following to pass the tests. Note:
   area names and measure names should be alphabetically sorted.
 
   Within each measure, data should be printed in oldest year first to most
@@ -421,7 +421,7 @@ void BethYw::loadAreas(const std::string &dir,
 
   Ignore indentation on this output (i.e. except for the year row, each row's
   output should start in the first column of the output). Adhere to the number
-  of rows between output (i.e. two between measures of the same area, and 
+  of rows between output (i.e. two between measures of the same area, and
   three between areas).
 
     <English name of area 1> / <Welsh name of area 1> (<authority code 1>)
@@ -518,7 +518,7 @@ void BethYw::loadAreas(const std::string &dir,
 void BethYw::printAll() {
   // TODO map: replace function with
   // std::cout << "Print all the information!" << std::endl;
-  
+
   auto &areas = Areas<>::getInstance();
   for (auto area = areas.begin(); area != areas.end(); area++) {
     std::cout << area->second << std::endl;
@@ -526,7 +526,7 @@ void BethYw::printAll() {
 }
 
 /*
-  TODO: Calculate the average for each area and measure imported, across all 
+  TODO: Calculate the average for each area and measure imported, across all
   years imported, and print this out.
 */
 void BethYw::printAverage() {
@@ -534,7 +534,7 @@ void BethYw::printAverage() {
 }
 
 /*
-  TODO: Calculate the percentage difference for each area and measure imported, 
+  TODO: Calculate the percentage difference for each area and measure imported,
   from the first year imported to the last, and print this out.
 */
 void BethYw::printTrend() {

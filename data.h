@@ -44,8 +44,11 @@ struct InputFileSource {
   that can be found in the data directory.
 */
 namespace InputFiles {
-const InputFileSource AREAS
-  = {"areas", "areas.csv", DataType::AuthorityCodeCSV};
+const InputFileSource AREAS = {
+  "areas",
+  "areas.csv",
+  DataType::AuthorityCodeCSV
+};
 
 const std::unordered_map<std::string, InputFileSource> DATASETS{
   {"popden", {

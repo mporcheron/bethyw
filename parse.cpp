@@ -7,12 +7,32 @@
 
   AUTHOR: Dr Martin Porcheron
 
+The file's classes are structured in a granular way, from the most
+  specific to most broad.
+
+  Measure       — Represents a single measure for an area, e.g.
+   |              population. Contains a human-readable label and a map of
+   |              the measure accross a number of years.
+   |
+   +-> Area       Represents an area in Wales. Contains a unique local
+        |         authority code used in national statistics, a map of the
+        |         names of the area (i.e. in English and Welsh), and a map of
+        |         various Measure objects.
+        |
+        +-> Areas A simple class that contains a map of all Area objects,
+                  indexed by the local authority code. This is derived from
+                  the DataContainer class, which is an abstract type.
+                  DataContainer exists so that in future we can expand our
+                  code to include areas broken down by different groupings
+                  instead of geographic areas.
+
   This file contains numerous functions you must implement. Each function you
   must implement as a TODO comment inside it. See data.h for explanations
   of how the code is organised for the classes in this file.
  */
 
 #include <fstream>
+#include <iomanip>
 #include <iostream>
 #include <iterator>
 #include <sstream>
@@ -25,6 +45,7 @@
 #include "parse.h"
 
 using json = nlohmann::json;
+
 
 Measure::Measure(std::string &code, std::string &label)
     : mCode(code), mLabel(label), mData() {}
@@ -49,7 +70,7 @@ std::ostream &operator<<(std::ostream &os, const Measure &measure) {
 
   // Iterate through and print the years and save the values to a stringstream
   std::stringstream values;
-  for (auto it = measure.mData.begin(); it != measure.mData.end(); ++it) {
+  for (auto it = measure.cbegin(); it != measure.cend(); ++it) {
     std::string year = std::to_string(it->first);
     std::string value = Measure::to_string(it->second);
 
@@ -62,6 +83,7 @@ std::ostream &operator<<(std::ostream &os, const Measure &measure) {
 
   return os;
 }
+
 
 Area::Area(const std::string &localAuthorityCode)
     : mLocalAuthorityCode(localAuthorityCode), mNames(), mMeasures() {}
@@ -104,6 +126,8 @@ std::ostream &operator<<(std::ostream &os, const Area &area) {
   return os;
 }
 
+
+
 template <> Areas<>::Areas() : mAreas() {}
 
 // Parse the areas CSV and construct the Area object. This is a simple dataset
@@ -113,7 +137,8 @@ template <> Areas<>::Areas() : mAreas() {}
 // In this case, we use this parser to parse areas.csv
 template <>
 void Areas<>::populateFromAuthorityCodeCSV(
-    std::istream &is, const SourceColumnsMatch &cols,
+    std::istream &is,
+    const SourceColumnsMatch &cols,
     const std::unordered_set<std::string> * const areasFilter)
     noexcept(false) {
   // TODO Implement this parsing function. You can assume the columns will
@@ -283,7 +308,7 @@ void Areas<>::populateFromWelshStatsJSON(
       continue;
     }
 
-    int year = std::stoi((std::string)data[COL_YEAR]);
+    unsigned int year = std::stoi((std::string)data[COL_YEAR]);
 
     // Likewise, if there is a limiting range of years and our year is not
     // within it, skip it.

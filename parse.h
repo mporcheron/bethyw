@@ -8,9 +8,9 @@
 
   AUTHOR: Dr Martin Porcheron
 
-  This file handles classes that contain the data parsed from the various
-  sources. The file's classes are structured in a granular way, from the most
-  specific to most broad.
+  This file is responsible for parsing data from a std::istreamn and 
+  converting it into a series of objects. The file's classes are structured in
+  a granular way, from the most specific to most broad.
 
   Measure       — Represents a single measure for an area, e.g.
    |              population. Contains a human-readable label and a map of
@@ -27,6 +27,11 @@
                   DataContainer exists so that in future we can expand our
                   code to include areas broken down by different groupings
                   instead of geographic areas.
+
+
+  See the header file for additional comments.
+  
+  Each function you must implement has a TODO in its comment block. 
  */
 
 #include <iostream>
@@ -37,35 +42,39 @@
 #include <unordered_set>
 #include <variant>
 
-// Enums (short for enumerations) are similar to their Java implementation.
-// It is a user-defined type, used to assign names to internal constants
-// in code, instead of simply passing in integers/strings etc.
-//
-// For example, functions can take a value/constant from a specific enum
-// and use it in a switch statement, doing different things
-//
-// As such, it is a useful way for us to specify information in both a
-// machine and human-readable format.
-//
-// Unlike Java, enum in C++ only map to intenger values. You can either let
-// the compiler generate the values automatically, in which it allocates a
-// unique integer (0-indexed). Or, you can set the value by giving the name
-// followed by = <value> (e.g. XLSX=4).
-//
-// This enum specifies the format types that the InputSource class can parse.
-// We could have implemented an if statement that parsed a string for the data
-// type, or perhaps used integers. But with a enum both in code and to anyone
-// who just glances at the code can infer the meaning.
+/*
+  Enums (short for enumerations) are similar to their Java implementation.
+  It is a user-defined type, used to assign names to internal constants
+  in code, instead of simply passing in integers/strings etc.
+
+  For example, functions can take a value/constant from a specific enum
+  and use it in a switch statement, doing different things
+
+  As such, it is a useful way for us to specify information in both a
+  machine and human-readable format.
+
+  Unlike Java, enum in C++ only map to intenger values. You can either let
+  the compiler generate the values automatically, in which it allocates a
+  unique integer (0-indexed). Or, you can set the value by giving the name
+  followed by = <value> (e.g. XLSX=4).
+
+  This enum specifies the format types that the InputSource class can parse.
+  We could have implemented an if statement that parsed a string for the data
+  type, or perhaps used integers. But with a enum both in code and to anyone
+  who just glances at the code can infer the meaning.
+*/
 enum DataType { None, AuthorityCodeCSV, WelshStatsJSON };
 
-// Data from the different sources typically has different column headings
-// for the same value (e.g. some might say "Year" whereas others might say
-// "Year_Code"). Here we create another enum for these column headings for
-// the parser.
+/*
+  Data from the different sources typically has different column headings
+  for the same value (e.g. some might say "Year" whereas others might say
+  "Year_Code"). Here we create another enum for these column headings for
+  the parser.
 
-// Each input passed to the Areas() object will have to specifiy a
-// an unordered map to match each of these enum values into a string that
-// the source contains.
+  Each input passed to the Areas() object will have to specifiy a
+  an unordered map to match each of these enum values into a string that
+  the source contains.
+*/
 enum SourceColumns {
   AUTH_CODE,
   AUTH_NAME,
@@ -115,7 +124,7 @@ private:
 public:
   Measure(std::string &code, std::string &label);
   ~Measure() = default;
-  friend std::ostream &operator<<(std::ostream &os, const Measure &st);
+  friend std::ostream &operator<<(std::ostream &os, const Measure &measure);
 
   Measure(const Measure &other)
       : mCode(other.mCode), mLabel(other.mLabel), mData(other.mData) {
@@ -135,16 +144,16 @@ public:
 
   // Wrapper around underlying iterator functions for ease
   Measure_c::iterator begin() { return mData.begin(); }
-  Measure_c::const_iterator cbegin() { return mData.cbegin(); }
+  Measure_c::const_iterator cbegin() const { return mData.cbegin(); }
 
   Measure_c::iterator end() { return mData.end(); }
-  Measure_c::const_iterator cend() { return mData.cend(); }
+  Measure_c::const_iterator cend() const { return mData.cend(); }
 
   Measure_c::reverse_iterator rbegin() { return mData.rbegin(); }
-  Measure_c::const_reverse_iterator crbegin() { return mData.crbegin(); }
+  Measure_c::const_reverse_iterator crbegin() const { return mData.crbegin(); }
 
   Measure_c::reverse_iterator rend() { return mData.rend(); }
-  Measure_c::const_reverse_iterator crend() { return mData.crend(); }
+  Measure_c::const_reverse_iterator crend() const { return mData.crend(); }
 
   void emplace(const int &key, Measure_t &&value) {
     mData.emplace(key, std::move(value));

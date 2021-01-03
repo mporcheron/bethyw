@@ -24,8 +24,8 @@ const char DIR_SEP =
 #endif
 
 namespace BethYw {
-  
-/* 
+
+/*
   TODO: Enter your student number here!
 */
 const std::string STUDENT_NUMBER = "987654";
@@ -33,7 +33,7 @@ const std::string STUDENT_NUMBER = "987654";
 /*
   The ImportAllValues class is an exception that is thrown by the command
   line argument parser functions below if all the values match.
-  
+
   TODO map: remove this class
 */
 class ImportAllValues {};
@@ -68,7 +68,7 @@ cxxopts::ParseResult& args(int argc = 0, char *argv[] = nullptr);
 void help(std::ostream &os, const int &errorCode);
 
 /*
-  Parse the areas argument and return a std::unordered_set of all the 
+  Parse the areas argument and return a std::unordered_set of all the
   areas to import, or an empty set if all areas should be imported.
 */
 std::unordered_set<std::string> parseAreasArg();
@@ -80,7 +80,7 @@ std::unordered_set<std::string> parseAreasArg();
 std::vector<InputFileSource> parseDatasetsArg();
 
 /*
-  Parse the measures argument and return a std::unordered_set of all the 
+  Parse the measures argument and return a std::unordered_set of all the
   measures to import, or an empty set if all measures should be imported.
 */
 std::unordered_set<std::string> parseMeasuresArg();
@@ -118,7 +118,7 @@ void printAverage();
   the first year imported to the last, and print this out.
 */
 void printTrend();
-  
+
 }; // namespace BethYw
 
 #endif // BETHYW_H_
