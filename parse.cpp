@@ -1,6 +1,5 @@
 
 
-
 /*
   +---------------------------------------+
   | BETH YW? WELSH GOVERNMENT DATA PARSER |
@@ -16,8 +15,8 @@
 #include <fstream>
 #include <iostream>
 #include <iterator>
-#include <string>
 #include <sstream>
+#include <string>
 #include <tuple>
 
 #include "libs/cxxopts/cxxopts.hpp"
@@ -27,13 +26,10 @@
 
 using json = nlohmann::json;
 
-
-
-
 Measure::Measure(std::string &code, std::string &label)
     : mCode(code), mLabel(label), mData() {}
 
-std::ostream& operator<<(std::ostream &os, const Measure &measure) {
+std::ostream &operator<<(std::ostream &os, const Measure &measure) {
   // TODO: implement the << overload operator, so that we print the statistic
   // data in the following format:
   // <label>\n
@@ -46,8 +42,8 @@ std::ostream& operator<<(std::ostream &os, const Measure &measure) {
   //
   // While you will be able to convert the key of the map (which is an int) to
   // a std::string using std::to_string(), you will have to use the static
-  // function I've included in the declaration of Measure to do this for the 
-  // value (which is a Measure_t). You can do that by calling 
+  // function I've included in the declaration of Measure to do this for the
+  // value (which is a Measure_t). You can do that by calling
   // Measure::to_string(<variable of Measure_t type>);
   os << measure.getLabel() << " (" << measure.getCode() << ")" << std::endl;
 
@@ -67,111 +63,118 @@ std::ostream& operator<<(std::ostream &os, const Measure &measure) {
   return os;
 }
 
+Area::Area(const std::string &localAuthorityCode)
+    : mLocalAuthorityCode(localAuthorityCode), mNames(), mMeasures() {}
 
-
-
-
-Area::Area(
-    const std::string &localAuthorityCode)
-        : mLocalAuthorityCode(localAuthorityCode),
-          mNames(),
-          mMeasures() {}
-
-const std::string& Area::getLocalAuthorityCode() const {
+const std::string &Area::getLocalAuthorityCode() const {
   return mLocalAuthorityCode;
 }
 
 // Insert a <}}language, name for the area> pair into the names map.
 void Area::setName(const std::string &lang, const std::string &name) {
   // TODO: Add a language and name pair to the map.
+  mNames.emplace(lang, name);
+}
+
+// Insert a <}}language, name for the area> pair into the names map.
+void Area::setName(const std::string &lang, std::string &&name) {
+  // TODO: Add a language and name pair to the map.
   mNames.emplace(lang, std::move(name));
 }
 
 // Search the unordered map in names for a key. if you don't find the value,
 // throw a std::runtime_error
-const std::string& Area::getName(const std::string &lang) const {
-  // TODO: Search the internal map and return a name for the given language 
+const std::string &Area::getName(const std::string &lang) const {
+  // TODO: Search the internal map and return a name for the given language
   // code. If not area is found, ensure an appropriate exception is thrown.
   return mNames.at(lang);
 }
 
+std::ostream &operator<<(std::ostream &os, const Area &area) {
+  // TODO map: write TODO
+  os << area.getName("eng") << " / " << area.getName("cym") << " ("
+     << area.getLocalAuthorityCode() << ")" << std::endl;
 
+  for (auto measure = area.cbegin();
+       measure != area.cend();
+       measure++) {
+    os << measure->second << std::endl;
+  }
 
+  return os;
+}
 
-template <>
-Areas<>::Areas() : mAreas() {}
+template <> Areas<>::Areas() : mAreas() {}
 
 // Parse the areas CSV and construct the Area object. This is a simple dataset
-// that is a comma-separated values file (CSV), where the first row gives 
+// that is a comma-separated values file (CSV), where the first row gives
 // the name of the columns, and then each row is a set of data.
 //
 // In this case, we use this parser to parse areas.csv
 template <>
 void Areas<>::populateFromAuthorityCodeCSV(
-    std::istream &is,
-    const SourceColumnsMatch &cols) noexcept(false) {
-  // TODO Implement this parsing function. You can assume the columns will 
-  // remain in the same ordering in your implementation as they are in the data 
+    std::istream &is, const SourceColumnsMatch &cols) noexcept(false) {
+  // TODO Implement this parsing function. You can assume the columns will
+  // remain in the same ordering in your implementation as they are in the data
   // file provided in the coursework.
   //
   // Parse the file and throw a std::runtime_error if anything is wrong.
   //
-  // Once you have parsed a row of CSV data, you need to construct an Area 
-  // object. You should add each Area object to the Areas class member variable 
+  // Once you have parsed a row of CSV data, you need to construct an Area
+  // object. You should add each Area object to the Areas class member variable
   // mData.
-  
+
   // First row is our column titles, skip it
   std::string line;
-  if(!std::getline(is, line)) {
+  if (!std::getline(is, line)) {
     throw std::runtime_error("Areas::populateFromAuthorityCodeCSV: "
-      "File contains no data");
+                             "File contains no data");
   }
 
   // Parse the data
   unsigned int lineNo = 2;
   try {
-    while(std::getline(is, line)) {
+    while (std::getline(is, line)) {
       std::string areaCode, cell;
 
-      // Scan the line for a comma, likely not the most efficient but 
+      // Scan the line for a comma, likely not the most efficient but
       // it hands off the matching to an underlying library for now...
       std::istringstream s(line);
-      s.exceptions(std::ifstream::failbit|std::ifstream::badbit);
+      s.exceptions(std::ifstream::failbit | std::ifstream::badbit);
 
       // First column is the area code
       getline(s, areaCode, ',');
       Area area = Area(areaCode);
-      
+
       // Second column is the title in English
       getline(s, cell, ',');
-      area.setName("eng", cell);
-      
+      area.setName("eng", std::move(cell));
+
       // Third column is the title in Welsh
       getline(s, cell, ',');
-      area.setName("cym", cell);
-      
+      area.setName("cym", std::move(cell));
+
       this->emplace(areaCode, std::move(area));
-      
+
       lineNo++;
     }
   } catch (...) {
     const std::string err = "AreaCSVParser::parse: "
-      "Error on or near line " + std::to_string(lineNo);
+                            "Error on or near line " +
+                            std::to_string(lineNo);
     throw std::runtime_error(err);
   }
 }
 
 template <>
 void Areas<>::populateFromWelshStatsJSON(
-      std::istream &is,
-      const SourceColumnsMatch &cols,
-      const std::unordered_set<std::string> * const measures,
-      const std::tuple<unsigned int,unsigned int> * const years)
-        noexcept(false) {
+    std::istream &is, const SourceColumnsMatch &cols,
+    const std::unordered_set<std::string> *const measures,
+    const std::tuple<unsigned int, unsigned int> *const years) noexcept(false) {
   // TODO: Implement the partsing of the data from JSON files.
   //
   // Data from Welsh Statistics is in the JSON format, and contains three
-  // top-level keys: odata.metadata, value, odata.nextLink. value contains the 
+  // top-level keys: odata.metadata, value, odata.nextLink. value contains the
   // data we need. Rather than been hierarchical, it contains data as a
   // continuous list (e.g. as you would find in a table).
   //
@@ -179,39 +182,39 @@ void Areas<>::populateFromWelshStatsJSON(
   //.  value => all the data we need,
   //   odata.nextLink => another weblink }
   //
-  // Inside value there is a list of statistics. This is not hierarchical of 
+  // Inside value there is a list of statistics. This is not hierarchical of
   // data but rather a table, where each item in this list is a row. JSON is a
   // repetitive format, so for each row, for each cell, you have both the column
   // header and the value stored as a key:value mapping.
-  // 
-  // Therefore, you need to loop through the items in value (in a for loop) 
-  // using a JSON library. To help you, I've selected the nlohmann::json 
+  //
+  // Therefore, you need to loop through the items in value (in a for loop)
+  // using a JSON library. To help you, I've selected the nlohmann::json
   // library that you must use for your coursework. I've included this in the
-  // libs folder. Read up on how to use it here: 
+  // libs folder. Read up on how to use it here:
   // https://github.com/nlohmann/json
   //
   // Key examples:
   //   - reading/parsing in from a stream is very simply using the >> operators:
   //     json j;
   //     stream >> j;
-  // 
-  //   - looping through parsed json is done with a simple for loop. Inside the 
+  //
+  //   - looping through parsed json is done with a simple for loop. Inside the
   //     loop, you can access each using the array syntax, with the key/
-  //     column name, e.g. data["Localauthority_ItemName_ENG"] gives you the 
+  //     column name, e.g. data["Localauthority_ItemName_ENG"] gives you the
   //     local area name:
   //     for (auto& el : j["value"].items()) {
   //.      auto &data = el.value();
   //.      // do stuff here...
   //     }
   //
-  // In this function, you will have to parse the statistics file, extracting 
+  // In this function, you will have to parse the statistics file, extracting
   // the area code, English name (the files only contain the English names),
   // and each statistic by year.
   //
   // You should construct a Measure object for each Measure for each area,
-  // and insert the values for each year included for that measure. I've 
+  // and insert the values for each year included for that measure. I've
   // provided the column names as const std::string's for your reference.
-  // 
+  //
   // Note that in the JSON format, years are stored as strings, but we need
   // them as ints. When retrieving values from the JSON library, you will
   // have to cast them to the right type.
@@ -223,10 +226,11 @@ void Areas<>::populateFromWelshStatsJSON(
     is >> j;
   } catch (json::exception &ex) {
     const std::string err = "Areas::populateFromWelshStatsJSON: "
-      "Invalid JSON: " + std::string(ex.what());
+                            "Invalid JSON: " +
+                            std::string(ex.what());
     throw std::runtime_error(err);
   }
-  
+
   // Column titles in the JSON data
   const std::string COL_AUTHORITY_CODE = cols.at(AUTH_CODE);
   const std::string COL_AREA_NAME = cols.at(AUTH_NAME);
@@ -234,19 +238,19 @@ void Areas<>::populateFromWelshStatsJSON(
   const std::string COL_MEASURE_NAME = cols.at(MEASURE_NAME);
   const std::string COL_YEAR = cols.at(YEAR);
   const std::string COL_VALUE = cols.at(VALUE);
-  
+
   // Determine if we're limiting measures and years or not
   bool limitingMeasures = true;
   bool limitingYears = true;
   limitingMeasures = measures->size() > 0 && measures->count("all") == 0;
   limitingYears = std::get<0>(*years) != 0 && std::get<1>(*years) != 0;
-  
+
   std::string localAuthorityCode;
-  for (auto& el : j["value"].items()) {
+  for (auto &el : j["value"].items()) {
     auto &data = el.value();
 
     std::string measureCode = data[COL_MEASURE_CODE];
-    
+
     // If there is a limiting set of measures, and this measure is not
     // in it. skip it
     if (limitingMeasures) {
@@ -255,8 +259,8 @@ void Areas<>::populateFromWelshStatsJSON(
       }
     }
 
-    int year = std::stoi((std::string) data[COL_YEAR]);
-    
+    int year = std::stoi((std::string)data[COL_YEAR]);
+
     // Likewise, if there is a limiting range of years and our year is not
     // within it, skip it.
     if (limitingYears) {
@@ -266,8 +270,8 @@ void Areas<>::populateFromWelshStatsJSON(
     }
 
     std::string localAuthorityCode = data[COL_AUTHORITY_CODE];
-    std::string measureName = data[COL_MEASURE_NAME]; 
-    
+    std::string measureName = data[COL_MEASURE_NAME];
+
     double value = data[COL_VALUE];
 
     auto existingArea = mAreas.find(localAuthorityCode);
@@ -277,14 +281,14 @@ void Areas<>::populateFromWelshStatsJSON(
       try {
         Measure &existingMeasure = area.at(measureCode);
         existingMeasure.emplace(year, std::move(value));
-      } catch(std::out_of_range &ex) {
+      } catch (std::out_of_range &ex) {
         Measure newMeasure = Measure(measureCode, measureName);
         newMeasure.emplace(year, std::move(value));
         area.emplace(measureCode, std::move(newMeasure));
       }
     } else {
       Area area = Area(localAuthorityCode);
-      area.setName("eng",  data[COL_AREA_NAME]);
+      area.setName("eng", data[COL_AREA_NAME]);
 
       Measure newMeasure = Measure(measureCode, measureName);
       newMeasure.emplace(year, std::move(value));
@@ -294,17 +298,15 @@ void Areas<>::populateFromWelshStatsJSON(
 }
 
 // Parse input for the areas data. At the moment, you only need to worry about
-// parsing the provided CSV format (where DataType equals AuthorityCodeCSV). We have
-// the type variable here in case of future needs.
+// parsing the provided CSV format (where DataType equals AuthorityCodeCSV). We
+// have the type variable here in case of future needs.
 //
 // If an unexpected type is passed, throws a std::runtime_error.
 template <>
-void Areas<>::populate(
-    std::istream &is,
-    const DataType &type,
-    const SourceColumnsMatch &cols) noexcept(false) {
-  // TODO Implement a function that accepts an open input stream, and calls 
-  // either Areas::populateFromAuthorityCodeCSV or 
+void Areas<>::populate(std::istream &is, const DataType &type,
+                       const SourceColumnsMatch &cols) noexcept(false) {
+  // TODO Implement a function that accepts an open input stream, and calls
+  // either Areas::populateFromAuthorityCodeCSV or
   // Areas::populateFromWelshStatsJSON depending on the DataType.
   //
   // Throw an std::runtime_error in unexpected situations.
@@ -313,7 +315,7 @@ void Areas<>::populate(
     throw std::runtime_error("Areas::populate: Stream not open");
   }
   is.seekg(0, is.beg);
-    
+
   if (type == AuthorityCodeCSV) {
     populateFromAuthorityCodeCSV(is, cols);
   } else if (type == WelshStatsJSON) {
@@ -323,21 +325,18 @@ void Areas<>::populate(
   }
 }
 
-
 // Parse input for the areas data. At the moment, you only need to worry about
-// parsing the provided CSV format (where DataType equals AuthorityCodeCSV). We have
-// the type variable here in case of future needs.
+// parsing the provided CSV format (where DataType equals AuthorityCodeCSV). We
+// have the type variable here in case of future needs.
 //
 // If an unexpected type is passed, throws a std::runtime_error.
 template <>
 void Areas<>::populate(
-    std::istream &is,
-    const DataType &type,
-    const SourceColumnsMatch &cols,
+    std::istream &is, const DataType &type, const SourceColumnsMatch &cols,
     const std::unordered_set<std::string> &measures,
-    const std::tuple<unsigned int,unsigned int> &years) noexcept(false) {
-  // TODO Implement a function that accepts an open input stream, and calls 
-  // either Areas::populateFromAuthorityCodeCSV or 
+    const std::tuple<unsigned int, unsigned int> &years) noexcept(false) {
+  // TODO Implement a function that accepts an open input stream, and calls
+  // either Areas::populateFromAuthorityCodeCSV or
   // Areas::populateFromWelshStatsJSON depending on the DataType.
   //
   // Throw an std::runtime_error in unexpected situations.
@@ -346,7 +345,7 @@ void Areas<>::populate(
     throw std::runtime_error("Areas::populate: Stream not open");
   }
   is.seekg(0, is.beg);
-    
+
   if (type == AuthorityCodeCSV) {
     populateFromAuthorityCodeCSV(is, cols);
   } else if (type == WelshStatsJSON) {

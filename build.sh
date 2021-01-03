@@ -1,6 +1,6 @@
 #!/bin/bash
 
-FILES_TO_COMPILE="input.cpp parse.cpp"
+FILES_TO_COMPILE="bethyw.cpp input.cpp parse.cpp"
 
 if [ $# -eq 0 ]; then
   set -x
