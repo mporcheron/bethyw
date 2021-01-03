@@ -9,81 +9,66 @@
   AUTHOR: Dr Martin Porcheron
 
   This file contains input source handlers. There are two classes: InputSource
-  and InputFile. InputSource is abstract (i.e. it contains a pure virtual 
+  and InputFile. InputSource is abstract (i.e. it contains a pure virtual
   function). InputFile is a concrete derivation of InputSource, for input
   from files.
 
-  Although only one class derives from InputSource, we have implemented our 
-  code this way to support future expansion of input from different sources 
+  Although only one class derives from InputSource, we have implemented our
+  code this way to support future expansion of input from different sources
   (e.g. the web).
  */
 
-#include <cstring>
+#include <string>
 #include <fstream>
 
-
-
-
-
-const char DIR_SEP =
-#ifdef _WIN32
-                            '\\';
-#else
-                            '/';
-#endif
-
-
-
-
-
-// A virtual input source. In future versions of our application, we may
-// support multiple input data sources such as files and web pages. Therefore,
-// we can have a base virtual class that will allow us to mix/match sources
-// as appropriate.
-//
-// However, as data types (e.g. JSON or CSV) may be common between sources),
-// the InputSource class will have an implementation for parsing the data.
-//
-// We also use templating here here. The templated item (T) is the class
-// that'll store the data i
+/*
+  InputSource is an abstract/purely virtual base class for all input source 
+  types. In future versions of our application, we may support multiple input 
+  data sources such as files and web pages. Therefore, this virtual class 
+  will allow us to mix/match sources as needed. For now, we can just ignore
+  it and focus on InputFile (next class down!).
+*/
 class InputSource {
 protected:
-  const std::string mSource; 
-  
-public:
-  // All input sources have a source
-  InputSource(const std::string &source);
+  const std::string mSource;
 
+public:
+  InputSource(const std::string &source);
   virtual ~InputSource() = default;
 
-  virtual const std::string getSource() const;
-  
-  // Every input source will have it's own mechanism for opening the source.
-  virtual std::istream& open() noexcept(false) = 0;
+  virtual const std::string& getSource() const;
+  virtual std::istream &open() noexcept(false) = 0;
 };
 
-
-
-
-
-// Input from a OS file.
+/*
+  Source data that is contained within a file. For now, our application will
+  only work with files (and in particular, the files in the data directory).
+*/
+// TODO map: replace code with:
+// class InputFile : public InputSource {
+// public:
+//   InputFile(const std::string &path);
+//   virtual ~InputFile() = default;
+//
+//   /*
+//     Open a file specified in the constructor and throw a std::runtime_error
+//     exception if the file cannot be opened.
+//   */
+//   virtual std::istream &open() noexcept(false);
+// };
 class InputFile : public InputSource {
-protected:  // TODO map: remove mFileStream
+protected:
   std::ifstream mFileStream;
 
 public:
-  // Construct a InputFile object, taking in the path.
   InputFile(const std::string &path);
-
   virtual ~InputFile();
 
-  // Open a file specified in the constructor and throws a std::runtime_error 
-  // exception if the file cannot be opened.
-  virtual std::istream& open() noexcept(false);
+  /*
+    Open a file specified in the constructor and throw a std::runtime_error
+    exception if the file cannot be opened.
+  */
+  virtual std::istream &open() noexcept(false);
 };
-
-
-
-
 
 #endif // INPUT_H_

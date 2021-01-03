@@ -16,7 +16,19 @@
 
 #include "data.h"
 
+const char DIR_SEP =
+#ifdef _WIN32
+    '\\';
+#else
+    '/';
+#endif
+
 namespace BethYw {
+  
+/* 
+  TODO: Enter your student number here!
+*/
+const std::string STUDENT_NUMBER = "987654";
 
 /*
   The ImportAllValues class is an exception that is thrown by the command

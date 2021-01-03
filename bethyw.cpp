@@ -13,7 +13,13 @@
   don't need a class here. Classes are for modelling data, and so forth, but
   here the code is pretty much a sequential block of code (BethYw::run())
   calling a series of helper functions.
- */
+
+  TODO: This file contains numerous functions you must implement. Each one
+  is denoted with a TODO in the block comment. Note that some code has been
+  provided in some functions to get you started, but you should read through 
+  this code and make sure it is safe. You may need to remove or modify the 
+  provided code to get your program to work fully.
+*/
 
 #include <iostream>
 #include <string>
@@ -28,7 +34,10 @@
 #include "data.h"
 
 /*
-  Run Beth Yw?, parsing the command line arguments
+  Run Beth Yw?, parsing the command line arguments.
+
+  TODO: Parse all the program arguments, then import the data using the
+  Areas<>::populate() function. Finally, output the result.
 */
 void BethYw::run(int argc, char *argv[]) {
   // Parse the command line arguments
@@ -36,7 +45,7 @@ void BethYw::run(int argc, char *argv[]) {
   cxxopts.add_options()(
       "dir",
       "Directory for input data passed in as files",
-      cxxopts::value<std::string>())(
+      cxxopts::value<std::string>()->default_value("data"))(
     
       "d,datasets",
       "The dataset(s) to import and analyse as a comma-separated list of codes "
@@ -59,7 +68,7 @@ void BethYw::run(int argc, char *argv[]) {
       cxxopts::value<std::string>()->default_value("0"))(
     
       "o,output",
-      "Output desired. Valid values: average, trend, or all (default).",
+      "Output desired. Valid values: average, trend, or all",
       cxxopts::value<std::string>()->default_value("all"))(
     
       "h,help",
@@ -131,12 +140,15 @@ void BethYw::run(int argc, char *argv[]) {
   Because Beth Yw? is just a namespace (there is no need for it to be a class),
   we store cxxopts as a static variable here so that it can be fetched from
   different functions.
+
+  You do not need to modify this function.
 */
 cxxopts::Options& BethYw::cxxopts() {
   static cxxopts::Options cxxopts(
         "bethyw",
+        "Student ID: " + STUDENT_NUMBER + "\n\n"
         "This program is designed to parse Official UK/Welsh Government"
-        " statistics data files and answer \"what is…?\" questions.");
+        " statistics data files and answer \"what is…?\" questions.\n");
   return cxxopts;
 }
 
