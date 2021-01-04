@@ -21,6 +21,7 @@
   provided code to get your program to work fully.
 */
 
+#include <algorithm>
 #include <exception>
 #include <iostream>
 #include <string>
@@ -292,6 +293,9 @@ std::unordered_set<std::string> BethYw::parseAreasArg() {
   Therefore, we simply fetch the list of areas and later pass it to the
   Areas::populate() function.
 
+  All inputted measures should be converted to lowercase, and the all value
+  should be treated in a case-insensitive way.
+
   @return 
     An std::unordered_set of std::strings corresponding to specific measures
     to import, or an empty set if all measures should be imported.
@@ -301,15 +305,26 @@ std::unordered_set<std::string> BethYw::parseMeasuresArg() {
   std::unordered_set<std::string> measures(0);
   try {
     auto temp = args["measures"].as<std::vector<std::string>>();
-    measures = std::unordered_set<std::string>(temp.begin(), temp.end());
+    measures.reserve(temp.size());
+    for (auto measure : temp) {
+      std::transform(
+        measure.begin(),
+        measure.end(),
+        measure.begin(),
+        ::tolower);
+      measures.insert(measure);
+    }
   } catch (std::domain_error &ex) {
   }
 
   for (auto it = measures.begin(); it != measures.end(); it++) {
+
+      
     if (*it == "all") {
       measures.clear();
       break;
     }
+    
   }
   return measures;
 }
