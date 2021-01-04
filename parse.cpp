@@ -62,7 +62,7 @@ using json = nlohmann::json;
     Human-readable (i.e. nice/explanatory) label for the measure
 
   @example
-    Measure("Pop", "Population");
+    Measure measure("Pop", "Population");
 */
 Measure::Measure(std::string &code, std::string &label)
     : mCode(code), mLabel(label), mData() {
@@ -105,16 +105,10 @@ inline const std::string &Measure::getLabel() const { return mLabel; }
 /*
   TODO: Measure::at(key)
 
-  Add a particular year's value to the Measure object.
-
-  Note, this overloaded function should be called with std::move() 
-  encasing the value so that Measure takes ownership over the resource.
+  Retrieve a measure given a year.
 
   @param key
     The year to find
-
-  @param value
-    The value, which Measure will take ownership of
 
   @example
     Measure measure("pop", "Population");
@@ -238,6 +232,9 @@ std::ostream &operator<<(std::ostream &os, const Measure &measure) {
 
   @param localAuthorityCode
     A reference to the local authority code
+
+  @example
+    Area("W06000023");
 */
 Area::Area(const std::string &localAuthorityCode)
     : mLocalAuthorityCode(localAuthorityCode), mNames(), mMeasures() {}
@@ -249,6 +246,11 @@ Area::Area(const std::string &localAuthorityCode)
   
   @return
     The local authority code.
+
+  @example
+    Area area("W06000023");
+    ...
+    auto localAuthorityCode = area.getLocalAuthorityCode();
 */
 inline const std::string &Area::getLocalAuthorityCode() const {
   return mLocalAuthorityCode;
@@ -273,7 +275,7 @@ inline const std::string &Area::getLocalAuthorityCode() const {
     Area area("W06000023");
     area.setName("eng", "Powys");
     ...
-    std::string name = area.getName("eng");
+    auto name = area.getName("eng");
 */
 inline const std::string &Area::getName(const std::string &lang) const {
   return mNames.at(lang);
@@ -320,7 +322,110 @@ inline void Area::setName(const std::string &lang, std::string &&name) {
 }
 
 /*
-  Output all imported measures within an area.
+  TODO: Area::at(key)
+
+  Retrieve a Measure given a measure's code.
+
+  @param key
+    The code for the measure
+
+  @example
+    Area area("W06000023");
+    area.setName("eng", "Powys");
+
+    Measure measure("Pop", "Population");
+    area.emplace("Pop", measure);
+    ...
+    auto measure2 = area.at("pop");
+*/
+inline Measure &Area::at(std::string key) {
+  std::transform(key.begin(), key.end(), key.begin(), ::tolower);
+  return mMeasures.at(key);
+}
+
+/*
+  TODO: Area::emplace(key, value)
+
+  Add a particular Measure to the Area object. Note that the measure's
+  code should be converted to lowercase.
+
+  @param key
+    The code for the measure
+
+  @param value
+    The Measure object
+
+  @example
+    Area area("W06000023");
+    area.setName("eng", "Powys");
+
+    Measure measure("Pop", "Population");
+    double value = 12345678.9;
+    measure.emplace(1999, value);
+
+    area.emplace("Pop", measure);
+*/
+inline void Area::emplace(std::string key, Measure &value) {
+  std::transform(key.begin(), key.end(), key.begin(), ::tolower);
+  mMeasures.emplace(key, value);
+}
+
+/*
+  TODO: Area::emplace(key, value)
+
+  Add a particular Measure to the Area object. Note that the measure's
+  code should be converted to lowercase.
+
+  Note, this overloaded function should be called with std::move() 
+  encasing the value so that Area takes ownership over the resource.
+
+  @param key
+    The code for the measure
+
+  @param value
+    The Measure object
+
+  @example
+    Area area("W06000023");
+    area.setName("eng", "Powys");
+
+    Measure measure("Pop", "Population");
+    double value = 12345678.9;
+    measure.emplace(1999, value);
+
+    area.emplace("Pop", std::move(measure));
+*/
+inline void Area::emplace(std::string key, Measure &&value) {
+  std::transform(key.begin(), key.end(), key.begin(), ::tolower);
+  mMeasures.emplace(key, std::move(value));
+}
+
+/*
+  TODO: Area::size()
+
+  Retrieve the number of measures we have for this area. This function
+  should not modify the object or throw an exception.
+
+  @return
+    The size of the area
+
+  @example
+    Area area("W06000023");
+    area.setName("eng", "Powys");
+    ...
+    auto size = area.size();
+*/
+inline size_t Area::size() const noexcept {
+  return mMeasures.size();
+}
+
+/*
+  TODO: operator<<(os, area)
+
+  Output the name of the area in English and Welsh, followed by all the 
+  measures for the area.
+
+  See the coursework specification for more information.
 
   @param os
     The output stream to write to
@@ -334,9 +439,7 @@ inline void Area::setName(const std::string &lang, std::string &&name) {
   @example
     Area area("W06000023");
     area.setName("eng", "Powys");
-    std::cout << area << std::end;;
-
-  TODO map: remove
+    std::cout << area << std::end;
 */
 std::ostream &operator<<(std::ostream &os, const Area &area) {
   os << area.getName("eng") << " / " << area.getName("cym") << " ("

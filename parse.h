@@ -209,8 +209,6 @@ public:
   Area(const std::string &localAuthorityCode);
   ~Area() = default;
 
-  // TODO map: swap to
-  // Area(const Area &other) = default;
   Area(const Area &other)
       : mLocalAuthorityCode(other.mLocalAuthorityCode), mNames(other.mNames),
         mMeasures(other.mMeasures) {
@@ -231,6 +229,16 @@ public:
   inline void setName(const std::string &lang, const std::string &name);
   inline void setName(const std::string &lang, std::string &&name);
 
+  inline void emplace(std::string ident, Measure &stat);
+  inline void emplace(std::string ident, Measure &&stat);
+  inline Measure &at(std::string ident);
+  inline size_t size() const noexcept;
+
+  friend bool operator==(const Area &lhs, const Area &rhs);
+  friend bool operator!=(const Area &lhs, const Area &rhs);
+  friend bool operator<(const Area &lhs, const Area &rhs);
+  friend std::ostream &operator<<(std::ostream &os, const Area &st);
+  
   /*
     Wrapper around underlying iterator functions for ease.
   */
@@ -261,23 +269,6 @@ public:
   inline Area_c::const_reverse_iterator crend() const {
     return mMeasures.crend();
   }
-  
-  inline void emplace(std::string &ident, Measure &&stat) {
-    mMeasures.emplace(ident, std::move(stat));
-  }
-
-  inline Measure &at(const std::string &ident) {
-    return mMeasures.at(ident);
-  }
-
-  inline size_t size() const noexcept {
-    return mMeasures.size();
-  }
-
-  friend bool operator==(const Area &lhs, const Area &rhs);
-  friend bool operator!=(const Area &lhs, const Area &rhs);
-  friend bool operator<(const Area &lhs, const Area &rhs);
-  friend std::ostream &operator<<(std::ostream &os, const Area &st);
 };
 
 /*
