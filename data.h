@@ -47,8 +47,10 @@
   We could have implemented an if statement that parsed a string for the data
   type, or perhaps used integers. But with a enum both in code and to anyone
   who just glances at the code can infer the meaning.
+
+  TODO map: remove AuthorityByYearCSV
 */
-enum DataType { None, AuthorityCodeCSV, WelshStatsJSON };
+enum DataType { None, AuthorityCodeCSV, WelshStatsJSON, AuthorityByYearCSV };
 
 /*
   Data from the different sources typically hagve different column headings
@@ -66,6 +68,8 @@ enum SourceColumns {
   AUTH_NAME_CYM,
   MEASURE_CODE,
   MEASURE_NAME,
+  SINGLE_MEASURE_CODE,
+  SINGLE_MEASURE_NAME,
   YEAR,
   VALUE
 };
@@ -339,6 +343,13 @@ public:
       std::istream &is,
       const SourceColumnsMatch &cols,
       const std::unordered_set<std::string> * const areas = nullptr)
+      noexcept(false);
+
+  void populateFromAuthorityByYearCSV(
+      std::istream &is,
+      const SourceColumnsMatch &cols,
+      const StringFilterSet * const areasFilter = nullptr,
+      const YearFilterTuple * const yearsFilter = nullptr)
       noexcept(false);
 
   void populateFromWelshStatsJSON(

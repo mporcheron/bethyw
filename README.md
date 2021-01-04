@@ -23,9 +23,15 @@ The following data files are stored in the _data_ directory. I have given the UR
 
 * areas.csv - A manually created list of areas in Wales
 * popu1009.json - [Population Density by local authority](http://open.statswales.gov.wales/en-gb/dataset/popu1009)
-* popu1003.json - [Age distribution of population by gender and local authority](http://open.statswales.gov.wales/en-gb/dataset/popu1003)
-* popu0003.json - [Population estimates by local authority and year](http://open.statswales.gov.wales/en-gb/dataset/popu0003)
+  * Note that a bug on the Stats Wales website truncates this data nad misses of many of the areas, for this coursework we don't worry about it
+* econ0080.json - [Active businesses by area and year](https://statswales.gov.wales/Catalogue/Business-Economy-and-Labour-Market/Businesses/Business-Demography/activebusinessenterprises-by-area-year)
 * envi0201.json - [Air Quality Indicators, by Local Authority](https://statswales.gov.wales/Catalogue/Environment-and-Countryside/Air-Quality/airqualityindicators-by-localauthority)
+  * This dataset annoyingly stores data as a string, so you will have to convert in your code
+* trans0152.json - [Rail passenger journeys by Local Authority and year](https://statswales.gov.wales/Catalogue/Transport/rail/rail-transport/railpassengerjourneys-by-localauthority-year)
+  * This file had incomplete area codes so I have fixed these in the downloaded file
+  * Also, the stats aren't collected calendar year (i.e. the original year codes were, e.g. 2002-03), but I changed that for this coursework
+  * This is a special dataset — there is only one measure in it, which is hardcoded into datasets.h. I recommend completing this one last!
+* complete-popu1009.csv - This is a CSV version of popu1009.json. The StatsWales website produces invalid CSV files by default and does not include authority codes. I've parsed and produced this file. Replace popu1009.json with this one. 
 
 ### Third-party libraries used
 

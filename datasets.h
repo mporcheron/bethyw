@@ -76,6 +76,22 @@ const std::unordered_map<std::string, InputFileSource> DATASETS{
     }
   },
   {
+    "biz",
+    {
+      "Active Businesses",
+      "econ0080.json",
+      DataType::WelshStatsJSON,
+      {
+        {AUTH_CODE,     "Area_Code"},
+        {AUTH_NAME_ENG, "Area_ItemName_ENG"},
+        {MEASURE_CODE,  "Variable_Code"},
+        {MEASURE_NAME,  "Variable_ItemNotes_ENG"},
+        {YEAR,          "Year_Code"},
+        {VALUE,         "Data"}
+      }
+    }
+  },
+  {
     "aqi",
     {
       "Air Quality Indicators",
@@ -88,6 +104,61 @@ const std::unordered_map<std::string, InputFileSource> DATASETS{
         {MEASURE_NAME,  "Pollutant_ItemName_ENG"},
         {YEAR,          "Year_Code"},
         {VALUE,         "Data"}
+      }
+    },
+  },
+  {
+    "trains",
+    {
+      "Rail passenger journeys",
+      "tran0152.json",
+      DataType::WelshStatsJSON,
+      {
+        {AUTH_CODE,           "LocalAuthority_Code"},
+        {AUTH_NAME_ENG,       "LocalAuthority_ItemName_ENG"},
+        {SINGLE_MEASURE_CODE, "rail"},
+        {SINGLE_MEASURE_NAME, "Rail passenger journeys"},
+        {YEAR,                "Year_Code"},
+        {VALUE,               "Data"}
+      }
+    }
+  },
+  { // Replaces popden above
+    "complete-popden",
+    {
+      "Population density",
+      "complete-popu1009-popden.csv",
+      DataType::AuthorityByYearCSV,
+      {
+        {AUTH_CODE,           "AuthorityCode"},
+        {SINGLE_MEASURE_CODE, "Dens"},
+        {SINGLE_MEASURE_NAME, "Population density"}
+      }
+    }
+  },
+  { // Replaces popden above
+    "complete-pop",
+    {
+      "Population",
+      "complete-popu1009-pop.csv",
+      DataType::AuthorityByYearCSV,
+      {
+        {AUTH_CODE,           "AuthorityCode"},
+        {SINGLE_MEASURE_CODE, "Pop"},
+        {SINGLE_MEASURE_NAME, "Population"}
+      }
+    }
+  },
+  { // Replaces popden above
+    "complete-area",
+    {
+      "Land area",
+      "complete-popu1009-area.csv",
+      DataType::AuthorityByYearCSV,
+      {
+        {AUTH_CODE,           "AuthorityCode"},
+        {SINGLE_MEASURE_CODE, "Area"},
+        {SINGLE_MEASURE_NAME, "Land area"}
       }
     }
   }

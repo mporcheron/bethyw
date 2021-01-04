@@ -66,10 +66,6 @@ void BethYw::run(int argc, char *argv[]) {
       "inclusive range of years (YYYY-ZZZZ)",
       cxxopts::value<std::string>()->default_value("0"))(
 
-      "o,output",
-      "Output desired. Valid values: average, trend, or all",
-      cxxopts::value<std::string>()->default_value("all"))(
-
       "h,help",
       "Print usage.");
 
@@ -97,6 +93,8 @@ void BethYw::run(int argc, char *argv[]) {
 
   Areas<> data = Areas<>();
   BethYw::loadAreas(data, dir, areasFilter);
+  
+  try {
   BethYw::loadDatasets(
     data,
     dir,
@@ -104,22 +102,13 @@ void BethYw::run(int argc, char *argv[]) {
     areasFilter,
     measuresFilter,
     yearsFilter);
-
-  // Take the appropriate action
-  auto output           = BethYw::parseOutputArg();
-  switch (output) {
-    case ALL:
-    BethYw::printAll(data);
-    break;
-
-    case AVERAGE:
-    BethYw::printAverage(data);
-    break;
-
-    case TREND:
-    BethYw::printTrend(data);
-    break;
+  } catch(std::exception &ex) {
+    std::cerr << "Error importing files into Beth Yw?\n";
+    std::cerr << ex.what() << std::endl;
+    std::exit(2);
   }
+
+  BethYw::printAll(data);
 }
 
 /*
@@ -371,31 +360,6 @@ std::tuple<unsigned int, unsigned int> BethYw::parseYearsArg() {
 }
 
 /*
-  TODO: BethYw::parseOutputArg()
-
-  Parse the output command line argument and return a value from the 
-  BethYw::Output enum.
-
-  @return 
-    A BethYw::Output
-*/
-BethYw::Output BethYw::parseOutputArg() {
-  auto &args = BethYw::args();
-  BethYw::Output action = ALL;
-  try {
-    std::string value = args["output"].as<std::string>();
-    if (value == "average") {
-      action = AVERAGE;
-    } else if (value == "trend") {
-      action = TREND;
-    }
-  } catch (std::domain_error &ex) {
-  }
-
-  return action;
-}
-
-/*
   TODO: BethYw::loadAreas(&areas, dir, areasFilter)
 
   Load the areas.csv file from the directory `dir`. Parse the file and
@@ -633,32 +597,4 @@ void BethYw::printAll(Areas<> &areas) {
   for (auto area = areas.begin(); area != areas.end(); area++) {
     std::cout << area->second << std::endl;
   }
-}
-
-/*
-  TODO:BethYw::printAverage(areas)
-
-  Calculate the average for each area and measure imported, across all
-  years imported, and print this out to std::cout to std::cout;
-
-  Check the coursework specification for how this output should be formated. 
-
-  @param areas
-    A non-modified populated Areas object
-*/
-void BethYw::printAverage(Areas<> &areas) {
-  std::cout << "Calculate and print average information" << std::endl;
-}
-
-/*
-  TODO: Calculate the percentage difference for each area and measure imported,
-  from the first year imported to the last, and print this out to std::cout.
-
-  Check the coursework specification for how this output should be formated.
-
-  @param areas
-    A non-modified populated Areas object
-*/
-void BethYw::printTrend(Areas<> &areas) {
-  std::cout << "Calculate and print trend information" << std::endl;
 }
