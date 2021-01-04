@@ -591,7 +591,7 @@ inline void Areas<>::emplace(std::string &ident, Area &&stat) {
   Retrieve an Area instance for a local authority code or by name
 
   @param key
-    The local authority code or name to find the value, match any part of the    name
+    The local authority code or name to find the value
 
   TODO map: remove lines above for student, remove liens below for solution
 
@@ -621,20 +621,6 @@ inline Area &Areas<>::at(const std::string &key) {
   try {
     return mAreasByCode.at(mAreasByName.at(key));
   } catch(std::out_of_range &ex) {
-  }
-  
-  // Iterate over codes and match them with a wildcard approach
-  for (auto it = mAreasByCode.begin(); it != mAreasByCode.end(); it++) {
-    if (it->first.find(key) != std::string::npos) {
-      return it->second;
-    }
-  }
-
-  // Iterate over names and match them with a wildcard approach
-  for (auto it = mAreasByName.begin(); it != mAreasByName.end(); it++) {
-    if (it->first.find(key) != std::string::npos) {
-      return mAreasByCode.at(it->second);
-    }
   }
 
   throw std::out_of_range("No area found matching " + key);
