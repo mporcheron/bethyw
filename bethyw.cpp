@@ -318,14 +318,12 @@ std::unordered_set<std::string> BethYw::parseMeasuresArg() {
   }
 
   for (auto it = measures.begin(); it != measures.end(); it++) {
-
-      
     if (*it == "all") {
       measures.clear();
       break;
     }
-    
   }
+
   return measures;
 }
 
