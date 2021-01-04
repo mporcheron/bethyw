@@ -1,5 +1,6 @@
 
 
+
 /*
   +---------------------------------------+
   | BETH YW? WELSH GOVERNMENT DATA PARSER |
@@ -7,7 +8,7 @@
 
   AUTHOR: Dr Martin Porcheron
 
-The file's classes are structured in a granular way, from the most
+  The file's classes are structured in a granular way, from the most
   specific to most broad.
 
   Measure       — Represents a single measure for an area, e.g.
@@ -27,9 +28,8 @@ The file's classes are structured in a granular way, from the most
                   instead of geographic areas.
 
   This file contains numerous functions you must implement. Each function you
-  must implement as a TODO comment inside it. See data.h for explanations
-  of how the code is organised for the classes in this file.
- */
+  must implement has a TODO block comment. 
+*/
 
 #include <fstream>
 #include <iomanip>
@@ -46,33 +46,180 @@ The file's classes are structured in a granular way, from the most
 
 using json = nlohmann::json;
 
+/*
+  TODO: Measure::Measure(code, label);
 
+  Construct a single measure, that has values across many years.
+
+  All StatsWales JSON files have a codename for measures. We use this to 
+  allow filtering in the command line arguments. You should convert all codes 
+  to lowercase.
+
+  @param code
+    The codename for the measure
+
+  @param label
+    Human-readable (i.e. nice/explanatory) label for the measure
+
+  @example
+    Measure("Pop", "Population");
+*/
 Measure::Measure(std::string &code, std::string &label)
-    : mCode(code), mLabel(label), mData() {}
+    : mCode(code), mLabel(label), mData() {
+  std::transform(mCode.begin(), mCode.end(), mCode.begin(), ::tolower);
+}
 
+/*
+  TODO: Measure::getCode()
+
+  Retrieve the code for the measure. This function should not modify the object.
+
+  @return
+    The code for the measure
+
+  @example
+    Measure measure("pop", "Population");
+    measure.emplace(1999, 12345678.9);
+    ...
+    auto code = measure.getCode();
+*/
+inline const std::string &Measure::getCode() const { return mCode; }
+
+/*
+  TODO: Measure::getLabel()
+
+  Retrieve the label for the measure. This function should not modify the
+  object.
+
+  @return
+    The label for the measure
+
+  @example
+    Measure measure("pop", "Population");
+    measure.emplace(1999, 12345678.9);
+    ...
+    auto label = measure.getLabel();
+*/
+inline const std::string &Measure::getLabel() const { return mLabel; }
+
+/*
+  TODO: Measure::at(key)
+
+  Add a particular year's value to the Measure object.
+
+  Note, this overloaded function should be called with std::move() 
+  encasing the value so that Measure takes ownership over the resource.
+
+  @param key
+    The year to find
+
+  @param value
+    The value, which Measure will take ownership of
+
+  @example
+    Measure measure("pop", "Population");
+    measure.emplace(1999, 12345678.9);
+
+    double value = measure.at(1999);
+*/
+inline Measure_t &Measure::at(const int &key) {
+  return mData.at(key);
+}
+
+/*
+  TODO: Measure::emplace(key, value)
+
+  Add a particular year's value to the Measure object.
+
+  @param key
+    The year
+
+  @throws
+    std::out_of_range if year is not in the measure
+
+  @example
+    Measure measure("pop", "Population");
+    measure.emplace(1999, 12345678.9);
+*/
+inline void Measure::emplace(const int &key, Measure_t &value) {
+  mData.emplace(key, value);
+}
+
+/*
+  TODO: Measure::emplace(key, value)
+
+  Add a particular year's value to the Measure object.
+
+  Note, this overloaded function should be called with std::move() 
+  encasing the value so that Measure takes ownership over the resource.
+
+  @param key
+    The year
+
+  @param value
+    The value, which Measure will take ownership of
+
+  @example
+    Measure measure("pop", "Population");
+    double value = 12345678.9;
+    measure.emplace(1999, std::move(value));
+*/
+inline void Measure::emplace(const int &key, Measure_t &&value) {
+  mData.emplace(key, std::move(value));
+}
+
+/*
+  TODO: Measure::size()
+
+  Retrieve the number of years data we have for this measure. This function
+  should not modify the object or throw an exception.
+
+  @return
+    The size of the measure
+
+  @example
+    Measure measure("pop", "Population");
+    measure.emplace(1999, 12345678.9);
+    ...
+    auto size = measure.size();
+*/
+inline size_t Measure::size() const noexcept {
+  return mData.size();
+}
+
+/*
+  TODO: operator<<(os, measure)
+
+  Overload the << operator for print the measure's imported data.
+
+  We align the year and value outputs by padding the outputs with spaces,
+  i.e. the year and values should be right-aligned to each other so they
+  can be read as a table of numerical values.
+
+  See the coursework specification for more information.
+
+  @param os
+    The output stream to write to
+
+  @param measure
+    Measure to write to the output stream
+
+  @return
+    Reference to the output stream.
+
+  @example
+    Measure measure("pop", "Population");
+    measure.emplace(1999, 12345678.9);
+    std::cout << measure << std::end;;
+*/
 std::ostream &operator<<(std::ostream &os, const Measure &measure) {
-  // TODO: implement the << overload operator, so that we print the statistic
-  // data in the following format:
-  // <label>\n
-  //  Year0 Year1   Year2 ...  Yearn\n
-  // Value1 Value2 Value3 ... Valuen\n
-  //
-  // You should align the year and value outputs by padding the outputs
-  // with spaces, i.e. the year and values should be in the same position/
-  // alignment.
-  //
-  // While you will be able to convert the key of the map (which is an int) to
-  // a std::string using std::to_string(), you will have to use the static
-  // function I've included in the declaration of Measure to do this for the
-  // value (which is a Measure_t). You can do that by calling
-  // Measure::to_string(<variable of Measure_t type>);
   os << measure.getLabel() << " (" << measure.getCode() << ")" << std::endl;
 
   // Iterate through and print the years and save the values to a stringstream
   std::stringstream values;
   for (auto it = measure.cbegin(); it != measure.cend(); ++it) {
     std::string year = std::to_string(it->first);
-    std::string value = Measure::to_string(it->second);
+    std::string value = std::to_string(it->second);
 
     int len = std::max(year.length(), value.length());
 
@@ -84,51 +231,138 @@ std::ostream &operator<<(std::ostream &os, const Measure &measure) {
   return os;
 }
 
+/*
+  TODO: Area::Area(localAuthorityCode)
 
+  Construct an area with a given local authority code.
+
+  @param localAuthorityCode
+    A reference to the local authority code
+*/
 Area::Area(const std::string &localAuthorityCode)
     : mLocalAuthorityCode(localAuthorityCode), mNames(), mMeasures() {}
 
-const std::string &Area::getLocalAuthorityCode() const {
+/*
+  TODO: getLocalAuthorityCode()
+
+  Retrieve the local authority code. This function should not modify the object.
+  
+  @return
+    The local authority code.
+*/
+inline const std::string &Area::getLocalAuthorityCode() const {
   return mLocalAuthorityCode;
 }
 
-// Insert a <}}language, name for the area> pair into the names map.
-void Area::setName(const std::string &lang, const std::string &name) {
-  // TODO: Add a language and name pair to the map.
-  mNames.emplace(lang, name);
-}
+/*
+  TODO: getName(lang)
 
-// Insert a <}}language, name for the area> pair into the names map.
-void Area::setName(const std::string &lang, std::string &&name) {
-  // TODO: Add a language and name pair to the map.
-  mNames.emplace(lang, std::move(name));
-}
+  Get a name for the area in a specific language. This function should not 
+  modify the object.
 
-// Search the unordered map in names for a key. if you don't find the value,
-// throw a std::runtime_error
-const std::string &Area::getName(const std::string &lang) const {
-  // TODO: Search the internal map and return a name for the given language
-  // code. If not area is found, ensure an appropriate exception is thrown.
+  @param lang
+    A three-leter language code in ISO 639-2/B format
+
+  @return
+    Name for the area
+
+  @throws
+    std::out_of_range if lang is not a set language
+
+  @example
+    Area area("W06000023");
+    area.setName("eng", "Powys");
+    ...
+    std::string name = area.getName("eng");
+*/
+inline const std::string &Area::getName(const std::string &lang) const {
   return mNames.at(lang);
 }
 
+/*
+  TODO: setName(lang, name)
+
+  Set a name for the area in a specific language.
+
+  @param lang
+    A three-leter language code in ISO 639-2/B format
+
+  @param name
+    Name of the area in this language
+
+  @example
+    Area area("W06000023");
+    area.setName("eng", "Powys");
+    area.setName("cym", "Powys");
+*/
+inline void Area::setName(const std::string &lang, const std::string &name) {
+  mNames.emplace(lang, name);
+}
+
+/*
+  TODO: setName(lang, name)
+
+  Set a name for the area in a specific language.
+
+  @param lang
+    A three-leter language code in ISO 639-2/B format
+
+  @param name
+    Name of the area in this language, which Area will take ownership of
+
+  @example
+    Area area("W06000023");
+    area.setName("eng", "Powys");
+    area.setName("cym", "Powys");
+*/
+inline void Area::setName(const std::string &lang, std::string &&name) {
+  mNames.emplace(lang, std::move(name));
+}
+
+/*
+  Output all imported measures within an area.
+
+  @param os
+    The output stream to write to
+
+  @param area
+    Area to write to the output stream
+
+  @return
+    Reference to the output stream
+
+  @example
+    Area area("W06000023");
+    area.setName("eng", "Powys");
+    std::cout << area << std::end;;
+
+  TODO map: remove
+*/
 std::ostream &operator<<(std::ostream &os, const Area &area) {
-  // TODO map: write TODO
   os << area.getName("eng") << " / " << area.getName("cym") << " ("
      << area.getLocalAuthorityCode() << ")" << std::endl;
 
-  for (auto measure = area.cbegin();
-       measure != area.cend();
-       measure++) {
+  for (auto measure = area.cbegin(); measure != area.cend(); measure++) {
     os << measure->second << std::endl;
   }
 
   return os;
 }
 
+/*
+  TODO: Areas()
 
+  Constructor for an areas object.
 
-template <> Areas<>::Areas() : mAreas() {}
+  Hint: because we have templated Areas, you have to include
+  template <> before you put the function header, and refer to the class as 
+  Areas<> before the scope resolution operator.
+
+  @example
+    Areas<>()
+*/
+template <>
+Areas<>::Areas() : mAreas() {}
 
 // Parse the areas CSV and construct the Area object. This is a simple dataset
 // that is a comma-separated values file (CSV), where the first row gives
@@ -137,10 +371,8 @@ template <> Areas<>::Areas() : mAreas() {}
 // In this case, we use this parser to parse areas.csv
 template <>
 void Areas<>::populateFromAuthorityCodeCSV(
-    std::istream &is,
-    const SourceColumnsMatch &cols,
-    const std::unordered_set<std::string> * const areasFilter)
-    noexcept(false) {
+    std::istream &is, const SourceColumnsMatch &cols,
+    const std::unordered_set<std::string> *const areasFilter) noexcept(false) {
   // TODO Implement this parsing function. You can assume the columns will
   // remain in the same ordering in your implementation as they are in the data
   // file provided in the coursework.
@@ -157,7 +389,7 @@ void Areas<>::populateFromAuthorityCodeCSV(
     throw std::runtime_error("Areas::populateFromAuthorityCodeCSV: "
                              "File contains no data");
   }
-  
+
   bool areasFilterEnabled = areasFilter != nullptr && !areasFilter->empty();
 
   // Parse the data
@@ -173,11 +405,11 @@ void Areas<>::populateFromAuthorityCodeCSV(
 
       // First column is the area code
       getline(s, areaCode, ',');
-      
+
       if (areasFilterEnabled && areasFilter->count(areaCode) == 0) {
         continue;
       }
-      
+
       Area area = Area(areaCode);
 
       // Second column is the title in English
@@ -202,12 +434,11 @@ void Areas<>::populateFromAuthorityCodeCSV(
 
 template <>
 void Areas<>::populateFromWelshStatsJSON(
-    std::istream &is,
-    const SourceColumnsMatch &cols,
-    const std::unordered_set<std::string> * const areasFilter,
-    const std::unordered_set<std::string> * const measuresFilter,
-    const std::tuple<unsigned int, unsigned int> * const yearsFilter)
-    noexcept(false) {
+    std::istream &is, const SourceColumnsMatch &cols,
+    const std::unordered_set<std::string> *const areasFilter,
+    const std::unordered_set<std::string> *const measuresFilter,
+    const std::tuple<unsigned int, unsigned int>
+        *const yearsFilter) noexcept(false) {
   // TODO: Implement the partsing of the data from JSON files.
   //
   // Data from Welsh Statistics is in the JSON format, and contains three
@@ -278,22 +509,16 @@ void Areas<>::populateFromWelshStatsJSON(
 
   // Determine whether the respective area, measures, and years filters
   // are enabled or not
-  bool areasFilterEnabled =
-                          areasFilter != nullptr &&
-                          !areasFilter->empty();
-  bool measuresFilterEnabled = 
-                          measuresFilter != nullptr &&
-                          !measuresFilter->empty();
-  bool yearsFilterEnabled = 
-                          yearsFilter != nullptr &&
-                          std::get<0>(*yearsFilter) != 0 &&
-                          std::get<1>(*yearsFilter) != 0;
-  
+  bool areasFilterEnabled = areasFilter != nullptr && !areasFilter->empty();
+  bool measuresFilterEnabled =
+      measuresFilter != nullptr && !measuresFilter->empty();
+  bool yearsFilterEnabled = yearsFilter != nullptr &&
+                            std::get<0>(*yearsFilter) != 0 &&
+                            std::get<1>(*yearsFilter) != 0;
 
   std::string localAuthorityCode;
   for (auto &el : j["value"].items()) {
     auto &data = el.value();
-
 
     std::string localAuthorityCode = data[COL_AUTHORITY_CODE];
     if (areasFilterEnabled && areasFilter->count(localAuthorityCode) == 0) {
@@ -312,10 +537,11 @@ void Areas<>::populateFromWelshStatsJSON(
 
     // Likewise, if there is a limiting range of years and our year is not
     // within it, skip it.
-    if (yearsFilterEnabled && (year < std::get<0>(*yearsFilter) || year > std::get<1>(*yearsFilter))) {
+    if (yearsFilterEnabled && (year < std::get<0>(*yearsFilter) ||
+                               year > std::get<1>(*yearsFilter))) {
       continue;
     }
-    
+
     std::string measureName = data[COL_MEASURE_NAME];
 
     double value = data[COL_VALUE];
@@ -349,10 +575,8 @@ void Areas<>::populateFromWelshStatsJSON(
 //
 // If an unexpected type is passed, throws a std::runtime_error.
 template <>
-void Areas<>::populate(
-    std::istream &is,
-    const DataType &type,
-    const SourceColumnsMatch &cols) noexcept(false) {
+void Areas<>::populate(std::istream &is, const DataType &type,
+                       const SourceColumnsMatch &cols) noexcept(false) {
   // TODO Implement a function that accepts an open input stream, and calls
   // either Areas::populateFromAuthorityCodeCSV or
   // Areas::populateFromWelshStatsJSON depending on the DataType.
@@ -380,13 +604,11 @@ void Areas<>::populate(
 // If an unexpected type is passed, throws a std::runtime_error.
 template <>
 void Areas<>::populate(
-    std::istream &is,
-    const DataType &type,
-    const SourceColumnsMatch &cols,
-    const std::unordered_set<std::string> * const areasFilter,
-    const std::unordered_set<std::string> * const measuresFilter,
-    const std::tuple<unsigned int, unsigned int> * const yearsFilter)
-    noexcept(false) {
+    std::istream &is, const DataType &type, const SourceColumnsMatch &cols,
+    const std::unordered_set<std::string> *const areasFilter,
+    const std::unordered_set<std::string> *const measuresFilter,
+    const std::tuple<unsigned int, unsigned int>
+        *const yearsFilter) noexcept(false) {
   // TODO Implement a function that accepts an open input stream, and calls
   // either Areas::populateFromAuthorityCodeCSV or
   // Areas::populateFromWelshStatsJSON depending on the DataType.
@@ -401,7 +623,8 @@ void Areas<>::populate(
   if (type == AuthorityCodeCSV) {
     populateFromAuthorityCodeCSV(is, cols, areasFilter);
   } else if (type == WelshStatsJSON) {
-    populateFromWelshStatsJSON(is, cols, areasFilter, measuresFilter, yearsFilter);
+    populateFromWelshStatsJSON(is, cols, areasFilter, measuresFilter,
+                               yearsFilter);
   } else {
     throw std::runtime_error("Areas::populate: Unexpected data type");
   }

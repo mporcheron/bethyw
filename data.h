@@ -9,6 +9,9 @@
   AUTHOR: Dr Martin Porcheron
 
   This file contains static information about files in the data directory.
+
+  You must not modify this file as it will be replaced with a fresh copy
+  during marking.
  */
 
 #include <string>

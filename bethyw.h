@@ -10,6 +10,9 @@
 
   This file contains all the helper functions for initialising and running
   Beth Yw?
+
+  TODO: Read the block comments with TODO in bethyw.cpp to know which 
+  functions you need to declare in this file.
  */
 
 #include "libs/cxxopts/cxxopts.hpp"
@@ -100,24 +103,46 @@ Output parseOutputArg();
   Load the areas.csv file from the directory `dir`. Parse the file and
   create the appropriate Area objects inside an Areas object.
 */
-void loadAreas(const std::string &dir, std::unordered_set<std::string> &filter);
+void loadAreas(
+    Areas<> &areas,
+    const std::string &dir,
+    std::unordered_set<std::string> &filter);
+
+/*
+  Load the datasets in datasetsToImport into the Areas object from files
+  in dir. If areasFilter or measuresFilter contain codes matching any
+  (they should contain authority code and measure codes respectively),
+  then only import those areas and measures. If areasFilter is empty, import 
+  all areas. If measuresFilter is empty, import all measures.
+
+  yearsFilter should be two unsigned ints; if both 0 then import all years.
+  Otherwise import only years within the range (inclusive) specified in the
+  tuple.
+*/
+void loadDatasets(
+    Areas<> &cat,
+    const std::string &dir,
+    std::vector<InputFileSource> &datasetsToImport,
+    std::unordered_set<std::string> &areasFilter,
+    std::unordered_set<std::string> &measuresFilter,
+    std::tuple<unsigned int,unsigned int> &yearsFilter);
 
 /*
   Dump all the information requested into the standard output.
 */
-void printAll();
+void printAll(Areas<> &areas);
 
 /*
   Calculate the average for each area and measure imported, across all years
   imported, and print this out.
 */
-void printAverage();
+void printAverage(Areas<> &areas);
 
 /*
   Calculate the percentage difference for each area and measure imported, from
   the first year imported to the last, and print this out.
 */
-void printTrend();
+void printTrend(Areas<> &areas);
 
 }; // namespace BethYw
 

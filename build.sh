@@ -7,7 +7,7 @@ if [ $# -eq 0 ]; then
   cd "${0%/*}"
   mkdir -p bin
   rm ./bin/bethyw 2> /dev/null
-  g++ --std=c++17 -Wall ${FILES_TO_COMPILE} main.cpp -o ./bin/bethyw
+  g++ --std=c++14 -Wall ${FILES_TO_COMPILE} main.cpp -o ./bin/bethyw
 elif [[ $1 == test* ]]; then
   # Do we need to compile Catch2?
   if [ ! -f ./bin/catch.o ]; then

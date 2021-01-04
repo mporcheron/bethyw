@@ -8,30 +8,15 @@
 
   AUTHOR: Dr Martin Porcheron
 
-  This file is responsible for parsing data from a std::istreamn and 
-  converting it into a series of objects. The file's classes are structured in
-  a granular way, from the most specific to most broad.
+  This file is responsible for parsing data from a standard input stream and 
+  converting it into a series of objects. This class contains the declarations
+  for those objects.
 
-  Measure       — Represents a single measure for an area, e.g.
-   |              population. Contains a human-readable label and a map of
-   |              the measure accross a number of years.
-   |
-   +-> Area       Represents an area in Wales. Contains a unique local
-        |         authority code used in national statistics, a map of the
-        |         names of the area (i.e. in English and Welsh), and a map of
-        |         various Measure objects.
-        |
-        +-> Areas A simple class that contains a map of all Area objects,
-                  indexed by the local authority code. This is derived from
-                  the DataContainer class, which is an abstract type.
-                  DataContainer exists so that in future we can expand our
-                  code to include areas broken down by different groupings
-                  instead of geographic areas.
+  Some code has been provided in your coursework, along with explanatory 
+  comments.
 
-
-  See the header file for additional comments.
-  
-  Each function you must implement has a TODO in its comment block. 
+  TODO: Read the block comments with TODO in parse.cpp to know which 
+  functions and member variables you need to declare in these classes.
  */
 
 #include <iostream>
@@ -56,7 +41,7 @@
   Unlike Java, enum in C++ only map to intenger values. You can either let
   the compiler generate the values automatically, in which it allocates a
   unique integer (0-indexed). Or, you can set the value by giving the name
-  followed by = <value> (e.g. XLSX=4).
+  followed by = <value> (e.g. AuthorityCodeCSV=1).
 
   This enum specifies the format types that the InputSource class can parse.
   We could have implemented an if statement that parsed a string for the data
@@ -66,7 +51,7 @@
 enum DataType { None, AuthorityCodeCSV, WelshStatsJSON };
 
 /*
-  Data from the different sources typically has different column headings
+  Data from the different sources typically hagve different column headings
   for the same value (e.g. some might say "Year" whereas others might say
   "Year_Code"). Here we create another enum for these column headings for
   the parser.
@@ -84,37 +69,54 @@ enum SourceColumns {
   VALUE
 };
 
+/*
+  We use the shortcut SourceColumnsMatch in this file for simplcity.
+*/
 using SourceColumnsMatch = std::unordered_map<SourceColumns, std::string>;
 
-// For each set of data, we have a value for each individual measure over
-// several years. Therefore, we will contain this in a "Measure" class, along
-// with a human-readable label.
-//
-// For example, if we had population size, we might have a mLabel "Population",
-// and in mDataByYear, we would have numerous years (as keys) with the size of
-// the population in the second pair part/value of the map.
-//
-// For the values, we make use of std::variant, which is a C++17 feature that
-// implements a "union". It allows us to state that the type of the value
-// will be one of any number of given types. To keep our code simple, we
-// define, using the using keyword, the type for this data.
-using Measure_t = std::variant<int, double, std::string>;
+/*
+  TODO map: remove
 
-// We derive Measure_c as the container for the year:value mappings
+  For each set of data, we have a value for each individual measure over
+  several years. Therefore, we will contain this in a "Measure" class, along
+  with a human-readable label.
+
+  For future proofing, we could  make use of std::variant, which is a C++17
+  feature that implements a "union". It allows us to state that the type of 
+  the value will be one of any number of given types. To keep our code simple,
+  we define, using the using keyword, the type for this data. For now, we'll
+  just set all data to doubles.
+*/
+using Measure_t = double;
+
+/*
+  TODO map: remove
+
+  We declare Measure_c as the container for the year:value mappings (i.e. 
+  the Measure data container) as a shortcut.
+*/
 using Measure_c = std::map<int, Measure_t>;
 
-// Becayse of the way std::variant is implemented in C++, we need to write
-// a function that converts the values from std::variant in the above map
-// (mDataByYear) and returns them as a std::string
-//
-// For the coursework, you can ignore how this and just assume it works! :)
+/*
+  Because of the way std::variant is implemented in C++, we need to write
+  a function that converts the values from std::variant in the above map
+  and returns them as a std::string
+
+  For the coursework, you can ignore how this and just assume it works! :)
+*/
 struct MeasureValueToString {
-  std::string operator()(int value) { return std::to_string(value); }
+  std::string operator()(long value) { return std::to_string(value); }
   std::string operator()(double value) { return std::to_string(value); }
   std::string operator()(const std::string &value) { return value; }
 };
 
-// Finally, we have the Measure class
+/*
+  The Measure class contains a measure code, label, and a map of year:value
+  mappings.
+
+  TODO: You should read the various block comments in the corresponding 
+  implementation file to know what to implement.
+*/
 class Measure {
 private:
   std::string mCode;
@@ -124,53 +126,79 @@ private:
 public:
   Measure(std::string &code, std::string &label);
   ~Measure() = default;
-  friend std::ostream &operator<<(std::ostream &os, const Measure &measure);
 
   Measure(const Measure &other)
       : mCode(other.mCode), mLabel(other.mLabel), mData(other.mData) {
-    std::cout << "   > Copy Measure " << mLabel << std::endl;
+    std::cerr << "!!!! Copy Construct Measure " << mLabel << std::endl;
   }
-  Measure &operator=(const Measure &other) = default;
+  Measure &operator=(const Measure &other) {
+    std::cerr << "!!!! Copy Assign Measure " << other.mLabel << std::endl;
+    mCode  = other.mCode;
+    mLabel = other.mLabel;
+    mData  = other.mData;
+    return *this;
+  }
   Measure(Measure &&other) = default;
   Measure &operator=(Measure &&ither) = default;
 
-  static std::string to_string(const Measure_t &input) {
-    return std::visit(MeasureValueToString{}, input);
+  inline const std::string &getCode() const;
+  inline const std::string &getLabel() const;
+
+  inline Measure_t &at(const int &key);
+  inline void emplace(const int &key, Measure_t &value);
+  inline void emplace(const int &key, Measure_t &&value);
+  inline size_t size() const noexcept;
+
+  friend std::ostream &operator<<(std::ostream &os, const Measure &measure);
+  
+  /*
+    Wrapper around underlying iterator functions for ease.
+  */
+  inline Measure_c::iterator begin() {
+    return mData.begin();
+  }
+  inline Measure_c::const_iterator cbegin() const {
+    return mData.cbegin();
   }
 
-  const std::string &getCode() const { return mCode; }
-
-  const std::string &getLabel() const { return mLabel; }
-
-  // Wrapper around underlying iterator functions for ease
-  Measure_c::iterator begin() { return mData.begin(); }
-  Measure_c::const_iterator cbegin() const { return mData.cbegin(); }
-
-  Measure_c::iterator end() { return mData.end(); }
-  Measure_c::const_iterator cend() const { return mData.cend(); }
-
-  Measure_c::reverse_iterator rbegin() { return mData.rbegin(); }
-  Measure_c::const_reverse_iterator crbegin() const { return mData.crbegin(); }
-
-  Measure_c::reverse_iterator rend() { return mData.rend(); }
-  Measure_c::const_reverse_iterator crend() const { return mData.crend(); }
-
-  void emplace(const int &key, Measure_t &&value) {
-    mData.emplace(key, std::move(value));
+  inline Measure_c::iterator end() {
+    return mData.end();
+  }
+  inline Measure_c::const_iterator cend() const {
+    return mData.cend();
   }
 
-  Measure_t &at(const int &year) { return mData.at(year); }
-  size_t size() const noexcept { return mData.size(); }
+  inline Measure_c::reverse_iterator rbegin() {
+    return mData.rbegin();
+  }
+  inline Measure_c::const_reverse_iterator crbegin() const {
+    return mData.crbegin();
+  }
+
+  inline Measure_c::reverse_iterator rend() {
+    return mData.rend();
+  }
+  inline Measure_c::const_reverse_iterator crend() const {
+    return mData.crend();
+  }
 };
 
-// The area class stores the area-based data for Wales. We use local authority
-// codes assigned by the Office for National Statistics and the name for the
-// area.
-//
-// We store the data in a std::map, where the key is a simple identifier for
-// the data (as a std::string) and the value is a Measure class.
+/*
+  The Areas class stores the area-based statistics data in a map of measure
+  code to Measure object. Here we define this shortcut for the class.
+
+  TODO map: delete
+*/
 using Area_c = std::map<std::string, Measure>;
 
+/*
+  An Area consists of a unique authority code, a map of names and a map of 
+  measures (where the measure code is the key and a Measure object is the 
+  value).
+
+  TODO: You should read the various block comments in the corresponding 
+  implementation file to know what to implement.
+*/
 class Area {
 protected:
   std::string mLocalAuthorityCode;
@@ -181,42 +209,70 @@ public:
   Area(const std::string &localAuthorityCode);
   ~Area() = default;
 
+  // TODO map: swap to
+  // Area(const Area &other) = default;
   Area(const Area &other)
       : mLocalAuthorityCode(other.mLocalAuthorityCode), mNames(other.mNames),
         mMeasures(other.mMeasures) {
-    std::cout << ">> Copy Area " << getName("eng") << std::endl;
+    std::cerr << "!!!! Copy Construct Area" << std::endl;
   }
-  Area &operator=(const Area &other) = default;
+  Area &operator=(const Area &other) {
+    std::cerr << "!!!! Copy Assign Area" << std::endl;
+    mLocalAuthorityCode  = other.mLocalAuthorityCode;
+    mNames = other.mNames;
+    mMeasures  = other.mMeasures;
+    return *this;
+  }
   Area(Area &&other) = default;
   Area &operator=(Area &&ither) = default;
 
-  const std::string &getLocalAuthorityCode() const;
+  inline const std::string &getLocalAuthorityCode() const;
+  inline const std::string &getName(const std::string &lang) const;
+  inline void setName(const std::string &lang, const std::string &name);
+  inline void setName(const std::string &lang, std::string &&name);
 
-  // Get/set name adds a name for a specific language using ISO 639-2/B codes
-  void setName(const std::string &lang, const std::string &name);
-  void setName(const std::string &lang, std::string &&name);
-  const std::string &getName(const std::string &lang) const;
+  /*
+    Wrapper around underlying iterator functions for ease.
+  */
+  inline Area_c::iterator begin() {
+    return mMeasures.begin();
+  }
+  inline Area_c::const_iterator cbegin() const {
+    return mMeasures.cbegin();
+  }
 
-  // TODO map: remove all these functions
-  void emplace(std::string &ident, Measure &&stat) {
+  inline Area_c::iterator end() {
+    return mMeasures.end();
+  }
+  inline Area_c::const_iterator cend() const {
+    return mMeasures.cend();
+  }
+
+  inline Area_c::reverse_iterator rbegin() {
+    return mMeasures.rbegin();
+  }
+  inline Area_c::const_reverse_iterator crbegin() const {
+    return mMeasures.crbegin();
+  }
+
+  inline Area_c::reverse_iterator rend() {
+    return mMeasures.rend();
+  }
+  inline Area_c::const_reverse_iterator crend() const {
+    return mMeasures.crend();
+  }
+  
+  inline void emplace(std::string &ident, Measure &&stat) {
     mMeasures.emplace(ident, std::move(stat));
   }
 
-  // Wrapper around underlying iterator functions for ease
-  Area_c::iterator begin() { return mMeasures.begin(); }
-  Area_c::const_iterator cbegin() const { return mMeasures.cbegin(); }
+  inline Measure &at(const std::string &ident) {
+    return mMeasures.at(ident);
+  }
 
-  Area_c::iterator end() { return mMeasures.end(); }
-  Area_c::const_iterator cend() const { return mMeasures.cend(); }
-
-  Area_c::reverse_iterator rbegin() { return mMeasures.rbegin(); }
-  Area_c::const_reverse_iterator crbegin() const { return mMeasures.crbegin(); }
-
-  Area_c::reverse_iterator rend() { return mMeasures.rend(); }
-  Area_c::const_reverse_iterator crend() const { return mMeasures.crend(); }
-
-  Measure &at(const std::string &ident) { return mMeasures.at(ident); }
-  size_t size() const noexcept { return mMeasures.size(); }
+  inline size_t size() const noexcept {
+    return mMeasures.size();
+  }
 
   friend bool operator==(const Area &lhs, const Area &rhs);
   friend bool operator!=(const Area &lhs, const Area &rhs);
@@ -224,108 +280,122 @@ public:
   friend std::ostream &operator<<(std::ostream &os, const Area &st);
 };
 
-// We include some synonyms for our filter types
+/*
+  A shortcut for filters based on strings such as categorisations e.g. area,
+  and measures.
+
+  TODO map: delete
+*/
 using StringFilterSet = std::unordered_set<std::string>;
+
+/*
+  A shortcut for a year filter.
+
+  TODO map: delete
+*/
 using YearFilterTuple = std::tuple<unsigned int, unsigned int>;
 
-// Generic Data class. All of our containers will inherit from this class, which
-// will in turn contain data inside an STL container. Note this this innter
-// container is unspecified at this stage (i.e. we will use the template type
-// T).
-//
-// Data containers are a simple container class for an STL Container. When
-// default constructed, the data should be empty, but they can be constructed
-// used the copy and move constructors, and from a stream.
-// template <class T>
-class DataContainer {
-protected:
-  DataContainer() = default;
+/*
+  Shortcut for the data within an Areas<>() object that maps authority codes
+  to an area name.
 
-  DataContainer(const DataContainer &other) = delete;
-  DataContainer &operator=(const DataContainer &other) = delete;
-  DataContainer(DataContainer &&other) = delete;
-  DataContainer &operator=(DataContainer &&ither) = delete;
-
-public:
-  virtual ~DataContainer() = default;
-
-  // Parses the list of Welsh areas used in the statistics website, including
-  // their local authority code, English, and Welsh names.
-  virtual void populate(
-      std::istream &is,
-      const DataType &type,
-      const SourceColumnsMatch &cols) noexcept(false) = 0;
-
-  // Same as above, but limiting the range to a select number of measures
-  // and years.
-  virtual void populate(
-      std::istream &is,
-      const DataType &type,
-      const SourceColumnsMatch &cols,
-      const StringFilterSet * const containersFilter = nullptr,
-      const StringFilterSet * const measuresFilter = nullptr,
-      const YearFilterTuple * const yearsFilter = nullptr)
-      noexcept(false) = 0;
-};
-
-// We store the each area in a set
+  TODO: you should remove the declaration of the Null class below, and give
+  Areas_c a valid container.
+*/
+// TODO map: replace with
+// class Null { };
+// using Areas_c = Null;
 using Areas_c = std::map<std::string, Area>;
 
-// A class that stores all areas.
-template <class Container = Areas_c> class Areas : public DataContainer {
+/*
+  Areas<> is a class that stores all the data categorised by area. The 
+  underlying Standard Library container is customisable using the Container
+  template parameter.
 
-private:
-  Areas();
-
+  TODO: You should read the various block comments in the corresponding 
+  implementation file to know what to implement.
+*/
+template <class Container = Areas_c>
+class Areas {
 protected:
   Areas_c mAreas;
 
 public:
+  Areas();
   virtual ~Areas() = default;
 
   Areas(const Areas &other) = delete;
   Areas &operator=(const Areas &other) = delete;
-  Areas(Areas &&other) = delete;
-  Areas &operator=(Areas &&ither) = delete;
-
-  // This implements the Singleton design principle. We have a private
-  // constructor which means Areas can only be constructed from within.
-  // Only one function in this class will actually construct an Areas()
-  // object, getInstance(). On the first time this function is called,
-  // getInstance() will instantiate an Areas() object, and save it to a
-  // local static variable. That means each successive time getInstance()
-  // is called, the same instance will be returned.
-  static Areas &getInstance() {
-    static Areas instance;
-    return instance;
-  }
+  Areas(Areas &&other) = default;
+  Areas &operator=(Areas &&ither) = default;
 
   // Parses the list of Welsh areas used in the statistics website, including
   // their local area code, English, and Welsh names as a CSV file.
+
+  /*
+    A function that specifically parses the compiled areas.csv file of
+    local authority codes, and their names in English and Welsh.
+
+    See comment blocks on the populate() functions below for an explanation
+    of the function parameters and their effect. 
+  
+    See the comment block in parse.cpp for an explanation of areas.csv.
+
+    If a parsing error occurs (e.g. due to a malformed file), throw a 
+    std::runtime_error.
+  */
   virtual void populateFromAuthorityCodeCSV(
       std::istream &is,
       const SourceColumnsMatch &cols,
       const std::unordered_set<std::string> * const areas = nullptr)
       noexcept(false);
 
-  // Parse the data files from the statistics website.
+  /*
+    A function that specifically parses the JSON from the StatsWales website.
+      
+    See comment blocks on the populate() functions below for an explanation
+    of the function parameters and their effect. 
+
+    If a parsing error occurs (e.g. due to a malformed file), throw a 
+    std::runtime_error.
+  */
   virtual void populateFromWelshStatsJSON(
       std::istream &is,
       const SourceColumnsMatch &cols,
-      const std::unordered_set<std::string> * const areas = nullptr,
-      const std::unordered_set<std::string> * const measures = nullptr,
-      const std::tuple<unsigned int, unsigned int> * const years = nullptr)
+      const StringFilterSet * const areasFilter = nullptr,
+      const StringFilterSet * const measuresFilter = nullptr,
+      const YearFilterTuple * const yearsFilter = nullptr)
       noexcept(false);
 
-  // Parses the list of Welsh areas used in the statistics website, including
-  // their local area code, English, and Welsh names.
+  /*
+    Parse all data from an std::istream, that is of a particular type, and with
+    a given column mapping,  and fill the container.
+
+    If a parsing error occurs (e.g. due to a malformed file), throw a 
+    std::runtime_error.
+  */
   virtual void populate(
       std::istream &is,
       const DataType &type,
       const SourceColumnsMatch &cols) noexcept(false);
 
-  // Same as above, but limiting the range to a select number of areas, measures
-  // and years.
+  /*
+    Parse data from an std::istream, that is of a particular type, and with
+    a given column mapping, filtering for specific area authority codes,,
+    measure identifiers, and years, and fill the container.
+
+    areasFilter should be an unordered set of strings. If the set is empty
+    or areasFilter is equal to nullptr, all areas should be imported. 
+    
+    measuresFilter operates in the same way for measures.
+      
+    yearsFilter is a tuple of two unsigned ints. If yearsFilter is equal to 
+    nullPtr or both unsigned ints equal 0, all years will be imported otherwise 
+    only years within the range (inclusive) should be imported.
+
+    If a parsing error occurs (e.g. due to a malformed file), throw a 
+    std::runtime_error.
+  */
   virtual void populate(
       std::istream &is,
       const DataType &type,
@@ -335,26 +405,29 @@ public:
       const YearFilterTuple * const yearsFilter = nullptr)
       noexcept(false);
 
-  // Wrapper around underlying iterator functions for ease
-  // TODO map: remove all of these
-  void emplace(std::string &ident, Area &&stat) {
+  /*
+    Wrapper around underlying iterator functions for ease.
+      
+   TODO map: remove all of these
+  */
+  inline void emplace(std::string &ident, Area &&stat) {
     mAreas.emplace(ident, std::move(stat));
   }
 
-  Areas_c::iterator begin() { return mAreas.begin(); }
-  Areas_c::const_iterator cbegin() { return mAreas.cbegin(); }
+  inline Areas_c::iterator begin() { return mAreas.begin(); }
+  inline Areas_c::const_iterator cbegin() { return mAreas.cbegin(); }
 
-  Areas_c::iterator end() { return mAreas.end(); }
-  Areas_c::const_iterator cend() { return mAreas.cend(); }
+  inline Areas_c::iterator end() { return mAreas.end(); }
+  inline Areas_c::const_iterator cend() { return mAreas.cend(); }
 
-  Areas_c::reverse_iterator rbegin() { return mAreas.rbegin(); }
-  Areas_c::const_reverse_iterator crbegin() { return mAreas.crbegin(); }
+  inline Areas_c::reverse_iterator rbegin() { return mAreas.rbegin(); }
+  inline Areas_c::const_reverse_iterator crbegin() { return mAreas.crbegin(); }
 
-  Areas_c::reverse_iterator rend() { return mAreas.rend(); }
-  Areas_c::const_reverse_iterator crend() { return mAreas.crend(); }
+  inline Areas_c::reverse_iterator rend() { return mAreas.rend(); }
+  inline Areas_c::const_reverse_iterator crend() { return mAreas.crend(); }
 
-  Area &at(const std::string &areaCode) { return mAreas.at(areaCode); }
-  size_t size() const noexcept { return mAreas.size(); }
+  inline Area &at(const std::string &areaCode) { return mAreas.at(areaCode); }
+  inline size_t size() const noexcept { return mAreas.size(); }
 };
 
 #endif // PARSE_H_

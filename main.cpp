@@ -8,13 +8,11 @@
 
   AUTHOR: Dr Martin Porcheron
 
-  You don't need to modify this file at all. All the action is happens in
-  BethYw::run().
-
-  When your coursework is marked, this file will be substituted by fresh copy
-  so any changes you make will have no effect on your mark.
+  You must not modify this file as it will be replaced with a fresh copy
+  during marking.
  */
 
+#include <exception>
 #include <iostream>
 
 #include "bethyw.h"

@@ -16,6 +16,9 @@
   Although only one class derives from InputSource, we have implemented our
   code this way to support future expansion of input from different sources
   (e.g. the web).
+
+  TODO: Read the block comments with TODO in input.cpp to know which 
+  functions and member variables you need to declare in these classes.
  */
 
 #include <string>
@@ -27,7 +30,12 @@
   data sources such as files and web pages. Therefore, this virtual class 
   will allow us to mix/match sources as needed. For now, we can just ignore
   it and focus on InputFile (next class down!).
+
+  TODO: You should read the various block comments in the corresponding 
+  implementation file to know what to implement.
 */
+// class InputSource {
+// };
 class InputSource {
 protected:
   const std::string mSource;
@@ -43,18 +51,12 @@ public:
 /*
   Source data that is contained within a file. For now, our application will
   only work with files (and in particular, the files in the data directory).
+
+  TODO: You should read the various block comments in the corresponding 
+  implementation file to know what to implement.
 */
 // TODO map: replace code with:
 // class InputFile : public InputSource {
-// public:
-//   InputFile(const std::string &path);
-//   virtual ~InputFile() = default;
-//
-//   /*
-//     Open a file specified in the constructor and throw a std::runtime_error
-//     exception if the file cannot be opened.
-//   */
-//   virtual std::istream &open() noexcept(false);
 // };
 class InputFile : public InputSource {
 protected:

@@ -1,18 +1,24 @@
 
-Beth Yw
+Beth Yw?
 
   The code used here is strictly for students taking CSC371 2020/21 at
   Swansea University.
 
-  The code provided in this coursework is not for release until after all marks 
+  The code provided in this coursework is not for release until after all marks
   have been finalised for the academic year. Sharing or making public any such
-  code will be an academic misconduct offence and any/all students involved in 
+  code will be an academic misconduct offence and any/all students involved in
   sharing or accesing code will be referred for academic midconduct offences.
-  Students found to have committed an offence under Swansea University 
+
+  This includes both the nearly empty header and source files as well as
+  all comments and documentation supplied with the coursework.
+
+  Any code you write to implement your coursework must be kept strictly
+  confidential to you. Do not explain it to any other student as this could
+  result in both students being accused of collusion.
+
+  Students found to have committed an offence under Swansea University
   regulations can receive, in the minimum case, 0 marks for the module, and in
   the most extreme cases, withdawl from the university.
-  
-  The code in this coursework is copyright Martin Porcheron.
 
 
 Catch2
@@ -40,8 +46,8 @@ Catch2
   FOR ANY DAMAGES OR OTHER LIABILITY, WHETHER IN CONTRACT, TORT OR OTHERWISE,
   ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
   DEALINGS IN THE SOFTWARE.
-  
-  
+
+
 CXXOPTS
 
   MIT Licence
@@ -68,8 +74,8 @@ CXXOPTS
 
 
 JSON for Modern C++
-  
-  MIT License 
+
+  MIT License
 
   Copyright (c) 2013-2020 Niels Lohmann
 
