@@ -212,7 +212,8 @@ public:
   ~Area() = default;
 
   Area(const Area &other)
-      : mLocalAuthorityCode(other.mLocalAuthorityCode), mNames(other.mNames),
+      : mLocalAuthorityCode(other.mLocalAuthorityCode),
+        mNames(other.mNames),
         mMeasures(other.mMeasures) {
     std::cerr << "!!!! Copy Construct Area" << std::endl;
   }
@@ -293,26 +294,28 @@ using YearFilterTuple = std::tuple<unsigned int, unsigned int>;
   to an area name.
 
   TODO: you should remove the declaration of the Null class below, and give
-  Areas_c a valid Standard Library container of your choosing.
+  AreasContainer a valid Standard Library container of your choosing.
 */
 // TODO map: replace with
 // class Null { };
-// using Areas_c = Null;
-using Areas_c = std::map<std::string, Area>;
+// using AreasContainer = Null;
+using AreasContainer = std::map<std::string, Area>;
+using AreasContainerNamesToAuthorityCodes = std::map<std::string, std::string>;
 
 /*
   Areas<> is a class that stores all the data categorised by area. The 
   underlying Standard Library container is customisable using the Container
-  template parameter (with the default set to whatever Areas_c is aliasing
+  template parameter (with the default set to whatever AreasContainer is aliasing
   above).
 
   TODO: You should read the various block comments in the corresponding 
   implementation file to know what to declare.
 */
-template <class Container = Areas_c>
+template <class Container = AreasContainer>
 class Areas {
 protected:
-  Areas_c mAreas;
+  AreasContainer mAreasByCode;
+  AreasContainerNamesToAuthorityCodes mAreasByName;
 
 public:
   Areas();
@@ -323,11 +326,15 @@ public:
   Areas(Areas &&other) = default;
   Areas &operator=(Areas &&ither) = default;
 
+  size_t wildcardCountSet(
+    const std::unordered_set<std::string> &needles,
+    const std::string& haystack) const;
+    
   inline void emplace(std::string &ident, Area &stat);
   inline void emplace(std::string &ident, Area &&stat);
   inline Area &at(const std::string &areaCode);
   inline size_t size() const noexcept;
-
+  
   void populateFromAuthorityCodeCSV(
       std::istream &is,
       const SourceColumnsMatch &cols,
@@ -359,17 +366,17 @@ public:
   /*
     Wrapper around underlying iterator functions for ease.
   */
-  inline Areas_c::iterator begin() { return mAreas.begin(); }
-  inline Areas_c::const_iterator cbegin() { return mAreas.cbegin(); }
+  inline AreasContainer::iterator begin() { return mAreasByCode.begin(); }
+  inline AreasContainer::const_iterator cbegin() { return mAreasByCode.cbegin(); }
 
-  inline Areas_c::iterator end() { return mAreas.end(); }
-  inline Areas_c::const_iterator cend() { return mAreas.cend(); }
+  inline AreasContainer::iterator end() { return mAreasByCode.end(); }
+  inline AreasContainer::const_iterator cend() { return mAreasByCode.cend(); }
 
-  inline Areas_c::reverse_iterator rbegin() { return mAreas.rbegin(); }
-  inline Areas_c::const_reverse_iterator crbegin() { return mAreas.crbegin(); }
+  inline AreasContainer::reverse_iterator rbegin() { return mAreasByCode.rbegin(); }
+  inline AreasContainer::const_reverse_iterator crbegin() { return mAreasByCode.crbegin(); }
 
-  inline Areas_c::reverse_iterator rend() { return mAreas.rend(); }
-  inline Areas_c::const_reverse_iterator crend() { return mAreas.crend(); }
+  inline AreasContainer::reverse_iterator rend() { return mAreasByCode.rend(); }
+  inline AreasContainer::const_reverse_iterator crend() { return mAreasByCode.crend(); }
 };
 
 #endif // DATA_H_

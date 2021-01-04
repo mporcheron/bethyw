@@ -538,7 +538,7 @@ std::ostream &operator<<(std::ostream &os, const Area &area) {
     Areas<> data = Areas<>();
 */
 template <>
-Areas<>::Areas() : mAreas() {}
+Areas<>::Areas() : mAreasByCode(), mAreasByName() {}
 
 /*
   TODO: Areas<>::emplace(key, value)
@@ -558,7 +558,7 @@ Areas<>::Areas() : mAreas() {}
 */
 template<>
 inline void Areas<>::emplace(std::string &ident, Area &stat) {
-  mAreas.emplace(ident, stat);
+  mAreasByCode.emplace(ident, stat);
 }
 
 /*
@@ -582,11 +582,18 @@ inline void Areas<>::emplace(std::string &ident, Area &stat) {
 */
 template<>
 inline void Areas<>::emplace(std::string &ident, Area &&stat) {
-  mAreas.emplace(ident, std::move(stat));
+  mAreasByCode.emplace(ident, std::move(stat));
 }
 
 /*
   TODO: Areas<>::at(key)
+
+  Retrieve an Area instance for a local authority code or by name
+
+  @param key
+    The local authority code or name to find the value, match any part of the    name
+
+  TODO map: remove lines above for student, remove liens below for solution
 
   Retrieve an Area instance for a local authority code.
 
@@ -604,8 +611,79 @@ inline void Areas<>::emplace(std::string &ident, Area &&stat) {
     Area area2 = areas.at("W06000023");
 */
 template<>
-inline Area &Areas<>::at(const std::string &areaCode) {
-  return mAreas.at(areaCode);
+inline Area &Areas<>::at(const std::string &key) {
+  // mAreasByCode.at(key);
+  try {
+    return mAreasByCode.at(key);
+  } catch(std::out_of_range &ex) {
+  }
+
+  try {
+    return mAreasByCode.at(mAreasByName.at(key));
+  } catch(std::out_of_range &ex) {
+  }
+  
+  // Iterate over codes and match them with a wildcard approach
+  for (auto it = mAreasByCode.begin(); it != mAreasByCode.end(); it++) {
+    if (it->first.find(key) != std::string::npos) {
+      return it->second;
+    }
+  }
+
+  // Iterate over names and match them with a wildcard approach
+  for (auto it = mAreasByName.begin(); it != mAreasByName.end(); it++) {
+    if (it->first.find(key) != std::string::npos) {
+      return mAreasByCode.at(it->second);
+    }
+  }
+
+  throw std::out_of_range("No area found matching " + key);
+}
+
+/*
+  TODO map: delete this functio and comment
+
+  Given one or more needles, how many match to the haystack.
+
+  @param needles
+    The list of needles to find in the haystack
+
+  @param haystack
+    The haystack to count the number of occurences of the needles
+
+  @returns
+    Number of occurences
+*/
+template<>
+size_t Areas<>::wildcardCountSet(
+    const std::unordered_set<std::string> &needles,
+    const std::string &haystack) const {
+  // count exact matches first
+  size_t retval = needles.count(haystack);
+  
+  std::string haystackCopy = haystack;
+  std::transform(
+    haystackCopy.begin(),
+    haystackCopy.end(),
+    haystackCopy.begin(), 
+    [](unsigned char c){ return std::toupper(c); });
+
+  // Iterate over codes and match them with a wildcard approach
+  for (auto it = needles.cbegin(); it != needles.cend(); it++) {
+    std::string needle = *it;
+    auto result = std::search(
+        haystackCopy.begin(), haystackCopy.end(),
+        needle.begin(), needle.end(),
+        [](char ch1, char ch2) {
+          return ch1 == std::toupper(ch2);
+        });
+        
+    if (result != haystackCopy.end()) {
+      retval += 1;
+    }
+  }
+
+  return retval;
 }
 
 /*
@@ -625,7 +703,7 @@ inline Area &Areas<>::at(const std::string &areaCode) {
 */
 template<>
 inline size_t Areas<>::size() const noexcept {
-  return mAreas.size();
+  return mAreasByCode.size();
 }
 
 /*
@@ -693,7 +771,7 @@ void Areas<>::populateFromAuthorityCodeCSV(
   unsigned int lineNo = 2;
   try {
     while (std::getline(is, line)) {
-      std::string areaCode, cell;
+      std::string localAuthorityCode, nameEnglish, nameWelsh;
 
       // Scan the line for a comma, likely not the most efficient but
       // it hands off the matching to an underlying library for now...
@@ -701,23 +779,29 @@ void Areas<>::populateFromAuthorityCodeCSV(
       s.exceptions(std::ifstream::failbit | std::ifstream::badbit);
 
       // First column is the area code
-      getline(s, areaCode, ',');
+      getline(s, localAuthorityCode, ',');
 
-      if (areasFilterEnabled && areasFilter->count(areaCode) == 0) {
+      // Second column is the title in English
+      getline(s, nameEnglish, ',');
+
+      // Third column is the title in Welsh
+      getline(s, nameWelsh, ',');
+
+      if (areasFilterEnabled &&
+          wildcardCountSet(*areasFilter, localAuthorityCode) == 0 &&
+          wildcardCountSet(*areasFilter, nameEnglish) == 0 &&
+          wildcardCountSet(*areasFilter, nameWelsh) == 0) {
         continue;
       }
 
-      Area area = Area(areaCode);
+      Area area = Area(localAuthorityCode);
+      area.setName("eng", nameEnglish);
+      area.setName("cym", nameWelsh);
 
-      // Second column is the title in English
-      getline(s, cell, ',');
-      area.setName("eng", std::move(cell));
+      this->emplace(localAuthorityCode, std::move(area));
 
-      // Third column is the title in Welsh
-      getline(s, cell, ',');
-      area.setName("cym", std::move(cell));
-
-      this->emplace(areaCode, std::move(area));
+      mAreasByName.emplace(nameEnglish, localAuthorityCode);
+      mAreasByName.emplace(nameWelsh, localAuthorityCode);
 
       lineNo++;
     }
@@ -864,8 +948,8 @@ void Areas<>::populateFromWelshStatsJSON(
   // Determine whether the respective area, measures, and years filters
   // are enabled or not
   bool areasFilterEnabled = areasFilter != nullptr && !areasFilter->empty();
-  bool measuresFilterEnabled =
-      measuresFilter != nullptr && !measuresFilter->empty();
+  bool measuresFilterEnabled = measuresFilter != nullptr &&
+                               !measuresFilter->empty();
   bool yearsFilterEnabled = yearsFilter != nullptr &&
                             std::get<0>(*yearsFilter) != 0 &&
                             std::get<1>(*yearsFilter) != 0;
@@ -875,10 +959,36 @@ void Areas<>::populateFromWelshStatsJSON(
     auto &data = el.value();
 
     std::string localAuthorityCode = data[COL_AUTHORITY_CODE];
-    if (areasFilterEnabled && areasFilter->count(localAuthorityCode) == 0) {
-      continue;
-    }
+    std::string areaNameEnglish = data[COL_AREA_NAME];
 
+    auto existingArea = mAreasByCode.find(localAuthorityCode);
+
+    if (areasFilterEnabled) {
+      // Welsh names aren't in the JSON data, so we can only check local
+      // authority codes and English names by default
+      if (wildcardCountSet(*areasFilter, localAuthorityCode) == 0 &&
+          wildcardCountSet(*areasFilter, areaNameEnglish) == 0) {
+
+        // But, if the area already exists, we might have a Welsh name for it 
+        // already, so we need to check that to!
+        // If there isn't an existing area, we just have to assume it doesn't
+        // match the filter and skip it.
+        if (existingArea != mAreasByCode.end()) {
+          try {
+            const std::string &areaNameWelsh =
+                existingArea->second.getName("cym");
+            if (wildcardCountSet(*areasFilter, areaNameWelsh) == 0) {
+              continue;
+            }
+          } catch (std::out_of_range &ex) {
+            continue;
+          }
+        } else {
+          continue;
+        }
+      }
+    }
+    
     std::string measureCode = data[COL_MEASURE_CODE];
     std::transform(
       measureCode.begin(),
@@ -898,8 +1008,7 @@ void Areas<>::populateFromWelshStatsJSON(
     std::string measureName = data[COL_MEASURE_NAME];
     double value = data[COL_VALUE];
 
-    auto existingArea = mAreas.find(localAuthorityCode);
-    if (existingArea != mAreas.end()) {
+    if (existingArea != mAreasByCode.end()) {
       Area &area = existingArea->second;
 
       try {
@@ -912,11 +1021,15 @@ void Areas<>::populateFromWelshStatsJSON(
       }
     } else {
       Area area = Area(localAuthorityCode);
-      area.setName("eng", data[COL_AREA_NAME]);
+      area.setName("eng", areaNameEnglish);
 
       Measure newMeasure = Measure(measureCode, measureName);
       newMeasure.emplace(year, std::move(value));
       area.emplace(measureCode, std::move(newMeasure));
+      
+      this->emplace(localAuthorityCode, std::move(area));
+      
+      mAreasByName.emplace(data[COL_AREA_NAME], localAuthorityCode);
     }
   }
 }
