@@ -56,22 +56,42 @@ const InputFileSource AREAS = {
       {AUTH_NAME_ENG, "Name (eng)"},
       {AUTH_NAME_CYM, "Name (cym)"}
   }
-};
+}; // const InputFileSource AREAS
 
 const std::unordered_map<std::string, InputFileSource> DATASETS{
-  {"popden", {
-    "Population density",
-    "popu1009.json",
-    DataType::WelshStatsJSON,
+  {
+    "popden",
     {
-      {AUTH_CODE,     "Localauthority_Code"},
-      {AUTH_NAME_ENG, "Localauthority_ItemName_ENG"},
-      {MEASURE_CODE,  "Measure_Code"},
-      {MEASURE_NAME,  "Measure_ItemName_ENG"},
-      {YEAR,          "Year_Code"},
-      {VALUE,         "Data"}
-    }}
-  }};
+      "Population density",
+      "popu1009.json",
+      DataType::WelshStatsJSON,
+      {
+        {AUTH_CODE,     "Localauthority_Code"},
+        {AUTH_NAME_ENG, "Localauthority_ItemName_ENG"},
+        {MEASURE_CODE,  "Measure_Code"},
+        {MEASURE_NAME,  "Measure_ItemName_ENG"},
+        {YEAR,          "Year_Code"},
+        {VALUE,         "Data"}
+      }
+    }
+  },
+  {
+    "aqi",
+    {
+      "Air Quality Indicators",
+      "envi0201.json",
+      DataType::WelshStatsJSON,
+      {
+        {AUTH_CODE,     "Area_Code"},
+        {AUTH_NAME_ENG, "Area_ItemName_ENG"},
+        {MEASURE_CODE,  "Pollutant_ItemName_ENG"},
+        {MEASURE_NAME,  "Pollutant_ItemName_ENG"},
+        {YEAR,          "Year_Code"},
+        {VALUE,         "Data"}
+      }
+    }
+  }
+}; // const std::unordered_map<std::string, InputFileSource> DATASETS
 }; // namespace InputFiles
 
 }; // namespace BethYw

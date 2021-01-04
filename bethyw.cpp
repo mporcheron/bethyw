@@ -438,7 +438,7 @@ void BethYw::loadAreas(Areas<> &areas,
                   InputFiles::AREAS.COLS,
                   &areasFilter);
   } catch (const std::runtime_error &ex) {
-    std::cout << fileAreas << " error:\n" << ex.what() << std::endl;
+    std::cerr << fileAreas << " error:\n" << ex.what() << std::endl;
     std::exit(1);
   }
 }
@@ -507,7 +507,7 @@ void BethYw::loadDatasets(
                     &measuresFilter,
                     &yearsFilter);
     } catch (const std::runtime_error &ex) {
-      std::cout << "Source error:\n" << ex.what() << std::endl;
+      std::cerr << "Source error:\n" << ex.what() << std::endl;
       std::exit(1);
     }
   }

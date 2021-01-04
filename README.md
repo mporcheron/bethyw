@@ -25,6 +25,7 @@ The following data files are stored in the _data_ directory. I have given the UR
 * popu1009.json - [Population Density by local authority](http://open.statswales.gov.wales/en-gb/dataset/popu1009)
 * popu1003.json - [Age distribution of population by gender and local authority](http://open.statswales.gov.wales/en-gb/dataset/popu1003)
 * popu0003.json - [Population estimates by local authority and year](http://open.statswales.gov.wales/en-gb/dataset/popu0003)
+* envi0201.json - [Air Quality Indicators, by Local Authority](https://statswales.gov.wales/Catalogue/Environment-and-Countryside/Air-Quality/airqualityindicators-by-localauthority)
 
 ### Third-party libraries used
 

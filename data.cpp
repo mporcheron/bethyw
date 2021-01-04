@@ -629,7 +629,8 @@ inline Area &Areas<>::at(const std::string &key) {
 /*
   TODO map: delete this functio and comment
 
-  Given one or more needles, how many match to the haystack.
+  Given one or more needles, how many match to the haystack. This is a case
+  insensitive search, and will search for partial strings.
 
   @param needles
     The list of needles to find in the haystack
@@ -841,9 +842,6 @@ void Areas<>::populateFromAuthorityCodeCSV(
   If you encounter an area that does not exist in the Areas container, you
   should create the Area object.
 
-  If you encounter a Measure that does not exist inside an Area, you should
-  create it.
-
   If areasFilter is a non-empty set only include areas where the authority
   code is within areasFilter. If measuresFilter is a non-empty set only include
   measures where the measure code is within measuresFilter. If yearsFilter is
@@ -992,8 +990,14 @@ void Areas<>::populateFromWelshStatsJSON(
     }
 
     std::string measureName = data[COL_MEASURE_NAME];
-    double value = data[COL_VALUE];
-
+    double value;
+    try {
+      value = data[COL_VALUE];
+    } catch(nlohmann::detail::type_error &ex) {
+      // dagnabbit, its problably a string!
+      value = std::stod((std::string) data[COL_VALUE]);
+    }
+    
     if (existingArea != mAreasByCode.end()) {
       Area &area = existingArea->second;
 
@@ -1021,7 +1025,7 @@ void Areas<>::populateFromWelshStatsJSON(
 }
 
 /*
-  TODO: Areas<>::populate(is, cols
+  TODO: Areas<>::populate(is, type, cols)
 
   Parse data from an standard input stream, that is of a particular type,
   and with a given column mapping, filtering for specific area authority codes,
@@ -1091,7 +1095,13 @@ void Areas<>::populate(std::istream &is,
 }
 
 /*
-  TODO: Areas<>::populate(is, cols, areasFilter, measuresFilter, yearsFilter)
+  TODO: Areas<>::populate(
+    is,
+    type,
+    cols,
+    areasFilter,
+    measuresFilter,
+    yearsFilter)
 
   Parse data from an standard input stream, that is of a particular type,
   and with a given column mapping, filtering for specific area authority codes,

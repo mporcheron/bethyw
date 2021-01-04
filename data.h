@@ -123,7 +123,7 @@ private:
   std::string mCode;
   std::string mLabel;
   Measure_c mData;
-  unsigned long mSum;
+  double mSum;
 
 public:
   Measure(std::string &code, std::string &label);
