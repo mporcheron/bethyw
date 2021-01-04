@@ -18,7 +18,7 @@
 
 #include <fstream>
 
-#include "../sources.h"
+#include "../input.h"
 
 SCENARIO( "a valid source file can be opened and read", "[InputFile][import]" ) {
 
@@ -27,7 +27,7 @@ SCENARIO( "a valid source file can be opened and read", "[InputFile][import]" ) 
     return std::ifstream(path).is_open();
   };
   
-  const std::string test_file = "data/areas.csv";
+  const std::string test_file = "datasets/areas.csv";
   REQUIRE(file_exists(test_file));
 
   GIVEN( "a valid constructed InputFile instance" ) {
@@ -41,7 +41,7 @@ SCENARIO( "a valid source file can be opened and read", "[InputFile][import]" ) 
       REQUIRE_NOTHROW(input.open());
       REQUIRE_NOTHROW(dynamic_cast<std::istream&> (input.open()));
     }
-    
+
     std::istream &stream = input.open();
 
     THEN( "the stream remains open after open() returns" ) {
@@ -52,7 +52,6 @@ SCENARIO( "a valid source file can be opened and read", "[InputFile][import]" ) 
   }
 }
 
-
 SCENARIO( "an invalid source file is opened for reading", "[InputFile][import]" ) {
 
   auto file_exists = [](const std::string &path) {
@@ -60,7 +59,7 @@ SCENARIO( "an invalid source file is opened for reading", "[InputFile][import]" 
     return std::ifstream(path).is_open();
   };
   
-  const std::string test_file = "data/jibberish.json";
+  const std::string test_file = "datasets/jibberish.json";
   REQUIRE_FALSE(file_exists(test_file));
 
   GIVEN( "a valid constructed InputFile instance" ) {

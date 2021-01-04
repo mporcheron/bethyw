@@ -147,13 +147,13 @@ public:
   Measure(Measure &&other) = default;
   Measure &operator=(Measure &&ither) = default;
 
-  inline const std::string &getCode() const;
-  inline const std::string &getLabel() const;
+  const std::string &getCode() const;
+  const std::string &getLabel() const;
 
-  inline Measure_t &at(const int &key);
-  inline void emplace(const int &key, Measure_t &value);
-  inline void emplace(const int &key, Measure_t &&value);
-  inline size_t size() const noexcept;
+  Measure_t &at(const int &key);
+  void emplace(const int &key, Measure_t &value);
+  void emplace(const int &key, Measure_t &&value);
+  size_t size() const noexcept;
 
   friend std::ostream &operator<<(std::ostream &os, const Measure &measure);
   
@@ -231,15 +231,15 @@ public:
   Area(Area &&other) = default;
   Area &operator=(Area &&ither) = default;
 
-  inline const std::string &getLocalAuthorityCode() const;
-  inline const std::string &getName(const std::string &lang) const;
-  inline void setName(const std::string &lang, const std::string &name);
-  inline void setName(const std::string &lang, std::string &&name);
+  const std::string &getLocalAuthorityCode() const;
+  const std::string &getName(const std::string &lang) const;
+  void setName(const std::string &lang, const std::string &name);
+  void setName(const std::string &lang, std::string &&name);
 
-  inline void emplace(std::string ident, Measure &stat);
-  inline void emplace(std::string ident, Measure &&stat);
-  inline Measure &at(std::string ident);
-  inline size_t size() const noexcept;
+  void emplace(std::string ident, Measure &stat);
+  void emplace(std::string ident, Measure &&stat);
+  Measure &at(std::string ident);
+  size_t size() const noexcept;
 
   friend bool operator==(const Area &lhs, const Area &rhs);
   friend bool operator!=(const Area &lhs, const Area &rhs);
@@ -334,10 +334,10 @@ public:
     const std::unordered_set<std::string> &needles,
     const std::string& haystack) const;
     
-  inline void emplace(std::string &ident, Area &stat);
-  inline void emplace(std::string &ident, Area &&stat);
-  inline Area &at(const std::string &areaCode);
-  inline size_t size() const noexcept;
+  void emplace(std::string &ident, Area &stat);
+  void emplace(std::string &ident, Area &&stat);
+  Area &at(const std::string &areaCode);
+  size_t size() const noexcept;
   
   void populateFromAuthorityCodeCSV(
       std::istream &is,

@@ -21,7 +21,7 @@ elif [[ $1 == test* ]]; then
   cd "${0%/*}"
   mkdir -p bin
   rm ../bin/bethyw-test 2> /dev/null
-  g++ --std=c++11 -Wall ./tests/$1.cpp ${FILES_TO_COMPILE} ./bin/catch.o -o ./bin/bethyw-test
+  g++ --std=c++14 -Wall ./tests/$1.cpp ${FILES_TO_COMPILE} ./bin/catch.o -o ./bin/bethyw-test
 else
   echo "Unknown argument" "$1"
 fi

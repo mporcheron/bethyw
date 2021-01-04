@@ -84,7 +84,7 @@ Measure::Measure(std::string &code, std::string &label)
     ...
     auto code = measure.getCode();
 */
-inline const std::string &Measure::getCode() const { return mCode; }
+const std::string &Measure::getCode() const { return mCode; }
 
 /*
   TODO: Measure::getLabel()
@@ -101,7 +101,7 @@ inline const std::string &Measure::getCode() const { return mCode; }
     ...
     auto label = measure.getLabel();
 */
-inline const std::string &Measure::getLabel() const { return mLabel; }
+const std::string &Measure::getLabel() const { return mLabel; }
 
 /*
   TODO: Measure::at(key)
@@ -120,7 +120,7 @@ inline const std::string &Measure::getLabel() const { return mLabel; }
     ...
     double value = measure.at(1999); // returns 12345678.9
 */
-inline Measure_t &Measure::at(const int &key) {
+Measure_t &Measure::at(const int &key) {
   return mData.at(key);
 }
 
@@ -139,7 +139,7 @@ inline Measure_t &Measure::at(const int &key) {
     Measure measure("pop", "Population");
     measure.emplace(1999, 12345678.9);
 */
-inline void Measure::emplace(const int &key, Measure_t &value) {
+void Measure::emplace(const int &key, Measure_t &value) {
   mSum += value;
   mData.emplace(key, value);
 }
@@ -163,7 +163,7 @@ inline void Measure::emplace(const int &key, Measure_t &value) {
     double value = 12345678.9;
     measure.emplace(1999, std::move(value));
 */
-inline void Measure::emplace(const int &key, Measure_t &&value) {
+void Measure::emplace(const int &key, Measure_t &&value) {
   mSum += value;
   mData.emplace(key, std::move(value));
 }
@@ -182,7 +182,7 @@ inline void Measure::emplace(const int &key, Measure_t &&value) {
     measure.emplace(1999, 12345678.9);
     auto size = measure.size(); // returns 1
 */
-inline size_t Measure::size() const noexcept {
+size_t Measure::size() const noexcept {
   return mData.size();
 }
 
@@ -294,7 +294,7 @@ Area::Area(const std::string &localAuthorityCode)
     ...
     std::string authCode = area.getLocalAuthorityCode(); // returns "W06000023"
 */
-inline const std::string &Area::getLocalAuthorityCode() const {
+const std::string &Area::getLocalAuthorityCode() const {
   return mLocalAuthorityCode;
 }
 
@@ -319,7 +319,7 @@ inline const std::string &Area::getLocalAuthorityCode() const {
     ...
     std::string name = area.getName("eng"); // returns "Powys"
 */
-inline const std::string &Area::getName(const std::string &lang) const {
+const std::string &Area::getName(const std::string &lang) const {
   return mNames.at(lang);
 }
 
@@ -339,7 +339,7 @@ inline const std::string &Area::getName(const std::string &lang) const {
     area.setName("eng", "Powys");
     area.setName("cym", "Powys");
 */
-inline void Area::setName(const std::string &lang, const std::string &name) {
+void Area::setName(const std::string &lang, const std::string &name) {
   mNames.emplace(lang, name);
 }
 
@@ -362,7 +362,7 @@ inline void Area::setName(const std::string &lang, const std::string &name) {
     std::string name = "Powys";
     area.setName("eng", std::move(name));
 */
-inline void Area::setName(const std::string &lang, std::string &&name) {
+void Area::setName(const std::string &lang, std::string &&name) {
   mNames.emplace(lang, std::move(name));
 }
 
@@ -386,7 +386,7 @@ inline void Area::setName(const std::string &lang, std::string &&name) {
     ...
     auto measure2 = area.at("pop");
 */
-inline Measure &Area::at(std::string key) {
+Measure &Area::at(std::string key) {
   return mMeasures.at(key);
 }
 
@@ -412,7 +412,7 @@ inline Measure &Area::at(std::string key) {
 
     area.emplace("Pop", measure);
 */
-inline void Area::emplace(std::string key, Measure &value) {
+void Area::emplace(std::string key, Measure &value) {
   std::transform(key.begin(), key.end(), key.begin(), ::tolower);
   mMeasures.emplace(key, value);
 }
@@ -442,7 +442,7 @@ inline void Area::emplace(std::string key, Measure &value) {
 
     area.emplace("Pop", std::move(measure));
 */
-inline void Area::emplace(std::string key, Measure &&value) {
+void Area::emplace(std::string key, Measure &&value) {
   std::transform(key.begin(), key.end(), key.begin(), ::tolower);
   mMeasures.emplace(key, std::move(value));
 }
@@ -467,7 +467,7 @@ inline void Area::emplace(std::string key, Measure &&value) {
     area.emplace("Pop", measure);
     auto size = area.size(); // returns 1
 */
-inline size_t Area::size() const noexcept {
+size_t Area::size() const noexcept {
   return mMeasures.size();
 }
 
@@ -557,7 +557,7 @@ Areas<>::Areas() : mAreasByCode(), mAreasByName() {}
     data.emplace("W06000023", area);
 */
 template<>
-inline void Areas<>::emplace(std::string &ident, Area &stat) {
+void Areas<>::emplace(std::string &ident, Area &stat) {
   mAreasByCode.emplace(ident, stat);
 }
 
@@ -581,7 +581,7 @@ inline void Areas<>::emplace(std::string &ident, Area &stat) {
     areas.emplace("W06000023", std::move(area));
 */
 template<>
-inline void Areas<>::emplace(std::string &ident, Area &&stat) {
+void Areas<>::emplace(std::string &ident, Area &&stat) {
   mAreasByCode.emplace(ident, std::move(stat));
 }
 
@@ -611,7 +611,7 @@ inline void Areas<>::emplace(std::string &ident, Area &&stat) {
     Area area2 = areas.at("W06000023");
 */
 template<>
-inline Area &Areas<>::at(const std::string &key) {
+Area &Areas<>::at(const std::string &key) {
   // mAreasByCode.at(key);
   try {
     return mAreasByCode.at(key);
@@ -689,7 +689,7 @@ size_t Areas<>::wildcardCountSet(
     auto size = areas.size(); // returns 1
 */
 template<>
-inline size_t Areas<>::size() const noexcept {
+size_t Areas<>::size() const noexcept {
   return mAreasByCode.size();
 }
 
@@ -730,7 +730,7 @@ inline size_t Areas<>::size() const noexcept {
     InputFile input("data/areas.csv");
     auto is = input.open();
 
-    auto cols = InputFiles::Areas::COLS;
+    auto cols = InputFiles::AREAS.COLS;
 
     auto areasFilter = BethYw::parseAreasArg();
 
@@ -838,7 +838,7 @@ void Areas<>::populateFromAuthorityCodeCSV(
     InputFile input("data/complete-popu1009-pop.csv");
     auto is = input.open();
 
-    auto cols = InputFiles::DATASETS["complete-pop"]::COLS;
+    auto cols = InputFiles::DATASETS["complete-pop"].COLS;
 
     auto areasFilter = BethYw::parseAreasArg();
     auto yearsFilter = BethYw::parseYearsArg();
@@ -1115,7 +1115,7 @@ void Areas<>::populateFromAuthorityByYearCSV(
     InputFile input("data/popu1009.json");
     auto is = input.open();
 
-    auto cols = InputFiles::DATASETS["popden"]::COLS;
+    auto cols = InputFiles::DATASETS["popden"].COLS;
 
     auto areasFilter = BethYw::parseAreasArg();
     auto measuresFilter = BethYw::parseMeasuresArg();
@@ -1345,7 +1345,7 @@ void Areas<>::populateFromWelshStatsJSON(
     InputFile input("data/popu1009.json");
     auto is = input.open();
 
-    auto cols = InputFiles::DATASETS["popden"]::COLS;
+    auto cols = InputFiles::DATASETS["popden"].COLS;
 
     Areas<> data = Areas<>();
     areas.populate(
@@ -1439,7 +1439,7 @@ void Areas<>::populate(std::istream &is,
     InputFile input("data/popu1009.json");
     auto is = input.open();
 
-    auto cols = InputFiles::DATASETS["popden"]::COLS;
+    auto cols = InputFiles::DATASETS["popden"].COLS;
 
     auto areasFilter = BethYw::parseAreasArg();
     auto measuresFilter = BethYw::parseMeasuresArg();
