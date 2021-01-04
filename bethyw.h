@@ -17,7 +17,7 @@
 
 #include "libs/cxxopts/cxxopts.hpp"
 
-#include "data.h"
+#include "datasets.h"
 
 const char DIR_SEP =
 #ifdef _WIN32
@@ -78,7 +78,7 @@ std::unordered_set<std::string> parseAreasArg();
 
 /*
   Parse the datasets argument and return a std::vector of all the datasets
-  to import. InputFileSource is declared in data.h.
+  to import. InputFileSource is declared in datasets.h.
 */
 std::vector<InputFileSource> parseDatasetsArg();
 

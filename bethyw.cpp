@@ -32,7 +32,7 @@
 
 #include "bethyw.h"
 #include "input.h"
-#include "data.h"
+#include "datasets.h"
 
 /*
   Run Beth Yw?, parsing the command line arguments.
@@ -43,7 +43,7 @@ void BethYw::run(int argc, char *argv[]) {
   cxxopts.add_options()(
       "dir",
       "Directory for input data passed in as files",
-      cxxopts::value<std::string>()->default_value("data"))(
+      cxxopts::value<std::string>()->default_value("datasets"))(
 
       "d,datasets",
       "The dataset(s) to import and analyse as a comma-separated list of codes "
@@ -92,7 +92,7 @@ void BethYw::run(int argc, char *argv[]) {
   auto datasetsToImport = BethYw::parseDatasetsArg();
   auto areasFilter      = BethYw::parseAreasArg();
   auto measuresFilter   = BethYw::parseMeasuresArg();
-  auto yearsFilter      = BethYw::parseYearsArg();
+  auto yearsFilter      = BethYw::parseMeasuresArg();
 
   Areas<> data = Areas<>();
   BethYw::loadAreas(data, dir, areasFilter);
@@ -165,7 +165,7 @@ void BethYw::help(std::ostream &os, const int &exitCode) {
   The datasets argument is optional, and if it is not included, all datasets 
   should be imported. If it is included, it should be a comma-separated list of 
   datasets to import (based on their key in the map InputFiles::DATASETS in 
-  data.h). If the argument contains the value "all", all datasets should be 
+  datasets.h). If the argument contains the value "all", all datasets should be 
   imported.
 
   This function validates the passed in dataset names against the names in
@@ -185,7 +185,7 @@ std::vector<BethYw::InputFileSource> BethYw::parseDatasetsArg() {
   // // Retrieve all the parsed arguments
   // auto &args = BethYw::args();
   //
-  // // Retrieve all valid datasets (this is an unordered_map), see data.h
+  // // Retrieve all valid datasets (this is an unordered_map), see datasets.h
   // auto &allDatasets = InputFiles::DATASETS;
   //
   // // Create the container for the return type

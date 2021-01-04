@@ -19,7 +19,7 @@
 #include <fstream>
 
 #include "../sources.h"
-#include "../data.h"
+#include "../datasets.h"
 
 SCENARIO( "areas.csv can be correctly parsed", "[Areas][populateFromAuthorityCodeCSV]" ) {
 
