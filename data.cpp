@@ -975,7 +975,6 @@ void Areas<>::populateFromAuthorityByYearCSV(
           // Finally, we add the value to the measure to the area to the areas
           auto existingArea = mAreasByCode.find(localAuthorityCode);
           if (existingArea != mAreasByCode.end()) {
-            std::cout << "existing area is " << localAuthorityCode << std::endl;
             // The area exists, so we'll add to the existing instance
             Area &area = existingArea->second;
 
@@ -983,12 +982,10 @@ void Areas<>::populateFromAuthorityByYearCSV(
             try {
               Measure &existingMeasure = area.at(measureCode);
               // It does!
-              std::cout << "  existing measure is " << measureCode << std::endl;
               for (auto it = tempData.begin(); it != tempData.end(); it++) {
                 existingMeasure.emplace(it->first, it->second);
               }
             } catch (std::out_of_range &ex) {
-              std::cout << "  new measure is " << measureCode << std::endl;
               // It does not, so create a new measure
               Measure newMeasure = Measure(measureCode, measureName);
 
@@ -999,7 +996,6 @@ void Areas<>::populateFromAuthorityByYearCSV(
               area.emplace(measureCode, std::move(newMeasure));
             }
           } else {
-            std::cout << "new area is " << localAuthorityCode << std::endl;
             // The Area doesn't exist, so create it and the Measure
             Area area = Area(localAuthorityCode);
             Measure newMeasure = Measure(measureCode, measureName);
