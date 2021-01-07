@@ -911,7 +911,7 @@ void Areas<>::populateFromAuthorityByYearCSV(
       unsigned int col = 0;
       try {
         while (std::getline(s, cell, ',')) { // cell loop
-          int columnIdent = colHeaders.at(col++);
+          unsigned int columnIdent = colHeaders.at(col++);
 
           // Because we don't know where the authority column will be, we
           // store all values in a temp map and then copy them into the Area
