@@ -1,2 +1,4 @@
-.DS_Store
-bin/*
+*
+!*.cpp
+!*.h
+!README.md

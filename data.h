@@ -244,7 +244,7 @@ public:
   friend bool operator==(const Area &lhs, const Area &rhs);
   friend bool operator!=(const Area &lhs, const Area &rhs);
   friend bool operator<(const Area &lhs, const Area &rhs);
-  friend std::ostream &operator<<(std::ostream &os, const Area &st);
+  friend std::ostream &operator<<(std::ostream &os, const Area &area);
   
   /*
     Wrapper around underlying iterator functions for ease.
@@ -373,21 +373,39 @@ public:
       const StringFilterSet * const measuresFilter = nullptr,
       const YearFilterTuple * const yearsFilter = nullptr)
       noexcept(false);
+
+  friend std::ostream &operator<<(std::ostream &os, const Areas<> &areas);
   
   /*
     Wrapper around underlying iterator functions for ease.
   */
-  inline AreasContainer::iterator begin() { return mAreasByCode.begin(); }
-  inline AreasContainer::const_iterator cbegin() { return mAreasByCode.cbegin(); }
+  inline AreasContainer::iterator begin() {
+    return mAreasByCode.begin();
+  }
+  inline AreasContainer::const_iterator cbegin() const {
+    return mAreasByCode.cbegin();
+  }
 
-  inline AreasContainer::iterator end() { return mAreasByCode.end(); }
-  inline AreasContainer::const_iterator cend() { return mAreasByCode.cend(); }
+  inline AreasContainer::iterator end() {
+    return mAreasByCode.end();
+  }
+  inline AreasContainer::const_iterator cend() const {
+    return mAreasByCode.cend();
+  }
 
-  inline AreasContainer::reverse_iterator rbegin() { return mAreasByCode.rbegin(); }
-  inline AreasContainer::const_reverse_iterator crbegin() { return mAreasByCode.crbegin(); }
+  inline AreasContainer::reverse_iterator rbegin() {
+    return mAreasByCode.rbegin();
+  }
+  inline AreasContainer::const_reverse_iterator crbegin() const {
+    return mAreasByCode.crbegin();
+  }
 
-  inline AreasContainer::reverse_iterator rend() { return mAreasByCode.rend(); }
-  inline AreasContainer::const_reverse_iterator crend() { return mAreasByCode.crend(); }
+  inline AreasContainer::reverse_iterator rend() {
+    return mAreasByCode.rend();
+  }
+  inline AreasContainer::const_reverse_iterator crend() const {
+    return mAreasByCode.crend();
+  }
 };
 
 #endif // DATA_H_

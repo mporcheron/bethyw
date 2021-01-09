@@ -592,9 +592,5 @@ void BethYw::loadDatasets(
       A non-modified populated Areas object
 */
 void BethYw::printAll(Areas<> &areas) {
-  // TODO map: replace function with
-  // std::cout << "Print all the information!" << std::endl;
-  for (auto area = areas.begin(); area != areas.end(); area++) {
-    std::cout << area->second << std::endl;
-  }
+  std::cout << areas << std::endl;
 }
