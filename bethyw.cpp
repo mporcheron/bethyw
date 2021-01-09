@@ -84,8 +84,7 @@ void BethYw::run(int argc, char *argv[]) {
     BethYw::help(std::cerr, 1);
   }
 
-  // Parse other arguments, import areas and then all the datasets
-  // needed
+  // Parse other arguments and import data
   auto datasetsToImport = BethYw::parseDatasetsArg();
   auto areasFilter      = BethYw::parseAreasArg();
   auto measuresFilter   = BethYw::parseMeasuresArg();
@@ -114,6 +113,7 @@ void BethYw::run(int argc, char *argv[]) {
     std::exit(2);
   }
 
+  // The end...
   std::cout << data << std::endl;
 }
 
