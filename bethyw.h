@@ -42,62 +42,39 @@ const std::string STUDENT_NUMBER = "987654";
 class ImportAllValues {};
 
 /*
-  These are the possible outputs once data is imported.
-*/
-enum Output { ALL, AVERAGE, TREND };
-
-/*
   Run Beth Yw?, parsing the command line arguments and acting upon them.
 */
-void run(int argc, char *argv[]);
+int run(int argc, char *argv[]);
 
 /*
-  Initialise the Beth Yw? command line arguments parser.
+  Create a cxxopts instance.
 */
-cxxopts::Options& cxxopts();
-
-/*
-  Container for the initialsied arguments result so that we can refetch it
-  in multiple functions.
-
-  This has default values for argc and argv so that on successive calls they
-  can be ommitted. Note that on the first call, they are required!
-*/
-cxxopts::ParseResult& args(int argc = 0, char *argv[] = nullptr);
-
-/*
-  Print out the help information, and then exit the program.
-*/
-void help(std::ostream &os, const int &errorCode);
+cxxopts::Options cxxoptsSetup();
 
 /*
   Parse the areas argument and return a std::unordered_set of all the
   areas to import, or an empty set if all areas should be imported.
 */
-std::unordered_set<std::string> parseAreasArg();
+std::unordered_set<std::string> parseAreasArg(cxxopts::ParseResult& args);
 
 /*
   Parse the datasets argument and return a std::vector of all the datasets
   to import. InputFileSource is declared in datasets.h.
 */
-std::vector<InputFileSource> parseDatasetsArg();
+std::vector<InputFileSource> parseDatasetsArg(cxxopts::ParseResult& args);
 
 /*
   Parse the measures argument and return a std::unordered_set of all the
   measures to import, or an empty set if all measures should be imported.
 */
-std::unordered_set<std::string> parseMeasuresArg();
+std::unordered_set<std::string> parseMeasuresArg(cxxopts::ParseResult& args);
 
 /*
   Parse the years argument and return a std::tuple of the range of years
   to import (or <0,0> to import all years).
 */
-std::tuple<unsigned int, unsigned int> parseYearsArg();
-
-/*
-  Parse the output argument and return a value from the Output enum.
-*/
-Output parseOutputArg();
+std::tuple<unsigned int, unsigned int> parseYearsArg(
+    cxxopts::ParseResult& args);
 
 /*
   Load the areas.csv file from the directory `dir`. Parse the file and

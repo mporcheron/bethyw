@@ -36,11 +36,77 @@
 #include "datasets.h"
 
 /*
-  Run Beth Yw?, parsing the command line arguments.
+  Run Beth Yw?, parsing the command line arguments, importing the data,
+  and outputting the requested data to the standard output/error.
+
+  Hint: cxxopts.parse() throws exceptions you'll need to catch
+
+  @param argc
+    Number of program arguments
+
+  @param argv
+    Program arguments
+
+  @return
+    Exit code
 */
-void BethYw::run(int argc, char *argv[]) {
-  // Parse the command line arguments
-  auto &cxxopts = BethYw::cxxopts();
+int BethYw::run(int argc, char *argv[]) {
+  auto cxxopts = BethYw::cxxoptsSetup();
+  try {
+    auto args  = cxxopts.parse(argc, argv);
+
+    // Print the help usage if requested
+    if (args.count("help")) {
+      std::cerr << cxxopts.help() << std::endl;
+      return 0;
+    }
+
+    // Parse data directory argument
+    std::string dir = args["dir"].as<std::string>() + DIR_SEP;
+
+    // Parse other arguments and import data
+    auto datasetsToImport = BethYw::parseDatasetsArg(args);
+    auto areasFilter      = BethYw::parseAreasArg(args);
+    auto measuresFilter   = BethYw::parseMeasuresArg(args);
+    auto yearsFilter      = BethYw::parseYearsArg(args);
+
+    Areas<> data = Areas<>();
+
+    BethYw::loadAreas(data, dir, areasFilter);
+
+    BethYw::loadDatasets(data,
+                         dir,
+                         datasetsToImport,
+                         areasFilter,
+                         measuresFilter,
+                         yearsFilter);
+
+    // The end...
+    std::cout << data << std::endl;
+    return 0;
+  } catch (const cxxopts::missing_argument_exception &ex) {
+    std::cerr << "Missing value for argument:" << ex.what() << std::endl;
+    return 1;
+  } catch (const std::invalid_argument &ex) {
+    std::cerr << ex.what() << std::endl;
+    return 1;
+  }
+}
+
+/*
+  This function sets up and returns a valid cxxopts object. You do not need to
+  modify this function.
+
+  @return
+     A constructed cxxopts object
+*/
+cxxopts::Options BethYw::cxxoptsSetup() {
+  cxxopts::Options cxxopts(
+        "bethyw",
+        "Student ID: " + STUDENT_NUMBER + "\n\n"
+        "This program is designed to parse Official UK/Welsh Government"
+        " statistics data files and answer \"what is…?\" questions.\n");
+    
   cxxopts.add_options()(
       "dir",
       "Directory for input data passed in as files",
@@ -69,88 +135,7 @@ void BethYw::run(int argc, char *argv[]) {
       "h,help",
       "Print usage.");
 
-  auto &args = BethYw::args(argc, argv);
-
-  // Print the help usage if requested
-  if (args.count("help")) {
-    BethYw::help(std::cout, 0);
-  }
-
-  // Parse data directory argument
-  std::string dir;
-  try {
-    dir = args["dir"].as<std::string>() + DIR_SEP;
-  } catch (std::domain_error &err) {
-    BethYw::help(std::cerr, 1);
-  }
-
-  // Parse other arguments and import data
-  auto datasetsToImport = BethYw::parseDatasetsArg();
-  auto areasFilter      = BethYw::parseAreasArg();
-  auto measuresFilter   = BethYw::parseMeasuresArg();
-  auto yearsFilter      = BethYw::parseYearsArg();
-
-  Areas<> data = Areas<>();
-  
-  try {
-    BethYw::loadAreas(data, dir, areasFilter);
-  } catch(std::exception &ex) {
-    std::cerr << "Error importing areas file into Beth Yw?\n";
-    std::cerr << ex.what() << std::endl;
-    std::exit(2);
-  }
-  
-  try {
-    BethYw::loadDatasets(data,
-                         dir,
-                         datasetsToImport,
-                         areasFilter,
-                         measuresFilter,
-                         yearsFilter);
-  } catch(std::exception &ex) {
-    std::cerr << "Error importing datasets into Beth Yw?\n";
-    std::cerr << ex.what() << std::endl;
-    std::exit(2);
-  }
-
-  // The end...
-  std::cout << data << std::endl;
-}
-
-/*
-  Because Beth Yw? is just a namespace (there is no need for it to be a class),
-  we store cxxopts as a static variable here so that it can be fetched from
-  different functions.
-
-  You do not need to modify this function.
-*/
-cxxopts::Options& BethYw::cxxopts() {
-  static cxxopts::Options cxxopts(
-        "bethyw",
-        "Student ID: " + STUDENT_NUMBER + "\n\n"
-        "This program is designed to parse Official UK/Welsh Government"
-        " statistics data files and answer \"what is…?\" questions.\n");
   return cxxopts;
-}
-
-/*
-  We're using cxxopts for command-line argument parsing and help generation. We
-  store the parsed result in a static variable in this function so that is can
-  be easily re-retrieved.
-*/
-cxxopts::ParseResult& BethYw::args(int argc, char *argv[]) {
-  static cxxopts::ParseResult args = BethYw::cxxopts().parse(argc, argv);
-  return args;
-}
-
-/*
-  We're using cxxopts for command-line argument parsing and help generation. We
-  store the parsed result in a static variable in this function so that is can
-  be easily re-retrieved.
-*/
-void BethYw::help(std::ostream &os, const int &exitCode) {
-  os << BethYw::cxxopts().help() << std::endl;
-  std::exit(exitCode);
 }
 
 /*
@@ -171,16 +156,17 @@ void BethYw::help(std::ostream &os, const int &exitCode) {
 
   In case of error, exit the program with error code 1.
 
+  @args
+    Parsed program arguments
+
   @return
     A std::vector of BethYw::InputFileSource to import
  */
-std::vector<BethYw::InputFileSource> BethYw::parseDatasetsArg() {
+std::vector<BethYw::InputFileSource> BethYw::parseDatasetsArg(
+    cxxopts::ParseResult& args) {
   // TODO map: swap this function to the following:
   // // This function is incomplete, but to get you started...
-  //
-  // // Retrieve all the parsed arguments
-  // auto &args = BethYw::args();
-  //
+  //  //
   // // Retrieve all valid datasets (this is an unordered_map), see datasets.h
   // auto &allDatasets = InputFiles::DATASETS;
   //
@@ -199,7 +185,6 @@ std::vector<BethYw::InputFileSource> BethYw::parseDatasetsArg() {
   //     datasetsToImport.push_back(dataset.second);
   // return datasetsToImport;
 
-  auto &args = BethYw::args();
   auto &allDatasets = InputFiles::DATASETS;
   std::vector<InputFileSource> datasetsToImport;
 
@@ -208,11 +193,10 @@ std::vector<BethYw::InputFileSource> BethYw::parseDatasetsArg() {
     std::vector<std::string> inputDatasets;
     try {
       inputDatasets = args["datasets"].as<std::vector<std::string>>();
-    } catch (std::domain_error &ex) {
+    } catch (const std::bad_cast &ex) {
+      throw std::invalid_argument("Invalid input for dataset argument");
+    } catch (const std::domain_error &ex) {
       throw BethYw::ImportAllValues();
-    } catch (std::bad_cast &ex) {
-      std::cerr << "Invalid input for dataset argument" << std::endl;
-      std::exit(1);
     }
 
     if (inputDatasets.empty() || inputDatasets.at(0) == "area") {
@@ -222,16 +206,16 @@ std::vector<BethYw::InputFileSource> BethYw::parseDatasetsArg() {
     for (auto inputDataset = inputDatasets.begin();
          inputDataset != inputDatasets.end();
          inputDataset++) {
-      auto dataset = allDatasets.find(*inputDataset);
+      const std::string name = *inputDataset;
+      auto dataset = allDatasets.find(name);
       if (dataset != allDatasets.end()) {
         InputFileSource file = dataset->second;
         datasetsToImport.push_back(std::move(file));
       } else {
-        std::cerr << "No dataset matches key " << *inputDataset << std::endl;
-        std::exit(1);
+        throw std::invalid_argument("No dataset matches key: " + name);
       }
     }
-  } catch (BethYw::ImportAllValues &ex) {
+  } catch (const BethYw::ImportAllValues &ex) {
     for (auto dataset = allDatasets.begin();
          dataset != allDatasets.end();
          dataset++) {
@@ -253,18 +237,24 @@ std::vector<BethYw::InputFileSource> BethYw::parseDatasetsArg() {
   Therefore, we simply fetch the list of areas and later pass it to the
   Areas::populate() function.
 
+  @args
+    Parsed program arguments
+
   @return 
     An std::unordered_set of std::strings corresponding to specific areas
     to import, or an empty set if all areas should be imported.
 
+  @throws
+    std::invalid_argument if the argument contains an invalid valid
 */
-std::unordered_set<std::string> BethYw::parseAreasArg() {
-  auto &args = BethYw::args();
+std::unordered_set<std::string> BethYw::parseAreasArg(
+    cxxopts::ParseResult& args) {
   std::unordered_set<std::string> areas(0);
   try {
     auto temp = args["areas"].as<std::vector<std::string>>();
     areas = std::unordered_set<std::string>(temp.begin(), temp.end());
-  } catch (std::exception &ex) {
+  } catch (const std::exception &ex) {
+    throw std::invalid_argument("Invalid input for area argument");
   }
 
   for (auto it = areas.begin(); it != areas.end(); it++) {
@@ -294,9 +284,12 @@ std::unordered_set<std::string> BethYw::parseAreasArg() {
   @return 
     An std::unordered_set of std::strings corresponding to specific measures
     to import, or an empty set if all measures should be imported.
+
+  @throws
+    std::invalid_argument if the argument contains an invalid valid value
 */
-std::unordered_set<std::string> BethYw::parseMeasuresArg() {
-  auto &args = BethYw::args();
+std::unordered_set<std::string> BethYw::parseMeasuresArg(
+    cxxopts::ParseResult& args) {
   std::unordered_set<std::string> measures(0);
   try {
     auto temp = args["measures"].as<std::vector<std::string>>();
@@ -309,7 +302,8 @@ std::unordered_set<std::string> BethYw::parseMeasuresArg() {
         ::tolower);
       measures.insert(measure);
     }
-  } catch (std::domain_error &ex) {
+  } catch (const std::domain_error &ex) {
+    throw std::invalid_argument("Invalid input for measures argument");
   }
 
   for (auto it = measures.begin(); it != measures.end(); it++) {
@@ -337,8 +331,8 @@ std::unordered_set<std::string> BethYw::parseMeasuresArg() {
   @return
     A std::tuple containing two unsigned ints
 */
-std::tuple<unsigned int, unsigned int> BethYw::parseYearsArg() {
-  auto &args = BethYw::args();
+std::tuple<unsigned int, unsigned int> BethYw::parseYearsArg(
+    cxxopts::ParseResult& args) {
   std::tuple<unsigned int, unsigned int> years = std::make_tuple(0, 0);
 
   try {
@@ -354,12 +348,11 @@ std::tuple<unsigned int, unsigned int> BethYw::parseYearsArg() {
       auto tuple = std::make_tuple(year, year);
       years = std::move(tuple);
     }
-  } catch (std::domain_error &ex) {
-  } catch (std::invalid_argument &ex) {
-  } catch (BethYw::ImportAllValues &ex) {
-  } catch (...) {
-    std::cerr << "Unknown error parsing years argument." << std::endl;
-    std::exit(1);
+  } catch (const std::domain_error &ex) {
+    throw std::invalid_argument("Invalid input for years argument");
+  } catch (const std::invalid_argument &ex) {
+    throw std::invalid_argument("Invalid input for years argument");
+  } catch (const BethYw::ImportAllValues &ex) {
   }
 
   return years;
@@ -400,17 +393,12 @@ void BethYw::loadAreas(Areas<> &areas,
                        std::unordered_set<std::string> &areasFilter) {
   const std::string fileAreas = dir + InputFiles::AREAS.FILE;
 
-  try {
-    InputSource *source = new InputFile(fileAreas);
-    std::istream &stream = source->open();
-    areas.populate(stream,
-                  InputFiles::AREAS.PARSER,
-                  InputFiles::AREAS.COLS,
-                  &areasFilter);
-  } catch (const std::runtime_error &ex) {
-    std::cerr << fileAreas << " error:\n" << ex.what() << std::endl;
-    std::exit(1);
-  }
+  InputSource *source = new InputFile(fileAreas);
+  std::istream &stream = source->open();
+  areas.populate(stream,
+                InputFiles::AREAS.PARSER,
+                InputFiles::AREAS.COLS,
+                &areasFilter);
 }
 
 /*
@@ -477,7 +465,7 @@ void BethYw::loadDatasets(
                      &measuresFilter,
                      &yearsFilter);
     } catch (const std::runtime_error &ex) {
-      std::cerr << "Source error:\n" << ex.what() << std::endl;
+      std::cerr << "Error importing dataset:\n" << ex.what() << std::endl;
       std::exit(1);
     }
   }

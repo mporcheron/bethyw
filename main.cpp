@@ -18,15 +18,5 @@
 #include "bethyw.h"
 
 int main(int argc, char *argv[]) {
-  try {
-    BethYw::run(argc, argv);
-  } catch(std::exception &ex) {
-    std::cerr << "Uncaught exception: " << ex.what() << std::endl;
-    std::exit(2);
-  } catch(...) {
-    std::cerr << "Uncaught exception: unknown" << std::endl;
-    std::exit(2);
-  }
-
-  return 0;
+  return BethYw::run(argc, argv);
 }
