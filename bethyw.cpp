@@ -92,23 +92,29 @@ void BethYw::run(int argc, char *argv[]) {
   auto yearsFilter      = BethYw::parseYearsArg();
 
   Areas<> data = Areas<>();
-  BethYw::loadAreas(data, dir, areasFilter);
   
   try {
-  BethYw::loadDatasets(
-    data,
-    dir,
-    datasetsToImport,
-    areasFilter,
-    measuresFilter,
-    yearsFilter);
+    BethYw::loadAreas(data, dir, areasFilter);
   } catch(std::exception &ex) {
-    std::cerr << "Error importing files into Beth Yw?\n";
+    std::cerr << "Error importing areas file into Beth Yw?\n";
+    std::cerr << ex.what() << std::endl;
+    std::exit(2);
+  }
+  
+  try {
+    BethYw::loadDatasets(data,
+                         dir,
+                         datasetsToImport,
+                         areasFilter,
+                         measuresFilter,
+                         yearsFilter);
+  } catch(std::exception &ex) {
+    std::cerr << "Error importing datasets into Beth Yw?\n";
     std::cerr << ex.what() << std::endl;
     std::exit(2);
   }
 
-  BethYw::printAll(data);
+  std::cout << data << std::endl;
 }
 
 /*
@@ -475,122 +481,4 @@ void BethYw::loadDatasets(
       std::exit(1);
     }
   }
-}
-
-/*
-  TODO:BethYw::printAll(areas)
-
-  Simply dumps all the information requested into the standard output.
-
-  Output should be formatted like the following to pass the tests. Note:
-  area names and measure names should be alphabetically sorted.
-
-  Check the coursework specification for how this output should be formated,
-  although a short summary of this is given below too.
-
-  Within each measure, data should be printed in oldest year first to most
-  recent year. The year is right aligned to the end of the value (see example
-  at the bottom of this block comment).
-
-  Ignore indentation on this output (i.e. except for the year row, each row's
-  output should start in the first column of the output). Adhere to the number
-  of rows between output (i.e. two between measures of the same area, and
-  three between areas).
-
-    <English name of area 1> / <Welsh name of area 1> (<authority code 1>)
-    <Measure 1 name> (<Measure 1 code>)
-     <year 1>  <year 2> <year 3> ...  <year n>
-    <value 1>  <year 2> <year 3> ... <value n>
-
-
-    <Measure 2 name> (<Measure 2 code>)
-     <year 1>  <year 2> <year 3> ...  <year n>
-    <value 1>  <year 2> <year 3> ... <value n>
-
-
-    <Measure 3 name> (<Measure 3 code>)
-     <year 1>  <year 2> <year 3> ...  <year n>
-    <value 1>  <year 2> <year 3> ... <value n>
-
-    ...
-
-    <Measure x name> (<Measure x code>)
-     <year 1>  <year 2> <year 3> ...  <year n>
-    <value 1>  <year 2> <year 3> ... <value n>
-
-
-
-    <English name of area 2> / <Welsh name of area 2> (<authority code 2>)
-    <Measure 1 name> (<Measure 1 code>)
-     <year 1>  <year 2> <year 3> ...  <year n>
-    <value 1>  <year 2> <year 3> ... <value n>
-
-
-    <Measure 2 name> (<Measure 2 code>)
-     <year 1>  <year 2> <year 3> ...  <year n>
-    <value 1>  <year 2> <year 3> ... <value n>
-
-
-    <Measure 3 name> (<Measure 3 code>)
-     <year 1>  <year 2> <year 3> ...  <year n>
-    <value 1>  <year 2> <year 3> ... <value n>
-
-    ...
-
-    <Measure x name> (<Measure x code>)
-     <year 1>  <year 2> <year 3> ...  <year n>
-    <value 1>  <year 2> <year 3> ... <value n>
-
-    ...
-
-    <English name of area y> / <Welsh name of area y> (<authority code y>)
-    <Measure 1 name> (<Measure 1 code>)
-     <year 1>  <year 2> <year 3> ...  <year n>
-    <value 1>  <year 2> <year 3> ... <value n>
-
-
-    <Measure 2 name> (<Measure 2 code>)
-     <year 1>  <year 2> <year 3> ...  <year n>
-    <value 1>  <year 2> <year 3> ... <value n>
-
-
-    <Measure 3 name> (<Measure 3 code>)
-     <year 1>  <year 2> <year 3> ...  <year n>
-    <value 1>  <year 2> <year 3> ... <value n>
-
-    ...
-
-    <Measure x name> (<Measure x code>)
-     <year 1>  <year 2> <year 3> ...  <year n>
-    <value 1>  <year 2> <year 3> ... <value n>
-
-  For example, your output should start like this for the command
-  bethyw --dir <dir> -p popden (truncated for readability):
-
-    Isle of Anglesey / Ynys Môn (W06000001)
-    Land area (Area)
-          1991       1992       1993       1994       1995       1996 ...
-    711.680100 711.680100 711.680100 711.680100 711.680100 711.680100 ...
-
-
-    Population density (Dens)
-         1991      1992      1993      1994      1995      1996      1997 ...
-    97.126504 97.486216 98.038430 97.216432 96.147131 96.380382 95.701706 ...
-
-
-    Population (Pop)
-            1991         1992         1993         1994         1995 ...
-    69123.000000 69379.000000 69772.000000 69187.000000 68426.000000 ...
-
-
-
-    Gwynedd / Gwynedd (W06000002)
-    Land area (Area)
-    ...
-
-    @param areas
-      A non-modified populated Areas object
-*/
-void BethYw::printAll(Areas<> &areas) {
-  std::cout << areas << std::endl;
 }

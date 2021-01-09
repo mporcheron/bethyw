@@ -127,22 +127,6 @@ void loadDatasets(
     std::unordered_set<std::string> &measuresFilter,
     std::tuple<unsigned int,unsigned int> &yearsFilter);
 
-/*
-  Dump all the information requested into the standard output.
-*/
-void printAll(Areas<> &areas);
-
-/*
-  Calculate the average for each area and measure imported, across all years
-  imported, and print this out.
-*/
-void printAverage(Areas<> &areas);
-
-/*
-  Calculate the percentage difference for each area and measure imported, from
-  the first year imported to the last, and print this out.
-*/
-void printTrend(Areas<> &areas);
 
 }; // namespace BethYw
 
