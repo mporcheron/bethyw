@@ -471,11 +471,11 @@ void BethYw::loadDatasets(
       InputSource *source = new InputFile(dir + dataset->FILE);
       std::istream &stream = source->open();
       areas.populate(stream,
-                    dataset->PARSER,
-                    dataset->COLS,
-                    &areasFilter,
-                    &measuresFilter,
-                    &yearsFilter);
+                     dataset->PARSER,
+                     dataset->COLS,
+                     &areasFilter,
+                     &measuresFilter,
+                     &yearsFilter);
     } catch (const std::runtime_error &ex) {
       std::cerr << "Source error:\n" << ex.what() << std::endl;
       std::exit(1);

@@ -209,6 +209,7 @@ class Area {
 protected:
   std::string mLocalAuthorityCode;
   std::map<std::string, std::string> mNames;
+  std::vector<std::string> mNamesList;
   Area_c mMeasures;
 
 public:
@@ -233,6 +234,7 @@ public:
 
   const std::string &getLocalAuthorityCode() const;
   const std::string &getName(const std::string &lang) const;
+  const std::vector<std::string> &getNames() const;
   void setName(const std::string &lang, const std::string &name);
   void setName(const std::string &lang, std::string &&name);
 
@@ -333,6 +335,10 @@ public:
   size_t wildcardCountSet(
     const std::unordered_set<std::string> &needles,
     const std::string& haystack) const;
+  bool isLocalAuthorityFiltered(
+      const std::unordered_set<std::string> &areasFilter,
+      const std::string localAuthorityCode)
+      noexcept;
     
   void emplace(std::string &ident, Area &stat);
   void emplace(std::string &ident, Area &&stat);

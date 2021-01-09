@@ -215,6 +215,11 @@ std::ostream &operator<<(std::ostream &os, const Measure &measure) {
   // TODO map: add average and change
   os << measure.getLabel() << " (" << measure.getCode() << ")" << std::endl;
 
+  if (measure.size() == 0) {
+    os << "<no data>" << std::endl;
+    return os;
+  }
+
   // Iterate through and print the years and save the values to a stringstream
   std::stringstream values;
   for (auto it = measure.cbegin(); it != measure.cend(); it++) {
@@ -278,7 +283,11 @@ std::ostream &operator<<(std::ostream &os, const Measure &measure) {
     Area("W06000023");
 */
 Area::Area(const std::string &localAuthorityCode)
-    : mLocalAuthorityCode(localAuthorityCode), mNames(), mMeasures() {}
+    : mLocalAuthorityCode(localAuthorityCode),
+      mNames(),
+      mNamesList(),
+      mMeasures() {
+}
 
 /*
   TODO: getLocalAuthorityCode()
@@ -324,6 +333,22 @@ const std::string &Area::getName(const std::string &lang) const {
 }
 
 /*
+  Get a vector of all the different names for the Area.
+
+  @return
+    The names for the Area
+
+  @example
+    Area area("W06000023");
+    area.setName("eng", "Powys");
+    ...
+    auto name = area.getNames();
+*/
+const std::vector<std::string> &Area::getNames() const {
+  return mNamesList;
+}
+
+/*
   TODO: setName(lang, name)
 
   Set a name for the area in a specific language.
@@ -341,6 +366,7 @@ const std::string &Area::getName(const std::string &lang) const {
 */
 void Area::setName(const std::string &lang, const std::string &name) {
   mNames.emplace(lang, name);
+  mNamesList.push_back(name);
 }
 
 /*
@@ -363,6 +389,7 @@ void Area::setName(const std::string &lang, const std::string &name) {
     area.setName("eng", std::move(name));
 */
 void Area::setName(const std::string &lang, std::string &&name) {
+  mNamesList.push_back(name);
   mNames.emplace(lang, std::move(name));
 }
 
@@ -478,6 +505,9 @@ size_t Area::size() const noexcept {
   measures for the area. If the area only has only one name, output this. If the
   area has no names, output the name "Unnamed".
 
+  If there are no measures, print the names and authority code and on the 
+  next line print <no measures>
+
   See the coursework specification for more information.
 
   @param os
@@ -516,6 +546,11 @@ std::ostream &operator<<(std::ostream &os, const Area &area) {
     os << "Unnamed";
   }
   os << " (" << area.getLocalAuthorityCode() << ")" << std::endl;
+
+  if (area.size() == 0) {
+    os << "<no measures>";
+    return os;
+  }
   
   for (auto measure = area.cbegin(); measure != area.cend(); measure++) {
     os << measure->second << std::endl;
@@ -627,7 +662,7 @@ Area &Areas<>::at(const std::string &key) {
 }
 
 /*
-  TODO map: delete this functio and comment
+  TODO map: delete this function and comment
 
   Given one or more needles, how many match to the haystack. This is a case
   insensitive search, and will search for partial strings.
@@ -671,6 +706,58 @@ size_t Areas<>::wildcardCountSet(
   }
 
   return retval;
+}
+
+/*
+  Check if a local authority should be filtered out or not.
+
+  @param areasFilter
+    A set of strings for areas to import, or an empty set if all areas
+    should be imported
+
+  @param localAuthorityCode
+    The code for the local authority
+
+  @return
+    True if the area should be excluded, false otherwise
+*/
+template <>
+bool Areas<>::isLocalAuthorityFiltered(
+    const std::unordered_set<std::string> &areasFilter,
+    const std::string localAuthorityCode)
+    noexcept {
+  if (areasFilter.size() > 0) {
+    // does the filter contain the local authority code?
+    if (wildcardCountSet(areasFilter, localAuthorityCode) > 0) {
+      // the filter contains the authority code
+      return false;
+    } else {
+      // the filter does not contain the authority code, so we will check the 
+      // existing area objects' to see if we have encountered this before
+
+      auto area = mAreasByCode.find(localAuthorityCode);
+      if (area == mAreasByCode.end()) {
+        // We haven't encountered this authority before, so we've reached
+        // a deadend. Don't import the area.
+        return true;
+      }
+    
+      // We have encountered this authority before, so lets check the names
+      // of that area against the filter
+      try {
+        const auto names = area->second.getNames();
+        for (auto name : names) {
+          if (wildcardCountSet(areasFilter, name) > 1) {
+            // The name matches the filter, so include the area
+            return false;
+          }
+        }
+      } catch (std::out_of_range &ex) {
+      }
+    } 
+  }
+  
+  return false;
 }
 
 /*
@@ -868,7 +955,7 @@ void Areas<>::populateFromAuthorityByYearCSV(
 
   // Mapping of the column ordering to the year, the authority code
   // will be given a value of -1 (we can assume no stats go back 2000+ years)
-  std::unordered_map<unsigned int,unsigned int> colHeaders;
+  std::vector<int> colHeaders;
 
   // Parse the header row
   std::string line;
@@ -879,15 +966,14 @@ void Areas<>::populateFromAuthorityByYearCSV(
     std::stringstream s(line);
     s.exceptions(std::ifstream::failbit | std::ifstream::badbit);
     
-    unsigned int col = 0;
     std::string cell;
     try { // Exception is thrown at the end of the line
       while (std::getline(s, cell, ',')) {
         try {
           if (cell == cols.at(AUTH_CODE)) {
-            colHeaders.emplace(col++, -1);
+            colHeaders.push_back(-1);
           } else {
-            colHeaders.emplace(col++, std::stoi(cell));
+            colHeaders.push_back(std::stoi(cell));
           }
         } catch(std::out_of_range &ex) {
           throw std::runtime_error("Areas::populateFromAuthorityCodeCSV: "
@@ -897,61 +983,40 @@ void Areas<>::populateFromAuthorityByYearCSV(
     } catch(std::ios_base::failure &ex) {
     }
   }
-
+  
   // Parse the remaining rows
   unsigned int lineNo = 2;
   try {
     while (std::getline(is, line)) { // row loop
-      std::string localAuthorityCode;
       // Scan the line for a comma, likely not the most efficient but
       // it hands off the matching to an underlying library for now...
-      std::istringstream s(line);
-      s.exceptions(std::ifstream::failbit | std::ifstream::badbit);
+      std::istringstream lineStream(line);
+      
+      // s.exceptions(std::ifstream::failbit | std::ifstream::badbit);
 
-      std::string cell;
-      unsigned int col = 0;
+      // Because we don't know where the authority column will be, we
+      // store all values in a temp map and then copy them into the Area
+      // object at the end
+      std::string localAuthorityCode;
+      std::unordered_map<unsigned int,double> tempData;
+      
       try {
-        while (std::getline(s, cell, ',')) { // cell loop
-          unsigned int columnIdent = colHeaders.at(col++);
+        bool importArea = false;
+        unsigned int col = 0;
+        std::string cell;
+        while (std::getline(lineStream, cell, ',')) { // cell loop
+          int columnIdent = colHeaders.at(col++);
 
-          // Because we don't know where the authority column will be, we
-          // store all values in a temp map and then copy them into the Area
-          // object at the end
-          std::unordered_map<unsigned int,double> tempData;
-        
           // As above, if year is == -1, its the authority code
           if (columnIdent == -1) {
             // This is the local authority!
-            localAuthorityCode = cell;
-            auto existingArea = mAreasByCode.find(cell);
-
-            if (areasFilterEnabled) {
-              // We don't have names in this data so we can only check local
-              // authority codes initially
-              if (wildcardCountSet(*areasFilter, localAuthorityCode) == 0) {
-
-                // But, if the area already exists, we might have names for it
-                if (existingArea != mAreasByCode.end()) {
-                  try {
-                    const std::string &areaNameEnglish =
-                        existingArea->second.getName("eng");
-                    if (wildcardCountSet(*areasFilter, areaNameEnglish) == 0) {
-                      continue;
-                    }
-                  
-                    const std::string &areaNameWelsh =
-                        existingArea->second.getName("cym");
-                    if (wildcardCountSet(*areasFilter, areaNameWelsh) == 0) {
-                      continue;
-                    }
-                  } catch (std::out_of_range &ex) {
-                    continue;
-                  }
-                } else {
-                  continue;
-                }
-              }
+            if (areasFilterEnabled &&
+                isLocalAuthorityFiltered(*areasFilter, cell)) {
+              break;
             }
+
+            importArea = true;
+            localAuthorityCode = cell;
           } else {
             // It's a year value in this column
             if (yearsFilterEnabled &&
@@ -959,46 +1024,44 @@ void Areas<>::populateFromAuthorityByYearCSV(
                   columnIdent > std::get<1>(*yearsFilter))) {
               continue;
             }
+            
+            if (cell.length() == 0) {
+              continue;
+            }
 
             unsigned int year = columnIdent;
             tempData.emplace(year, std::stod(cell));
           }
+        }
 
-          // Get the measure code and name from the static data
-          std::string measureCode = cols.at(SINGLE_MEASURE_CODE);
-          std::string measureName = cols.at(SINGLE_MEASURE_NAME);
+        if (!importArea) {
+          continue;
+        }
 
-          std::transform(
-              measureCode.begin(),
-              measureCode.end(),
-              measureCode.begin(),::tolower);
+        // Get the measure code and name from the static data
+        std::string measureCode = cols.at(SINGLE_MEASURE_CODE);
+        std::string measureName = cols.at(SINGLE_MEASURE_NAME);
 
-          // Finally, we add the value to the measure to the area to the areas
-          auto existingArea = mAreasByCode.find(localAuthorityCode);
-          if (existingArea != mAreasByCode.end()) {
-            // The area exists, so we'll add to the existing instance
-            Area &area = existingArea->second;
+        std::transform(
+            measureCode.begin(),
+            measureCode.end(),
+            measureCode.begin(),::tolower);
 
-            // Determine if a matching Measure exists within the Area
-            try {
-              Measure &existingMeasure = area.at(measureCode);
-              // It does!
-              for (auto it = tempData.begin(); it != tempData.end(); it++) {
-                existingMeasure.emplace(it->first, it->second);
-              }
-            } catch (std::out_of_range &ex) {
-              // It does not, so create a new measure
-              Measure newMeasure = Measure(measureCode, measureName);
+        // Finally, we add the value to the measure to the area to the areas
+        auto existingArea = mAreasByCode.find(localAuthorityCode);
+        if (existingArea != mAreasByCode.end()) {
+          // The area exists, so we'll add to the existing instance
+          Area &area = existingArea->second;
 
-              for (auto it = tempData.begin(); it != tempData.end(); it++) {
-                newMeasure.emplace(it->first, it->second);
-              }
-
-              area.emplace(measureCode, std::move(newMeasure));
+          // Determine if a matching Measure exists within the Area
+          try {
+            Measure &existingMeasure = area.at(measureCode);
+            // It does!
+            for (auto it = tempData.begin(); it != tempData.end(); it++) {
+              existingMeasure.emplace(it->first, it->second);
             }
-          } else {
-            // The Area doesn't exist, so create it and the Measure
-            Area area = Area(localAuthorityCode);
+          } catch (std::out_of_range &ex) {
+            // It does not, so create a new measure
             Measure newMeasure = Measure(measureCode, measureName);
 
             for (auto it = tempData.begin(); it != tempData.end(); it++) {
@@ -1006,9 +1069,19 @@ void Areas<>::populateFromAuthorityByYearCSV(
             }
 
             area.emplace(measureCode, std::move(newMeasure));
-
-            this->emplace(localAuthorityCode, std::move(area));
           }
+        } else {
+          // The Area doesn't exist, so create it and the Measure
+          Area area = Area(localAuthorityCode);
+          Measure newMeasure = Measure(measureCode, measureName);
+
+          for (auto it = tempData.begin(); it != tempData.end(); it++) {
+            newMeasure.emplace(it->first, it->second);
+          }
+
+          area.emplace(measureCode, std::move(newMeasure));
+
+          this->emplace(localAuthorityCode, std::move(area));
         }
         lineNo++;
       } catch(std::ios_base::failure &ex) {
