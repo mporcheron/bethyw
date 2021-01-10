@@ -15,132 +15,247 @@
 #include "../libs/catch2/catch.hpp"
 
 #include <string>
-#include <type_traits>
+#include <unordered_set>
 
 #include "../libs/cxxopts/cxxopts.hpp"
 #include "../libs/cxxopts/argv.hpp"
+
 #include "../bethyw.h"
 
-SCENARIO( "the datasets program argument can be parsed correctly", "[args][datasets]" ) {
+SCENARIO( "the areas program argument can be parsed correctly", "[args][areas]" ) {
 
-  GIVEN( "a --datasets argument and value" ) {
-    
-    WHEN( "the value is 'invalid'" ) {
+  GIVEN( "a --areas program argument and value" ) {
 
-      Argv argv({"test", "--datasets", "invalid"});
+    WHEN( "the value is a single area ('W06000011')" ) {
+
+      Argv argv({"test", "--areas", "W06000011"});
       auto** actual_argv = argv.argv();
-      auto argc = argv.argc();
+      auto argc          = argv.argc();
 
       auto cxxopts = BethYw::cxxoptsSetup();
-      auto args = cxxopts.parse(argc, actual_argv);
+      auto args    = cxxopts.parse(argc, actual_argv);
+
+      THEN( "the argument value is parsed without exception" ) {
+
+        REQUIRE_NOTHROW( BethYw::parseAreasArg(args) );
+        
+        AND_THEN( "the response is a container with 1 value" ) {
+
+          auto areas = BethYw::parseAreasArg(args);
+          REQUIRE( areas.size() == 1 );
       
-      const std::string exceptionMessage = "No dataset matches key: invalid";
+        } // AND_THEN
+        
+        AND_THEN ( "the container contains the area in the program argument" ) {
+
+          auto areas = BethYw::parseAreasArg(args);
+          REQUIRE( areas.find("W06000011") != areas.end() );
     
-      THEN( "a std::invalid_argument exception should be thrown with the message '" + exceptionMessage + "'" ) { 
+        } // AND_THEN
 
-        REQUIRE_THROWS_AS( BethYw::parseDatasetsArg(args), std::invalid_argument );
-        REQUIRE_THROWS_WITH(  BethYw::parseDatasetsArg(args), exceptionMessage );
+      } // THEN
 
-      }
+    } // WHEN
 
-    }
+    WHEN( "the value is multiple comma-separated areas ('W06000011', 'W06000001')" ) {
 
-    WHEN( "the value is valid" ) {
-
-      Argv argv({"test", "--datasets", "popden"});
+      Argv argv({"test", "--areas", "W06000011,W06000001"});
       auto** actual_argv = argv.argv();
-      auto argc = argv.argc();
+      auto argc          = argv.argc();
 
       auto cxxopts = BethYw::cxxoptsSetup();
-      auto args = cxxopts.parse(argc, actual_argv);
+      auto args    = cxxopts.parse(argc, actual_argv);
 
-      THEN( "a valid std::vector containing the correct InputFileSource is returned" ) { 
+      THEN( "the argument value is parsed without exception" ) {
 
-        REQUIRE_NOTHROW( BethYw::parseDatasetsArg(args) );
+        REQUIRE_NOTHROW( BethYw::parseAreasArg(args) );
         
-        auto datasets = BethYw::parseDatasetsArg(args);
-        
-        REQUIRE( datasets.size() == 1 );
-        REQUIRE( datasets.at(0).NAME == "Population density" );
+        AND_THEN( "the response is a container with 2 values" ) {
 
-      }
+          auto areas = BethYw::parseAreasArg(args);
+          REQUIRE( areas.size() == 2 );
+      
+        } // AND_THEN
+      
+        AND_THEN ( "the container contains the areas in the program argument" ) {
 
-    }
-
-    WHEN( "the value contains two valid values" ) {
-
-      Argv argv({"test", "--datasets", "popden,biz"});
-      auto** actual_argv = argv.argv();
-      auto argc = argv.argc();
-
-      auto cxxopts = BethYw::cxxoptsSetup();
-      auto args = cxxopts.parse(argc, actual_argv);
-
-      THEN( "a valid std::vector containing the correct InputFileSources is returned" ) { 
-
-        REQUIRE_NOTHROW( BethYw::parseDatasetsArg(args) );
-        
-        auto datasets = BethYw::parseDatasetsArg(args);
-        
-        REQUIRE( datasets.size() == 2 );
-        REQUIRE( datasets.at(0).NAME == "Population density" );
-        REQUIRE( datasets.at(1).NAME == "Active Businesses" );
-
-      }
-
-    }
-
-    WHEN( "the value contains one valid and one invalid name" ) {
-
-      Argv argv({"test", "--datasets", "popden,invalid"});
-      auto** actual_argv = argv.argv();
-      auto argc = argv.argc();
-
-      auto cxxopts = BethYw::cxxoptsSetup();
-      auto args = cxxopts.parse(argc, actual_argv);
-
-      const std::string exceptionMessage = "No dataset matches key: invalid";
+          auto areas = BethYw::parseAreasArg(args);
+          REQUIRE( areas.find("W06000011") != areas.end() );
+          REQUIRE( areas.find("W06000001") != areas.end() );
     
-      THEN( "a std::invalid_argument exception should be thrown with the message '" + exceptionMessage + "'" ) { 
+        } // AND_THEN
 
-        REQUIRE_THROWS_AS( BethYw::parseDatasetsArg(args), std::invalid_argument );
+      } // THEN
 
-      }
+    } // WHEN
 
-    }
+    WHEN( "the value is 'all'" ) {
 
-  }
+      Argv argv({"test", "--areas", "all"});
+      auto** actual_argv = argv.argv();
+      auto argc          = argv.argc();
 
-}
+      auto cxxopts = BethYw::cxxoptsSetup();
+      auto args    = cxxopts.parse(argc, actual_argv);
 
-    // WHEN( "the value is 'all'" ) {
-    //
-    //   Argv argv({"test", "--datasets", "all"});
-    //   auto** actual_argv = argv.argv();
-    //   auto argc = argv.argc();
-    //
-    //   auto cxxopts = BethYw::cxxoptsSetup();
-    //   auto args = cxxopts.parse(argc, actual_argv);
-    //
-    //   THEN( "all 7 datasets are imported in order" ) {
-    //
-    //     REQUIRE_NOTHROW( BethYw::parseDatasetsArg(args) );
-    //
-    //     auto datasets = BethYw::parseDatasetsArg(args);
-    //
-    //     REQUIRE( datasets.size() == 7 );
-    //     REQUIRE( datasets.at(0).NAME == "Population density" );
-    //     REQUIRE( datasets.at(1).NAME == "Active Businesses" );
-    //     REQUIRE( datasets.at(2).NAME == "Air Quality Indicators" );
-    //     REQUIRE( datasets.at(3).NAME == "Rail passenger journeys" );
-    //     REQUIRE( datasets.at(4).NAME == "Population density" );
-    //     REQUIRE( datasets.at(5).NAME == "Population" );
-    //     REQUIRE( datasets.at(6).NAME == "Land area" );
-    //
-    //   }
-    //
-    // }
+      THEN( "the argument value is parsed without exception" ) {
 
-  }
+        REQUIRE_NOTHROW( BethYw::parseAreasArg(args) );
+        
+        AND_THEN( "the response is a container with 0 values" ) {
 
-}
+          auto areas = BethYw::parseAreasArg(args);
+          REQUIRE( areas.size() == 0 );
+
+        } // AND_THEN
+
+      } // THEN
+
+    } // WHEN
+
+    WHEN( "the value contains 'all' among other values ('W06000011')" ) {
+
+      Argv argv({"test", "--areas", "W06000011,all"});
+      auto** actual_argv = argv.argv();
+      auto argc          = argv.argc();
+
+      auto cxxopts = BethYw::cxxoptsSetup();
+      auto args    = cxxopts.parse(argc, actual_argv);
+
+      THEN( "the argument value is parsed without exception" ) {
+
+        REQUIRE_NOTHROW( BethYw::parseAreasArg(args) );
+        
+        AND_THEN( "the response is a container with 0 values" ) {
+
+          auto areas = BethYw::parseAreasArg(args);
+          REQUIRE( areas.size() == 0 );
+
+        } // AND_THEN
+
+      } // THEN
+
+    } // WHEN
+
+  } // GIVEN
+
+} // SCENARIO
+
+SCENARIO( "the measures program argument can be parsed correctly", "[args][measures]" ) {
+
+  GIVEN( "a --measures program argument and value" ) {
+
+    WHEN( "the value is a single measure ('pop')" ) {
+
+      Argv argv({"test", "--measures", "pop"});
+      auto** actual_argv = argv.argv();
+      auto argc          = argv.argc();
+
+      auto cxxopts = BethYw::cxxoptsSetup();
+      auto args    = cxxopts.parse(argc, actual_argv);
+
+      THEN( "the argument value is parsed without exception" ) {
+
+        REQUIRE_NOTHROW( BethYw::parseMeasuresArg(args) );
+        
+        AND_THEN( "the response is a container with 1 value" ) {
+
+          auto measures = BethYw::parseMeasuresArg(args);
+          REQUIRE( measures.size() == 1 );
+      
+        } // AND_THEN
+        
+        AND_THEN ( "the container contains the measure in the program argument" ) {
+
+          auto measures = BethYw::parseMeasuresArg(args);
+          REQUIRE( measures.find("pop") != measures.end() );
+    
+        } // AND_THEN
+
+      } // THEN
+
+    } // WHEN
+
+    WHEN( "the value is multiple comma-separated measures ('pop', 'dens')" ) {
+
+      Argv argv({"test", "--measures", "pop,dens"});
+      auto** actual_argv = argv.argv();
+      auto argc          = argv.argc();
+
+      auto cxxopts = BethYw::cxxoptsSetup();
+      auto args    = cxxopts.parse(argc, actual_argv);
+
+      THEN( "the argument value is parsed without exception" ) {
+
+        REQUIRE_NOTHROW( BethYw::parseMeasuresArg(args) );
+        
+        AND_THEN( "the response is a container with 2 values" ) {
+
+          auto measures = BethYw::parseMeasuresArg(args);
+          REQUIRE( measures.size() == 2 );
+      
+        } // AND_THEN
+        
+        AND_THEN ( "the container contains the measures in the program argument" ) {
+
+          auto measures = BethYw::parseMeasuresArg(args);
+          REQUIRE( measures.find("pop") != measures.end() );
+          REQUIRE( measures.find("dens") != measures.end() );
+    
+        } // AND_THEN
+
+      } // THEN
+
+    } // WHEN
+
+    WHEN( "the value is 'all'" ) {
+
+      Argv argv({"test", "--measures", "all"});
+      auto** actual_argv = argv.argv();
+      auto argc = argv.argc();
+
+      auto cxxopts = BethYw::cxxoptsSetup();
+      auto args = cxxopts.parse(argc, actual_argv);
+
+      THEN( "the argument value is parsed without exception" ) {
+
+        REQUIRE_NOTHROW( BethYw::parseMeasuresArg(args) );
+        
+        AND_THEN( "the response is a container with 0 values" ) {
+
+          auto measures = BethYw::parseMeasuresArg(args);
+          REQUIRE( measures.size() == 0 );
+
+        } // AND_THEN
+
+      } // THEN
+
+    } // WHEN
+
+    WHEN( "the value contains 'all' among other values ('dens')" ) {
+
+      Argv argv({"test", "--measures", "dens,all"});
+      auto** actual_argv = argv.argv();
+      auto argc = argv.argc();
+
+      auto cxxopts = BethYw::cxxoptsSetup();
+      auto args = cxxopts.parse(argc, actual_argv);
+
+      THEN( "the argument value is parsed without exception" ) {
+
+        REQUIRE_NOTHROW( BethYw::parseMeasuresArg(args) );
+
+        AND_THEN( "the response is a container with 0 values" ) {
+
+          auto measures = BethYw::parseMeasuresArg(args);
+          REQUIRE( measures.size() == 0 );
+
+        } // AND_THEN
+
+      } // THEN
+
+    } // WHEN
+
+  } // GIVEN
+  
+} // SCENARIO

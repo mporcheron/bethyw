@@ -25,6 +25,7 @@
 #include <string>
 #include <tuple>
 #include <unordered_set>
+#include <unordered_map>
 #include <variant>
 
 /*
@@ -103,19 +104,6 @@ using Measure_t = double;
 using Measure_c = std::map<int, Measure_t>;
 
 /*
-  Because of the way std::variant is implemented in C++, we need to write
-  a function that converts the values from std::variant in the above map
-  and returns them as a std::string
-
-  For the coursework, you can ignore how this and just assume it works! :)
-*/
-struct MeasureValueToString {
-  std::string operator()(long value) { return std::to_string(value); }
-  std::string operator()(double value) { return std::to_string(value); }
-  std::string operator()(const std::string &value) { return value; }
-};
-
-/*
   The Measure class contains a measure code, label, and a map of year:value
   mappings.
 
@@ -124,38 +112,43 @@ struct MeasureValueToString {
 */
 class Measure {
 private:
-  std::string mCode;
+  std::string mCodename;
   std::string mLabel;
   Measure_c mData;
   double mSum;
 
 public:
-  Measure(std::string &code, std::string &label);
+  Measure(std::string code, const std::string &label);
   ~Measure() = default;
 
-  Measure(const Measure &other)
-      : mCode(other.mCode), mLabel(other.mLabel), mData(other.mData) {
-    std::cerr << "!!!! Copy Construct Measure " << mLabel << std::endl;
-  }
-  Measure &operator=(const Measure &other) {
-    std::cerr << "!!!! Copy Assign Measure " << other.mLabel << std::endl;
-    mCode  = other.mCode;
-    mLabel = other.mLabel;
-    mData  = other.mData;
-    return *this;
-  }
+  Measure(const Measure &other) = default;
+  Measure &operator=(const Measure &other) = default;
   Measure(Measure &&other) = default;
   Measure &operator=(Measure &&ither) = default;
 
+  // Measure(const Measure &other)
+  //     : mCodename(other.mCodename), mLabel(other.mLabel), mData(other.mData) {
+  //   std::cerr << "!!!! Copy Construct Measure " << mLabel << std::endl;
+  // }
+  // Measure &operator=(const Measure &other) {
+  //   std::cerr << "!!!! Copy Assign Measure " << other.mLabel << std::endl;
+  //   mCodename = other.mCodename;
+  //   mLabel    = other.mLabel;
+  //   mData     = other.mData;
+  //   return *this;
+  // }
+
   const std::string &getCode() const;
   const std::string &getLabel() const;
+  void setLabel(const std::string &label);
 
   Measure_t &at(const int &key);
-  void emplace(const int &key, Measure_t &value);
-  void emplace(const int &key, Measure_t &&value);
+  void emplace(const int &key, const Measure_t &value);
+  void emplace(const int &key, const Measure_t &&value);
   size_t size() const noexcept;
 
   friend std::ostream &operator<<(std::ostream &os, const Measure &measure);
+  friend bool operator==(const Measure &lhs, const Measure &rhs);
   
   /*
     Wrapper around underlying iterator functions for ease.
@@ -233,10 +226,10 @@ public:
   Area &operator=(Area &&ither) = default;
 
   const std::string &getLocalAuthorityCode() const;
-  const std::string &getName(const std::string &lang) const;
+  const std::string &getName(std::string lang) const;
   const std::vector<std::string> &getNames() const;
-  void setName(const std::string &lang, const std::string &name);
-  void setName(const std::string &lang, std::string &&name);
+  void setName(std::string lang, const std::string &name);
+  void setName(std::string lang, std::string &&name);
 
   void emplace(std::string ident, Measure &stat);
   void emplace(std::string ident, Measure &&stat);

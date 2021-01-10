@@ -52,16 +52,16 @@ int run(int argc, char *argv[]);
 cxxopts::Options cxxoptsSetup();
 
 /*
-  Parse the areas argument and return a std::unordered_set of all the
-  areas to import, or an empty set if all areas should be imported.
-*/
-std::unordered_set<std::string> parseAreasArg(cxxopts::ParseResult& args);
-
-/*
   Parse the datasets argument and return a std::vector of all the datasets
   to import. InputFileSource is declared in datasets.h.
 */
 std::vector<InputFileSource> parseDatasetsArg(cxxopts::ParseResult& args);
+
+/*
+  Parse the areas argument and return a std::unordered_set of all the
+  areas to import, or an empty set if all areas should be imported.
+*/
+std::unordered_set<std::string> parseAreasArg(cxxopts::ParseResult& args);
 
 /*
   Parse the measures argument and return a std::unordered_set of all the

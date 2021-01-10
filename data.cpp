@@ -37,7 +37,9 @@
 #include <iterator>
 #include <sstream>
 #include <string>
+#include <stdexcept>
 #include <tuple>
+#include <unordered_map>
 
 #include "libs/cxxopts/cxxopts.hpp"
 #include "libs/nlohmann/json.hpp"
@@ -52,10 +54,10 @@ using json = nlohmann::json;
   Construct a single measure, that has values across many years.
 
   All StatsWales JSON files have a codename for measures. We use this to 
-  allow filtering in the command line arguments. You should convert all codes 
+  allow filtering in the command line arguments. You should convert all codes
   to lowercase.
 
-  @param code
+  @param codename
     The codename for the measure
 
   @param label
@@ -64,9 +66,13 @@ using json = nlohmann::json;
   @example
     Measure measure("Pop", "Population");
 */
-Measure::Measure(std::string &code, std::string &label)
-    : mCode(code), mLabel(label), mData(), mSum(0) {
-  std::transform(mCode.begin(), mCode.end(), mCode.begin(), ::tolower);
+Measure::Measure(std::string codename, const std::string &label)
+    : mLabel(label), mData(), mSum(0) {
+  std::transform(codename.begin(),
+                 codename.end(),
+                 codename.begin(),
+                 ::tolower);
+   mCodename = std::move(codename);
 }
 
 /*
@@ -84,7 +90,7 @@ Measure::Measure(std::string &code, std::string &label)
     ...
     auto code = measure.getCode();
 */
-const std::string &Measure::getCode() const { return mCode; }
+const std::string &Measure::getCode() const { return mCodename; }
 
 /*
   TODO: Measure::getLabel()
@@ -102,6 +108,22 @@ const std::string &Measure::getCode() const { return mCode; }
     auto label = measure.getLabel();
 */
 const std::string &Measure::getLabel() const { return mLabel; }
+
+/*
+  TODO: Measure::setLabel(label)
+
+  Change the label for the Measure.
+
+  @param label
+    The new label for the Measure
+
+  @example
+    Measure measure("pop", "Population");
+    measure.emplace(1999, 12345678.9);
+    ...
+    measure.setLabel("New Population");
+*/
+void Measure::setLabel(const std::string &label) { mLabel = label; }
 
 /*
   TODO: Measure::at(key)
@@ -139,7 +161,13 @@ Measure_t &Measure::at(const int &key) {
     Measure measure("pop", "Population");
     measure.emplace(1999, 12345678.9);
 */
-void Measure::emplace(const int &key, Measure_t &value) {
+void Measure::emplace(const int &key, const Measure_t &value) {
+  auto existingIt = mData.find(key);
+  if (existingIt != mData.end()) {
+    mSum -= existingIt->second;
+    mData.erase(key);
+  }
+  
   mSum += value;
   mData.emplace(key, value);
 }
@@ -163,7 +191,13 @@ void Measure::emplace(const int &key, Measure_t &value) {
     double value = 12345678.9;
     measure.emplace(1999, std::move(value));
 */
-void Measure::emplace(const int &key, Measure_t &&value) {
+void Measure::emplace(const int &key, const Measure_t &&value) {
+  auto existingIt = mData.find(key);
+  if (existingIt != mData.end()) {
+    mSum -= existingIt->second;
+    mData.erase(key);
+  }
+
   mSum += value;
   mData.emplace(key, std::move(value));
 }
@@ -213,7 +247,7 @@ size_t Measure::size() const noexcept {
 */
 std::ostream &operator<<(std::ostream &os, const Measure &measure) {
   // TODO map: add average and change
-  os << measure.getLabel() << " (" << measure.getCode() << ")" << std::endl;
+  os << measure.getLabel() << " (" << measure.getCode() << ") "  << std::endl;
 
   if (measure.size() == 0) {
     os << "<no data>" << std::endl;
@@ -269,6 +303,28 @@ std::ostream &operator<<(std::ostream &os, const Measure &measure) {
   os << "\n" << values.str() << std::endl;
 
   return os;
+}
+
+/*
+  TODO: operator==(lhs, rhs)
+
+  Overload the == operator for two mMasure objects. Two Measure objects
+  are only equal when their codename, label and data are all equal.
+
+  @param lhs
+    A Measure object
+
+  @param lhs
+    A second Measure object
+
+  @return
+    true if they are equal
+*/
+bool operator==(const Measure &lhs, const Measure &rhs) {
+  return lhs.mCodename == rhs.mCodename &&
+         lhs.mLabel    == rhs.mLabel &&
+         lhs.mData     == rhs.mData &&
+         lhs.mSum      == rhs.mSum;
 }
 
 /*
@@ -328,7 +384,8 @@ const std::string &Area::getLocalAuthorityCode() const {
     ...
     std::string name = area.getName("eng"); // returns "Powys"
 */
-const std::string &Area::getName(const std::string &lang) const {
+const std::string &Area::getName(std::string lang) const {
+  std::transform(lang.begin(), lang.end(), lang.begin(), ::tolower);
   return mNames.at(lang);
 }
 
@@ -354,7 +411,7 @@ const std::vector<std::string> &Area::getNames() const {
   Set a name for the area in a specific language.
 
   @param lang
-    A three-leter language code in ISO 639-2/B format
+    A three-letter language code in ISO 639-2/B format
 
   @param name
     The name of the area in this language
@@ -364,7 +421,16 @@ const std::vector<std::string> &Area::getNames() const {
     area.setName("eng", "Powys");
     area.setName("cym", "Powys");
 */
-void Area::setName(const std::string &lang, const std::string &name) {
+void Area::setName(std::string lang, const std::string &name) {
+  std::transform(lang.begin(), lang.end(), lang.begin(), ::tolower);
+
+  const std::string alphabet = "abcdefghijklmnopqrstuvwxyz";
+  if (lang.length() != 3 || 
+      lang.find_first_not_of(alphabet) != std::string::npos) {
+    throw std::invalid_argument("Area::setName: Language code must be three "
+                                "alphabetical letters only");
+  }
+                 
   mNames.emplace(lang, name);
   mNamesList.push_back(name);
 }
@@ -388,7 +454,17 @@ void Area::setName(const std::string &lang, const std::string &name) {
     std::string name = "Powys";
     area.setName("eng", std::move(name));
 */
-void Area::setName(const std::string &lang, std::string &&name) {
+void Area::setName(std::string lang, std::string &&name) {
+  std::transform(lang.begin(), lang.end(), lang.begin(), ::tolower);
+
+  const std::string alphabet = "abcdefghijklmnopqrstuvwxyz";
+  if (lang.length() != 3 || 
+      lang.find_first_not_of(alphabet) != std::string::npos) {
+    throw std::invalid_argument("Area::setName: Language code must be three "
+                                "alphabetical letters only");
+  }
+  
+
   mNamesList.push_back(name);
   mNames.emplace(lang, std::move(name));
 }
@@ -441,6 +517,18 @@ Measure &Area::at(std::string key) {
 */
 void Area::emplace(std::string key, Measure &value) {
   std::transform(key.begin(), key.end(), key.begin(), ::tolower);
+  
+  auto existingIt = mMeasures.find(key);
+  if (existingIt != mMeasures.end()) {
+    Measure &existingMeasure = existingIt->second;
+
+    existingMeasure.setLabel(value.getLabel());
+    for (auto it = value.begin(); it != value.end(); it++) {
+      existingMeasure.emplace(it->first, it->second);
+    }    
+    return;
+  }
+  
   mMeasures.emplace(key, value);
 }
 

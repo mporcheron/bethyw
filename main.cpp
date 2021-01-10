@@ -12,9 +12,6 @@
   during marking.
  */
 
-#include <exception>
-#include <iostream>
-
 #include "bethyw.h"
 
 int main(int argc, char *argv[]) {

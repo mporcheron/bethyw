@@ -253,6 +253,8 @@ std::unordered_set<std::string> BethYw::parseAreasArg(
   try {
     auto temp = args["areas"].as<std::vector<std::string>>();
     areas = std::unordered_set<std::string>(temp.begin(), temp.end());
+  } catch (const std::domain_error &ex) {
+    // Do nothing, this is thrown when the areas argument isn't set
   } catch (const std::exception &ex) {
     throw std::invalid_argument("Invalid input for area argument");
   }
@@ -303,6 +305,8 @@ std::unordered_set<std::string> BethYw::parseMeasuresArg(
       measures.insert(measure);
     }
   } catch (const std::domain_error &ex) {
+    // Do nothing, this is thrown when the measures argument isn't set
+  } catch (const std::exception &ex) {
     throw std::invalid_argument("Invalid input for measures argument");
   }
 
@@ -339,11 +343,23 @@ std::tuple<unsigned int, unsigned int> BethYw::parseYearsArg(
     std::string value = args["years"].as<std::string>();
 
     if (value.find('-') != std::string::npos) {
+      if (value == "0-0") {
+        return years;
+      } else if (value.length() != 9) {
+        throw std::invalid_argument("Invalid input for years argument");
+      }
+      
       int start = std::stoi(value.substr(0, value.find('-')));
       int end = std::stoi(value.substr(value.find('-') + 1));
       auto tuple = std::make_tuple(start, end);
       years = std::move(tuple);
     } else {
+      if (value == "0") {
+        return years;
+      } else if (value.length() != 4) {
+        throw std::invalid_argument("Invalid input for years argument");
+      }
+      
       int year = std::stoi(value);
       auto tuple = std::make_tuple(year, year);
       years = std::move(tuple);

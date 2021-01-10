@@ -1,2 +1,0 @@
-nonexistantdir/areas.csv error:
-InputFile::import: Failed to open file
