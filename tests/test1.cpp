@@ -112,7 +112,7 @@ SCENARIO( "the datasets program argument can be parsed correctly", "[args][datas
 
         } // AND_THEN
 
-      } //THEN
+      } // THEN
 
     } // WHEN
 
@@ -131,6 +131,45 @@ SCENARIO( "the datasets program argument can be parsed correctly", "[args][datas
 
         REQUIRE_THROWS_AS(   BethYw::parseDatasetsArg(args), std::invalid_argument );
         REQUIRE_THROWS_WITH( BethYw::parseDatasetsArg(args), exceptionMessage );
+
+      } // THEN
+
+    } // WHEN
+
+    WHEN( "the program argument value contains one valid ('popden') and a request for all datasets ('all')" ) {
+
+      Argv argv({"test", "--datasets", "popden,all"});
+      auto** actual_argv = argv.argv();
+      auto argc          = argv.argc();
+
+      auto cxxopts = BethYw::cxxoptsSetup();
+      auto args    = cxxopts.parse(argc, actual_argv);
+
+      const std::string exceptionMessage = "No dataset matches key: invalid";
+
+      THEN( "the argument value is parsed without exception" ) {
+
+        REQUIRE_NOTHROW( BethYw::parseDatasetsArg(args) );
+
+        AND_THEN( "the response is a container with 7 values" ) {
+
+          auto datasets = BethYw::parseDatasetsArg(args);
+          REQUIRE( datasets.size() == 7 );
+
+        } // AND_THEN
+
+        AND_THEN ( "the correct InputFileSource instances are returned by numerical index" ) {
+
+          auto datasets = BethYw::parseDatasetsArg(args);
+          REQUIRE( datasets.at(0).NAME == "Population density" );
+          REQUIRE( datasets.at(1).NAME == "Active Businesses" );
+          REQUIRE( datasets.at(2).NAME == "Air Quality Indicators" );
+          REQUIRE( datasets.at(3).NAME == "Rail passenger journeys" );
+          REQUIRE( datasets.at(4).NAME == "Population density" );
+          REQUIRE( datasets.at(5).NAME == "Population" );
+          REQUIRE( datasets.at(6).NAME == "Land area" );
+
+        } // AND_THEN
 
       } // THEN
 

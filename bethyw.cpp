@@ -197,6 +197,7 @@ std::vector<BethYw::InputFileSource> BethYw::parseDatasetsArg(
   //     datasetsToImport.push_back(dataset.second);
   // return datasetsToImport;
 
+  size_t numDatasets = InputFiles::NUM_DATASETS;
   auto &allDatasets = InputFiles::DATASETS;
   std::vector<InputFileSource> datasetsToImport;
 
@@ -211,29 +212,40 @@ std::vector<BethYw::InputFileSource> BethYw::parseDatasetsArg(
       throw BethYw::ImportAllValues();
     }
 
-    if (inputDatasets.empty() || inputDatasets.at(0) == "area") {
+    if (inputDatasets.empty()) {
       throw BethYw::ImportAllValues();
     }
 
     for (auto inputDataset = inputDatasets.begin();
          inputDataset != inputDatasets.end();
          inputDataset++) {
-      const std::string name = *inputDataset;
-      auto dataset = allDatasets.find(name);
-      if (dataset != allDatasets.end()) {
-        InputFileSource file = dataset->second;
-        datasetsToImport.push_back(std::move(file));
-      } else {
-        throw std::invalid_argument("No dataset matches key: " + name);
+      const std::string code = *inputDataset;
+      
+      if (code == "all") {
+        throw BethYw::ImportAllValues();
+      }
+
+      bool match = false;
+      for (unsigned int i = 0; i < numDatasets; i++) {
+        const InputFileSource &ifs = allDatasets[i];
+        if (ifs.CODE == code) {
+          datasetsToImport.push_back(ifs);
+          match = true;
+          break;
+        } 
+      }
+      
+      if (!match) {
+        throw std::invalid_argument("No dataset matches key: " + code);
       }
     }
   } catch (const BethYw::ImportAllValues &ex) {
-    for (auto dataset = allDatasets.begin();
-         dataset != allDatasets.end();
-         dataset++) {
-      datasetsToImport.push_back(dataset->second);
+    datasetsToImport.clear();
+    for (int i = 0; i < numDatasets; i++) {
+      datasetsToImport.push_back(allDatasets[i]);
     }
   }
+
 
   return datasetsToImport;
 }

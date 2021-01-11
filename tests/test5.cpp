@@ -42,7 +42,7 @@ SCENARIO( "a Measure object can be constructed with a codename and label", "[Mea
       const std::string label = "Population";
       Measure measure(codename, "Population");
 
-      REQUIRE( measure.getCode() == codename );
+      REQUIRE( measure.getCodename() == codename );
 
     } // THEN
 
@@ -53,7 +53,7 @@ SCENARIO( "a Measure object can be constructed with a codename and label", "[Mea
       const std::string label = "Population";
       Measure measure(codename, label);
 
-      REQUIRE_NOTHROW( measure.getCode() == codenameLower );
+      REQUIRE_NOTHROW( measure.getCodename() == codenameLower );
 
     } // THEN
 

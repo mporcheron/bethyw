@@ -63,7 +63,7 @@ enum DataType { None, AuthorityCodeCSV, WelshStatsJSON, AuthorityByYearCSV };
   an unordered map to match each of these enum values into a string that
   the source contains.
 */
-enum SourceColumns {
+enum SourceColumn {
   AUTH_CODE,
   AUTH_NAME_ENG,
   AUTH_NAME_CYM,
@@ -76,9 +76,9 @@ enum SourceColumns {
 };
 
 /*
-  We use the shortcut SourceColumnsMatch in this file for simplcity.
+  We use the shortcut SourceColumnMatch in this file for simplcity.
 */
-using SourceColumnsMatch = std::unordered_map<SourceColumns, std::string>;
+using SourceColumnMatch = std::unordered_map<SourceColumn, std::string>;
 
 /*
   TODO map: remove
@@ -343,20 +343,20 @@ public:
   
   void populateFromAuthorityCodeCSV(
       std::istream &is,
-      const SourceColumnsMatch &cols,
+      const SourceColumnMatch &cols,
       const std::unordered_set<std::string> * const areas = nullptr)
       noexcept(false);
 
   void populateFromAuthorityByYearCSV(
       std::istream &is,
-      const SourceColumnsMatch &cols,
+      const SourceColumnMatch &cols,
       const StringFilterSet * const areasFilter = nullptr,
       const YearFilterTuple * const yearsFilter = nullptr)
       noexcept(false);
 
   void populateFromWelshStatsJSON(
       std::istream &is,
-      const SourceColumnsMatch &cols,
+      const SourceColumnMatch &cols,
       const StringFilterSet * const areasFilter = nullptr,
       const StringFilterSet * const measuresFilter = nullptr,
       const YearFilterTuple * const yearsFilter = nullptr)
@@ -365,12 +365,12 @@ public:
   void populate(
       std::istream &is,
       const DataType &type,
-      const SourceColumnsMatch &cols) noexcept(false);
+      const SourceColumnMatch &cols) noexcept(false);
 
   void populate(
       std::istream &is,
       const DataType &type,
-      const SourceColumnsMatch &cols,
+      const SourceColumnMatch &cols,
       const StringFilterSet * const areasFilter = nullptr,
       const StringFilterSet * const measuresFilter = nullptr,
       const YearFilterTuple * const yearsFilter = nullptr)

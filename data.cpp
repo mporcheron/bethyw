@@ -965,7 +965,7 @@ size_t Areas<>::size() const noexcept {
     The input stream from InputSource
 
   @param cols
-    A map of the enum SourceColumns (see data.h) to strings that give the
+    A map of the enum SourceColumn (see data.h) to strings that give the
     column header in the CSV file, which is statically defined in datasets.h
 
   @param areasFilter
@@ -996,7 +996,7 @@ size_t Areas<>::size() const noexcept {
 template <>
 void Areas<>::populateFromAuthorityCodeCSV(
     std::istream &is,
-    const SourceColumnsMatch &cols,
+    const SourceColumnMatch &cols,
     const std::unordered_set<std::string> * const areasFilter) noexcept(false) {
   // First row is our column titles, skip it
   std::string line;
@@ -1066,7 +1066,7 @@ void Areas<>::populateFromAuthorityCodeCSV(
     The input stream from InputSource
 
   @param cols
-    A map of the enum SourceColumns (see data.h) to strings that give the
+    A map of the enum SourceColumn (see data.h) to strings that give the
     column header in the CSV file, which is statically defined in datasets.h
 
   @param areasFilter
@@ -1106,7 +1106,7 @@ void Areas<>::populateFromAuthorityCodeCSV(
 template <>
 void Areas<>::populateFromAuthorityByYearCSV(
     std::istream &is,
-    const SourceColumnsMatch &cols,
+    const SourceColumnMatch &cols,
     const std::unordered_set<std::string> * const areasFilter,
     const std::tuple<unsigned int, unsigned int> * const yearsFilter)
     noexcept(false) {
@@ -1320,7 +1320,7 @@ void Areas<>::populateFromAuthorityByYearCSV(
     The input stream from InputSource
 
   @param cols
-    A map of the enum SourceColumns (see data.h) to strings that give the
+    A map of the enum SourceColumn (see data.h) to strings that give the
     column header in the CSV file, which is statically defined in datasets.h
 
   @param areasFilter
@@ -1367,7 +1367,7 @@ void Areas<>::populateFromAuthorityByYearCSV(
 template <>
 void Areas<>::populateFromWelshStatsJSON(
     std::istream &is,
-    const SourceColumnsMatch &cols,
+    const SourceColumnMatch &cols,
     const std::unordered_set<std::string> *const areasFilter,
     const std::unordered_set<std::string> *const measuresFilter,
     const std::tuple<unsigned int, unsigned int> * const yearsFilter)
@@ -1558,7 +1558,7 @@ void Areas<>::populateFromWelshStatsJSON(
     structure
 
   @param cols
-    A map of the enum SourceColumns (see data.h) to strings that give the
+    A map of the enum SourceColumn (see data.h) to strings that give the
     column header in the CSV file, which is statically defined in datasets.h
 
   @throws 
@@ -1591,7 +1591,7 @@ void Areas<>::populateFromWelshStatsJSON(
 template <>
 void Areas<>::populate(std::istream &is,
                        const DataType &type,
-                       const SourceColumnsMatch &cols) noexcept(false) {
+                       const SourceColumnMatch &cols) noexcept(false) {
   // check if the stream is open and readable
   is.seekg(1, is.beg);
   if (is.eof() || is.fail()) {
@@ -1639,7 +1639,7 @@ void Areas<>::populate(std::istream &is,
     structure
 
   @param cols
-    A map of the enum SourceColumns (see data.h) to strings that give the
+    A map of the enum SourceColumn (see data.h) to strings that give the
     column header in the CSV file, which is statically defined in datasets.h
 
   @param areasFilter
@@ -1693,7 +1693,7 @@ template <>
 void Areas<>::populate(
     std::istream &is,
     const DataType &type,
-    const SourceColumnsMatch &cols,
+    const SourceColumnMatch &cols,
     const std::unordered_set<std::string> *const areasFilter,
     const std::unordered_set<std::string> *const measuresFilter,
     const std::tuple<unsigned int, unsigned int> *const yearsFilter)
