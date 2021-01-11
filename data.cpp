@@ -76,7 +76,7 @@ Measure::Measure(std::string codename, const std::string &label)
 }
 
 /*
-  TODO: Measure::getCode()
+  TODO: Measure::getCodename()
 
   Retrieve the code for the measure. This function should be callable from a 
   constant context.
@@ -88,9 +88,9 @@ Measure::Measure(std::string codename, const std::string &label)
     Measure measure("pop", "Population");
     measure.setValue(1999, 12345678.9);
     ...
-    auto code = measure.getCode();
+    auto code = measure.getCodename();
 */
-const std::string &Measure::getCode() const { return mCodename; }
+const std::string &Measure::getCodename() const { return mCodename; }
 
 /*
   TODO: Measure::getLabel()
@@ -247,7 +247,8 @@ size_t Measure::size() const noexcept {
 */
 std::ostream &operator<<(std::ostream &os, const Measure &measure) {
   // TODO map: add average and change
-  os << measure.getLabel() << " (" << measure.getCode() << ") "  << std::endl;
+  os << measure.getLabel() << " (" << measure.getCodename();
+  os << ") "  << std::endl;
 
   if (measure.size() == 0) {
     os << "<no data>" << std::endl;
@@ -1723,6 +1724,90 @@ void Areas<>::populate(
   }
 }
 
+/*
+  TODO: Areas<>::toJSON()
+
+  Convert this Areas<> object, and all its containing Area instances, and
+  the Measure instances within those all to values.
+
+  Use the sample JSON library as above to create this. Construct a blank
+  JSON object:
+    json j;
+
+  Convert this json object to a string:
+    j.dump();
+
+  Read the documentation for how to convert your outcome code to JSON:
+    https://github.com/nlohmann/json#arbitrary-types-conversions
+  
+  The JSON should be formatted as such:
+    {
+    "<localAuthorityCode1>" : {
+                              "names": { "<languageCode1>": "<languageName1>",
+                                         "<languageCode2>": "<languageName2>" 
+                                         …
+                                         "<languageCodeN>": "<languageNameN>" }, 
+                              "measures" : { "<year1>": <value1>,
+                                             "<year2>": <value2>,
+                                             …
+                                            "<yearN>": <valueN> }
+                               },
+    "<localAuthorityCode2>" : {
+                              "names": { "<languageCode1>": "<languageName1>",
+                                         "<languageCode2>": "<languageName2>" 
+                                         …
+                                         "<languageCodeN>": "<languageNameN>" }, 
+                              "measures" : { "<year1>": <value1>,
+                                             "<year2>": <value2>,
+                                             …
+                                            "<yearN>": <valueN> }
+                               }
+    ...
+    "<localAuthorityCodeN>" : {
+                              "names": { "<languageCode1>": "<languageName1>",
+                                         "<languageCode2>": "<languageName2>" 
+                                         …
+                                         "<languageCodeN>": "<languageNameN>" }, 
+                              "measures" : { "<year1>": <value1>,
+                                             "<year2>": <value2>,
+                                             …
+                                            "<yearN>": <valueN> }
+                               }
+    }
+  
+  @return
+    std::string of JSON
+*/
+template<>
+std::string Areas<>::toJSON() const {
+  json j;
+
+  for (auto areaIt = cbegin(); areaIt != cend(); areaIt++) {
+    const Area &area = areaIt->second;
+    const std::string localAuthorityCode = area.getLocalAuthorityCode();
+
+    auto names = area.getNames();
+    for (auto nameIt = names.cbegin(); nameIt != names.end(); nameIt++) {
+      j[localAuthorityCode]["names"][nameIt->first] = nameIt->second;
+    }
+    
+    auto measures = area.getNames();
+    for (auto measureIt = area.cbegin();
+         measureIt != area.cend();
+         measureIt++) {
+      const Measure &measure = measureIt->second;
+      const std::string measureCodename = measure.getCodename();
+
+      for (auto yearIt = measure.cbegin(); yearIt != measure.cend(); yearIt++) {
+        const std::string year = std::to_string(yearIt->first);
+        const double value = yearIt->second;
+        j[localAuthorityCode]["measures"][measureCodename][year] = value;
+      }
+    }
+  }
+  
+  return j.dump();
+}
 
 /*
   TODO: operator<<(os, measure)

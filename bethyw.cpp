@@ -30,10 +30,13 @@
 #include <vector>
 
 #include "libs/cxxopts/cxxopts.hpp"
+#include "libs/nlohmann/json.hpp"
 
 #include "bethyw.h"
 #include "input.h"
 #include "datasets.h"
+
+using json = nlohmann::json;
 
 /*
   Run Beth Yw?, parsing the command line arguments, importing the data,
@@ -81,8 +84,14 @@ int BethYw::run(int argc, char *argv[]) {
                          measuresFilter,
                          yearsFilter);
 
-    // The end...
-    std::cout << data << std::endl;
+    if (args.count("json")) {
+      // The output as JSON
+      std::cout << data.toJSON() << std::endl;
+    } else {
+      // The output as tables
+      std::cout << data << std::endl;
+    }
+
     return 0;
   } catch (const cxxopts::missing_argument_exception &ex) {
     std::cerr << "Missing value for argument:" << ex.what() << std::endl;
@@ -131,6 +140,9 @@ cxxopts::Options BethYw::cxxoptsSetup() {
       "Focus on a particular year (YYYY) or "
       "inclusive range of years (YYYY-ZZZZ)",
       cxxopts::value<std::string>()->default_value("0"))(
+
+      "j,json",
+      "Print the output as JSON instead of tables.")(
 
       "h,help",
       "Print usage.");
@@ -412,9 +424,9 @@ void BethYw::loadAreas(Areas<> &areas,
   InputSource *source = new InputFile(fileAreas);
   std::istream &stream = source->open();
   areas.populate(stream,
-                InputFiles::AREAS.PARSER,
-                InputFiles::AREAS.COLS,
-                &areasFilter);
+                 InputFiles::AREAS.PARSER,
+                 InputFiles::AREAS.COLS,
+                 &areasFilter);
 }
 
 /*

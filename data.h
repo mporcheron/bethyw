@@ -138,7 +138,7 @@ public:
   //   return *this;
   // }
 
-  const std::string &getCode() const;
+  const std::string &getCodename() const;
   const std::string &getLabel() const;
   void setLabel(const std::string &label);
 
@@ -375,6 +375,8 @@ public:
       const StringFilterSet * const measuresFilter = nullptr,
       const YearFilterTuple * const yearsFilter = nullptr)
       noexcept(false);
+
+  std::string toJSON() const;
 
   friend std::ostream &operator<<(std::ostream &os, const Areas<> &areas);
   
