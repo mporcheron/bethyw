@@ -26,7 +26,7 @@ SCENARIO( "a Measure object can be constructed with a codename and label", "[Mea
     const std::string codename = "Pop";
     const std::string label = "Population";
 
-    THEN( "an Measure instance can be constructed" ) {
+    THEN( "a Measure instance can be constructed" ) {
 
       REQUIRE_NOTHROW( Measure(codename, label) );
 
@@ -67,7 +67,7 @@ SCENARIO( "a Measure object can be constructed with a codename and label", "[Mea
 
     } // THEN
 
-    THEN( "the object contains no values" ) {
+    THEN( "the instance has size 0" ) {
 
       const std::string codename = "pop";
       const std::string label = "Population";
@@ -96,7 +96,7 @@ SCENARIO( "a Measure object can be populated with values", "[Measure][populate]"
 
       THEN( "they will be emplaced without exception" ) {
 
-        REQUIRE_NOTHROW( measure.emplace(year, value) );
+        REQUIRE_NOTHROW( measure.setValue(year, value) );
 
         AND_THEN( "the size will be 1" ) {
 
@@ -104,7 +104,7 @@ SCENARIO( "a Measure object can be populated with values", "[Measure][populate]"
 
         AND_THEN( "the value can be retrieved" ) {
 
-          REQUIRE( measure.at(year) == value );
+          REQUIRE( measure.getValue(year) == value );
 
         } // AND_THEN
 
@@ -123,8 +123,8 @@ SCENARIO( "a Measure object can be populated with values", "[Measure][populate]"
 
       THEN( "they will both be emplaced without exception" ) {
 
-        REQUIRE_NOTHROW( measure.emplace(year1, value1) );
-        REQUIRE_NOTHROW( measure.emplace(year2, value2) );
+        REQUIRE_NOTHROW( measure.setValue(year1, value1) );
+        REQUIRE_NOTHROW( measure.setValue(year2, value2) );
 
         AND_THEN( "the size will be 2" ) {
 
@@ -134,8 +134,8 @@ SCENARIO( "a Measure object can be populated with values", "[Measure][populate]"
 
         AND_THEN( "both values can be retrieved" ) {
 
-          REQUIRE( measure.at(year1) == value1 );
-          REQUIRE( measure.at(year2) == value2 );
+          REQUIRE( measure.getValue(year1) == value1 );
+          REQUIRE( measure.getValue(year2) == value2 );
 
         } // AND THEN
 
@@ -152,8 +152,8 @@ SCENARIO( "a Measure object can be populated with values", "[Measure][populate]"
 
       THEN( "they will both be emplaced without exception" ) {
 
-        REQUIRE_NOTHROW( measure.emplace(year1, value1) );
-        REQUIRE_NOTHROW( measure.emplace(year2, value2) );
+        REQUIRE_NOTHROW( measure.setValue(year1, value1) );
+        REQUIRE_NOTHROW( measure.setValue(year2, value2) );
 
         AND_THEN( "the size will be 1" ) {
 
@@ -163,7 +163,7 @@ SCENARIO( "a Measure object can be populated with values", "[Measure][populate]"
 
         AND_THEN( "the second value will have replaced the first value" ) {
 
-          REQUIRE( measure.at(year2) == value2 );
+          REQUIRE( measure.getValue(year2) == value2 );
 
         } // AND_THEN
 
@@ -179,7 +179,7 @@ SCENARIO( "a Measure object can be populated with values", "[Measure][populate]"
 
         AND_THEN( "a std::out_of_range exception will be thrown when you a value is requested for a given year" ) {
 
-          REQUIRE_THROWS_AS( measure.at(1234), std::out_of_range );
+          REQUIRE_THROWS_AS( measure.getValue(1234), std::out_of_range );
 
         } // AND_THEN
 

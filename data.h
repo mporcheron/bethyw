@@ -142,9 +142,9 @@ public:
   const std::string &getLabel() const;
   void setLabel(const std::string &label);
 
-  Measure_t &at(const int &key);
-  void emplace(const int &key, const Measure_t &value);
-  void emplace(const int &key, const Measure_t &&value);
+  Measure_t &getValue(const int &key);
+  void setValue(const int &key, const Measure_t &value);
+  void setValue(const int &key, const Measure_t &&value);
   size_t size() const noexcept;
 
   friend std::ostream &operator<<(std::ostream &os, const Measure &measure);
@@ -209,37 +209,40 @@ public:
   Area(const std::string &localAuthorityCode);
   ~Area() = default;
 
-  Area(const Area &other)
-      : mLocalAuthorityCode(other.mLocalAuthorityCode),
-        mNames(other.mNames),
-        mMeasures(other.mMeasures) {
-    std::cerr << "!!!! Copy Construct Area" << std::endl;
-  }
-  Area &operator=(const Area &other) {
-    std::cerr << "!!!! Copy Assign Area" << std::endl;
-    mLocalAuthorityCode  = other.mLocalAuthorityCode;
-    mNames = other.mNames;
-    mMeasures  = other.mMeasures;
-    return *this;
-  }
+  // Area(const Area &other)
+  //     : mLocalAuthorityCode(other.mLocalAuthorityCode),
+  //       mNames(other.mNames),
+  //       mMeasures(other.mMeasures) {
+  //   std::cerr << "!!!! Copy Construct Area" << std::endl;
+  // }
+  // Area &operator=(const Area &other) {
+  //   std::cerr << "!!!! Copy Assign Area" << std::endl;
+  //   mLocalAuthorityCode  = other.mLocalAuthorityCode;
+  //   mNames = other.mNames;
+  //   mMeasures  = other.mMeasures;
+  //   return *this;
+  // }
+  Area(const Area &other) = default;
+  Area &operator=(const Area &other) = default;
   Area(Area &&other) = default;
-  Area &operator=(Area &&ither) = default;
+  Area &operator=(Area &&other) = default;
 
   const std::string &getLocalAuthorityCode() const;
   const std::string &getName(std::string lang) const;
-  const std::vector<std::string> &getNames() const;
+  const std::map<std::string, std::string> &getNames() const;
   void setName(std::string lang, const std::string &name);
   void setName(std::string lang, std::string &&name);
 
-  void emplace(std::string ident, Measure &stat);
-  void emplace(std::string ident, Measure &&stat);
-  Measure &at(std::string ident);
+  void setMeasure(std::string ident, Measure &stat);
+  void setMeasure(std::string ident, Measure &&stat);
+  Measure &getMeasure(std::string ident);
   size_t size() const noexcept;
 
   friend bool operator==(const Area &lhs, const Area &rhs);
   friend bool operator!=(const Area &lhs, const Area &rhs);
   friend bool operator<(const Area &lhs, const Area &rhs);
   friend std::ostream &operator<<(std::ostream &os, const Area &area);
+  friend bool operator==(const Area &lhs, const Area &rhs);
   
   /*
     Wrapper around underlying iterator functions for ease.
@@ -333,9 +336,9 @@ public:
       const std::string localAuthorityCode)
       noexcept;
     
-  void emplace(std::string &ident, Area &stat);
-  void emplace(std::string &ident, Area &&stat);
-  Area &at(const std::string &areaCode);
+  void setArea(std::string &ident, Area &stat);
+  void setArea(std::string &ident, Area &&stat);
+  Area &getArea(const std::string &areaCode);
   size_t size() const noexcept;
   
   void populateFromAuthorityCodeCSV(

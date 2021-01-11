@@ -1,0 +1,10 @@
+Tests
+1. --datasets program arugment
+2. --areas and --measures program arguments
+3. --years program argument
+4. InputFile: all
+5. Measure: all except I/O
+6. Area:    basic name/code functions
+7. Areas<>: basic and managing Area objects
+8. Areas<>: parsing Authority Code CSV
+9. Area:    managing Measure objects

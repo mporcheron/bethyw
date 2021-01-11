@@ -86,7 +86,7 @@ Measure::Measure(std::string codename, const std::string &label)
 
   @example
     Measure measure("pop", "Population");
-    measure.emplace(1999, 12345678.9);
+    measure.setValue(1999, 12345678.9);
     ...
     auto code = measure.getCode();
 */
@@ -103,7 +103,7 @@ const std::string &Measure::getCode() const { return mCodename; }
 
   @example
     Measure measure("pop", "Population");
-    measure.emplace(1999, 12345678.9);
+    measure.setValue(1999, 12345678.9);
     ...
     auto label = measure.getLabel();
 */
@@ -119,14 +119,14 @@ const std::string &Measure::getLabel() const { return mLabel; }
 
   @example
     Measure measure("pop", "Population");
-    measure.emplace(1999, 12345678.9);
+    measure.setValue(1999, 12345678.9);
     ...
     measure.setLabel("New Population");
 */
 void Measure::setLabel(const std::string &label) { mLabel = label; }
 
 /*
-  TODO: Measure::at(key)
+  TODO: Measure::getValue(key)
 
   Retrieve a measure's value for a given year.
 
@@ -138,16 +138,16 @@ void Measure::setLabel(const std::string &label) { mLabel = label; }
 
   @example
     Measure measure("pop", "Population");
-    measure.emplace(1999, 12345678.9);
+    measure.setValue(1999, 12345678.9);
     ...
-    double value = measure.at(1999); // returns 12345678.9
+    double value = measure.getValue(1999); // returns 12345678.9
 */
-Measure_t &Measure::at(const int &key) {
+Measure_t &Measure::getValue(const int &key) {
   return mData.at(key);
 }
 
 /*
-  TODO: Measure::emplace(key, value)
+  TODO: Measure::setValue(key, value)
 
   Add a particular year's value to the Measure object.
 
@@ -159,9 +159,9 @@ Measure_t &Measure::at(const int &key) {
 
   @example
     Measure measure("pop", "Population");
-    measure.emplace(1999, 12345678.9);
+    measure.setValue(1999, 12345678.9);
 */
-void Measure::emplace(const int &key, const Measure_t &value) {
+void Measure::setValue(const int &key, const Measure_t &value) {
   auto existingIt = mData.find(key);
   if (existingIt != mData.end()) {
     mSum -= existingIt->second;
@@ -173,7 +173,7 @@ void Measure::emplace(const int &key, const Measure_t &value) {
 }
 
 /*
-  TODO: Measure::emplace(key, value)
+  TODO: Measure::setValue(key, value)
 
   Add a particular year's value to the Measure object.
 
@@ -189,9 +189,9 @@ void Measure::emplace(const int &key, const Measure_t &value) {
   @example
     Measure measure("pop", "Population");
     double value = 12345678.9;
-    measure.emplace(1999, std::move(value));
+    measure.setValue(1999, std::move(value));
 */
-void Measure::emplace(const int &key, const Measure_t &&value) {
+void Measure::setValue(const int &key, const Measure_t &&value) {
   auto existingIt = mData.find(key);
   if (existingIt != mData.end()) {
     mSum -= existingIt->second;
@@ -213,7 +213,7 @@ void Measure::emplace(const int &key, const Measure_t &&value) {
 
   @example
     Measure measure("pop", "Population");
-    measure.emplace(1999, 12345678.9);
+    measure.setValue(1999, 12345678.9);
     auto size = measure.size(); // returns 1
 */
 size_t Measure::size() const noexcept {
@@ -242,7 +242,7 @@ size_t Measure::size() const noexcept {
 
   @example
     Measure measure("pop", "Population");
-    measure.emplace(1999, 12345678.9);
+    measure.setValue(1999, 12345678.9);
     std::cout << measure << std::end;
 */
 std::ostream &operator<<(std::ostream &os, const Measure &measure) {
@@ -308,7 +308,7 @@ std::ostream &operator<<(std::ostream &os, const Measure &measure) {
 /*
   TODO: operator==(lhs, rhs)
 
-  Overload the == operator for two mMasure objects. Two Measure objects
+  Overload the == operator for two Measure objects. Two Measure objects
   are only equal when their codename, label and data are all equal.
 
   @param lhs
@@ -390,7 +390,8 @@ const std::string &Area::getName(std::string lang) const {
 }
 
 /*
-  Get a vector of all the different names for the Area.
+  Get a map of all the different names for the Area, organised by language
+  code.
 
   @return
     The names for the Area
@@ -399,10 +400,10 @@ const std::string &Area::getName(std::string lang) const {
     Area area("W06000023");
     area.setName("eng", "Powys");
     ...
-    auto name = area.getNames();
+    auto names = area.getNames();
 */
-const std::vector<std::string> &Area::getNames() const {
-  return mNamesList;
+const std::map<std::string, std::string> &Area::getNames() const {
+  return mNames;
 }
 
 /*
@@ -430,9 +431,13 @@ void Area::setName(std::string lang, const std::string &name) {
     throw std::invalid_argument("Area::setName: Language code must be three "
                                 "alphabetical letters only");
   }
-                 
+
+  auto existingIt = mNames.find(lang);
+  if (existingIt != mNames.end()) {
+    mNames.erase(lang);
+  }
+  
   mNames.emplace(lang, name);
-  mNamesList.push_back(name);
 }
 
 /*
@@ -463,14 +468,17 @@ void Area::setName(std::string lang, std::string &&name) {
     throw std::invalid_argument("Area::setName: Language code must be three "
                                 "alphabetical letters only");
   }
-  
 
-  mNamesList.push_back(name);
+  auto existingIt = mNames.find(lang);
+  if (existingIt != mNames.end()) {
+    mNames.erase(lang);
+  }
+
   mNames.emplace(lang, std::move(name));
 }
 
 /*
-  TODO: Area::at(key)
+  TODO: Area::getMeasure(key)
 
   Retrieve a Measure given its code. This function should be case insensitive.
 
@@ -485,16 +493,16 @@ void Area::setName(std::string lang, std::string &&name) {
     area.setName("eng", "Powys");
 
     Measure measure("Pop", "Population");
-    area.emplace("Pop", measure);
+    area.setMeasure("Pop", measure);
     ...
-    auto measure2 = area.at("pop");
+    auto measure2 = area.getMeasure("pop");
 */
-Measure &Area::at(std::string key) {
+Measure &Area::getMeasure(std::string key) {
   return mMeasures.at(key);
 }
 
 /*
-  TODO: Area::emplace(key, value)
+  TODO: Area::setMeasure(key, value)
 
   Add a particular Measure to the Area object. Note that the measure's
   code should be converted to lowercase.
@@ -511,11 +519,11 @@ Measure &Area::at(std::string key) {
 
     Measure measure("Pop", "Population");
     double value = 12345678.9;
-    measure.emplace(1999, value);
+    measure.setValue(1999, value);
 
-    area.emplace("Pop", measure);
+    area.setMeasure("Pop", measure);
 */
-void Area::emplace(std::string key, Measure &value) {
+void Area::setMeasure(std::string key, Measure &value) {
   std::transform(key.begin(), key.end(), key.begin(), ::tolower);
   
   auto existingIt = mMeasures.find(key);
@@ -524,7 +532,7 @@ void Area::emplace(std::string key, Measure &value) {
 
     existingMeasure.setLabel(value.getLabel());
     for (auto it = value.begin(); it != value.end(); it++) {
-      existingMeasure.emplace(it->first, it->second);
+      existingMeasure.setValue(it->first, it->second);
     }    
     return;
   }
@@ -533,7 +541,7 @@ void Area::emplace(std::string key, Measure &value) {
 }
 
 /*
-  TODO: Area::emplace(key, value)
+  TODO: Area::setMeasure(key, value)
 
   Add a particular Measure to the Area object. Note that the measure's
   code should be converted to lowercase.
@@ -553,12 +561,24 @@ void Area::emplace(std::string key, Measure &value) {
 
     Measure measure("Pop", "Population");
     double value = 12345678.9;
-    measure.emplace(1999, value);
+    measure.setValue(1999, value);
 
-    area.emplace("Pop", std::move(measure));
+    area.setMeasure("Pop", std::move(measure));
 */
-void Area::emplace(std::string key, Measure &&value) {
+void Area::setMeasure(std::string key, Measure &&value) {
   std::transform(key.begin(), key.end(), key.begin(), ::tolower);
+  
+  auto existingIt = mMeasures.find(key);
+  if (existingIt != mMeasures.end()) {
+    Measure &existingMeasure = existingIt->second;
+
+    existingMeasure.setLabel(value.getLabel());
+    for (auto it = value.begin(); it != value.end(); it++) {
+      existingMeasure.setValue(it->first, it->second);
+    }    
+    return;
+  }
+  
   mMeasures.emplace(key, std::move(value));
 }
 
@@ -577,9 +597,9 @@ void Area::emplace(std::string key, Measure &&value) {
 
     Measure measure("Pop", "Population");
     double value = 12345678.9;
-    measure.emplace(1999, value);
+    measure.setValue(1999, value);
 
-    area.emplace("Pop", measure);
+    area.setMeasure("Pop", measure);
     auto size = area.size(); // returns 1
 */
 size_t Area::size() const noexcept {
@@ -648,6 +668,29 @@ std::ostream &operator<<(std::ostream &os, const Area &area) {
 }
 
 /*
+  TODO: operator==(lhs, rhs)
+
+  Overload the == operator for two Area objects. Two Area objects
+  are only equal when their local authority code, all names, and all data are
+  equal.
+
+  @param lhs
+    A Area object
+
+  @param lhs
+    A second Area object
+
+  @return
+    true if they are equal
+*/
+bool operator==(const Area &lhs, const Area &rhs) {
+  return lhs.mLocalAuthorityCode == rhs.mLocalAuthorityCode &&
+         lhs.mNames              == rhs.mNames &&
+         lhs.mNamesList          == rhs.mNamesList &&
+         lhs.mMeasures           == rhs.mMeasures;
+}
+
+/*
   TODO: Areas<>::Areas()
 
   Constructor for an areas object.
@@ -664,7 +707,7 @@ template <>
 Areas<>::Areas() : mAreasByCode(), mAreasByName() {}
 
 /*
-  TODO: Areas<>::emplace(key, value)
+  TODO: Areas<>::setArea(key, value)
 
   Add a particular area to the Areas object.
 
@@ -677,15 +720,31 @@ Areas<>::Areas() : mAreasByCode(), mAreasByName() {}
   @example
     Areas<> data = Areas<>();
     Area area("W06000023");
-    data.emplace("W06000023", area);
+    data.setArea("W06000023", area);
 */
 template<>
-void Areas<>::emplace(std::string &ident, Area &stat) {
-  mAreasByCode.emplace(ident, stat);
+void Areas<>::setArea(std::string &key, Area &value) {
+  auto existingIt = mAreasByCode.find(key);
+  if (existingIt != mAreasByCode.end()) {
+    Area &existingArea = existingIt->second;
+
+    auto names = value.getNames();
+    for (auto it = names.begin(); it != names.end(); it++) {
+      existingArea.setName(it->first, it->second);
+    }
+
+    for (auto it = value.begin(); it != value.end(); it++) {
+      existingArea.setMeasure(it->first, it->second);
+    }
+
+    return;
+  }
+  
+  mAreasByCode.emplace(key, value);
 }
 
 /*
-  TODO: Areas<>::emplace(key, value)
+  TODO: Areas<>::setArea(key, value)
 
   Add a particular area to the Areas object.
 
@@ -701,15 +760,31 @@ void Areas<>::emplace(std::string &ident, Area &stat) {
   @example
     Areas<> data = Areas<>();
     Area area("W06000023");
-    areas.emplace("W06000023", std::move(area));
+    areas.setArea("W06000023", std::move(area));
 */
 template<>
-void Areas<>::emplace(std::string &ident, Area &&stat) {
-  mAreasByCode.emplace(ident, std::move(stat));
+void Areas<>::setArea(std::string &key, Area &&value) {
+  auto existingIt = mAreasByCode.find(key);
+  if (existingIt != mAreasByCode.end()) {
+    Area &existingArea = existingIt->second;
+
+    auto names = value.getNames();
+    for (auto it = names.begin(); it != names.end(); it++) {
+      existingArea.setName(it->first, it->second);
+    }
+
+    for (auto it = value.begin(); it != value.end(); it++) {
+      existingArea.setMeasure(it->first, it->second);
+    }
+
+    return;
+  }
+  
+  mAreasByCode.emplace(key, std::move(value));
 }
 
 /*
-  TODO: Areas<>::at(key)
+  TODO: Areas<>::getArea(key)
 
   Retrieve an Area instance for a local authority code or by name
 
@@ -729,12 +804,12 @@ void Areas<>::emplace(std::string &ident, Area &&stat) {
   @example
     Areas<> data = Areas<>();
     Area area("W06000023");
-    areas.emplace("W06000023", area);
+    areas.setArea("W06000023", area);
     ...
-    Area area2 = areas.at("W06000023");
+    Area area2 = areas.getArea("W06000023");
 */
 template<>
-Area &Areas<>::at(const std::string &key) {
+Area &Areas<>::getArea(const std::string &key) {
   // mAreasByCode.at(key);
   try {
     return mAreasByCode.at(key);
@@ -834,7 +909,8 @@ bool Areas<>::isLocalAuthorityFiltered(
       // of that area against the filter
       try {
         const auto names = area->second.getNames();
-        for (auto name : names) {
+        for (auto it = names.begin(); it != names.end(); it++) {
+          auto name = it->second;
           if (wildcardCountSet(areasFilter, name) > 1) {
             // The name matches the filter, so include the area
             return false;
@@ -860,7 +936,7 @@ bool Areas<>::isLocalAuthorityFiltered(
   @example
     Areas<> data = Areas<>();
     Area area("W06000023");
-    areas.emplace("W06000023", area);
+    areas.setArea("W06000023", area);
     auto size = areas.size(); // returns 1
 */
 template<>
@@ -961,7 +1037,7 @@ void Areas<>::populateFromAuthorityCodeCSV(
       area.setName("eng", nameEnglish);
       area.setName("cym", nameWelsh);
 
-      this->emplace(localAuthorityCode, std::move(area));
+      this->setArea(localAuthorityCode, std::move(area));
 
       mAreasByName.emplace(nameEnglish, localAuthorityCode);
       mAreasByName.emplace(nameWelsh, localAuthorityCode);
@@ -1143,20 +1219,20 @@ void Areas<>::populateFromAuthorityByYearCSV(
 
           // Determine if a matching Measure exists within the Area
           try {
-            Measure &existingMeasure = area.at(measureCode);
+            Measure &existingMeasure = area.getMeasure(measureCode);
             // It does!
             for (auto it = tempData.begin(); it != tempData.end(); it++) {
-              existingMeasure.emplace(it->first, it->second);
+              existingMeasure.setValue(it->first, it->second);
             }
           } catch (std::out_of_range &ex) {
             // It does not, so create a new measure
             Measure newMeasure = Measure(measureCode, measureName);
 
             for (auto it = tempData.begin(); it != tempData.end(); it++) {
-              newMeasure.emplace(it->first, it->second);
+              newMeasure.setValue(it->first, it->second);
             }
 
-            area.emplace(measureCode, std::move(newMeasure));
+            area.setMeasure(measureCode, std::move(newMeasure));
           }
         } else {
           // The Area doesn't exist, so create it and the Measure
@@ -1164,12 +1240,12 @@ void Areas<>::populateFromAuthorityByYearCSV(
           Measure newMeasure = Measure(measureCode, measureName);
 
           for (auto it = tempData.begin(); it != tempData.end(); it++) {
-            newMeasure.emplace(it->first, it->second);
+            newMeasure.setValue(it->first, it->second);
           }
 
-          area.emplace(measureCode, std::move(newMeasure));
+          area.setMeasure(measureCode, std::move(newMeasure));
 
-          this->emplace(localAuthorityCode, std::move(area));
+          this->setArea(localAuthorityCode, std::move(area));
         }
         lineNo++;
       } catch(std::ios_base::failure &ex) {
@@ -1436,13 +1512,13 @@ void Areas<>::populateFromWelshStatsJSON(
       // Determine if a matching Measure exists within the Area
       try {
         // It does!
-        Measure &existingMeasure = area.at(measureCode);
-        existingMeasure.emplace(year, std::move(value));
+        Measure &existingMeasure = area.getMeasure(measureCode);
+        existingMeasure.setValue(year, std::move(value));
       } catch (std::out_of_range &ex) {
         // It does not, so create a new measure
         Measure newMeasure = Measure(measureCode, measureName);
-        newMeasure.emplace(year, std::move(value));
-        area.emplace(measureCode, std::move(newMeasure));
+        newMeasure.setValue(year, std::move(value));
+        area.setMeasure(measureCode, std::move(newMeasure));
       }
     } else {
       // The Area doesn't exist, so create it and the Measure
@@ -1450,10 +1526,10 @@ void Areas<>::populateFromWelshStatsJSON(
       area.setName("eng", areaNameEnglish);
 
       Measure newMeasure = Measure(measureCode, measureName);
-      newMeasure.emplace(year, std::move(value));
-      area.emplace(measureCode, std::move(newMeasure));
+      newMeasure.setValue(year, std::move(value));
+      area.setMeasure(measureCode, std::move(newMeasure));
       
-      this->emplace(localAuthorityCode, std::move(area));
+      this->setArea(localAuthorityCode, std::move(area));
       
       mAreasByName.emplace(data[COL_AREA_NAME], localAuthorityCode);
     }
