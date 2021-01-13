@@ -17,8 +17,8 @@
 #include <fstream>
 #include <unordered_set>
 
-#include "../areas.h"
 #include "../datasets.h"
+#include "../src/areas.h"
 
 SCENARIO( "areas.csv can be correctly parsed", "[Areas<>][authorityCodeCSV]" ) {
 

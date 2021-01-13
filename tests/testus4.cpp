@@ -16,7 +16,8 @@
 
 #include <string>
 
-#include "../BethYw::SourceColumnMpping"
+#include "../src/area.h"
+#include "../src/measure.h"
 
 SCENARIO( "an Area instance can contain Measure instances [extended]", "[Area][Measures][extended]" ) {
 

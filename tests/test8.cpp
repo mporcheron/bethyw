@@ -16,7 +16,7 @@
 
 #include <string>
 
-#include "../BethYw::SourceColumnMpping"
+#include "../src/area.h"
 
 SCENARIO( "an Area instance be constructed with a local authority code", "[Area][construct]" ) {
 

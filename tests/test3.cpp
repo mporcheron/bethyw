@@ -20,7 +20,7 @@
 #include "../libs/cxxopts/cxxopts.hpp"
 #include "../libs/cxxopts/argv.hpp"
 
-#include "../bethyw.h"
+#include "../src/bethyw.h"
 
 SCENARIO( "the measures program argument can be parsed correctly", "[args][measures]" ) {
 

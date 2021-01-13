@@ -19,8 +19,8 @@
 #include "../libs/cxxopts/cxxopts.hpp"
 #include "../libs/cxxopts/argv.hpp"
 
-#include "../bethyw.h"
 #include "../datasets.h"
+#include "../src/bethyw.h"
 
 SCENARIO( "the datasets program argument can be parsed correctly", "[args][datasets]" ) {
 

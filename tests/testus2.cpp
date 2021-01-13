@@ -17,7 +17,7 @@
 #include <stdexcept>
 #include <string>
 
-#include "../BethYw::SourceColumnMpping"
+#include "../src/measure.h"
 
 SCENARIO( "a Measure object can be populated with values [extended]", "[Measure][populate][extended]" ) {
 

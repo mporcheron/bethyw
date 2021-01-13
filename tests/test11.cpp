@@ -16,7 +16,8 @@
 
 #include <string>
 
-#include "../BethYw::SourceColumnMpping"
+#include "../src/area.h"
+#include "../src/measure.h"
 
 SCENARIO( "an Area instance can contain Measure instances", "[Area][Measures]" ) {
 
@@ -69,7 +70,7 @@ SCENARIO( "an Area instance can contain Measure instances", "[Area][Measures]" )
       const std::string label2 = "Population density";
       Measure measure2(codename2, label2);
 
-      THEN( "the Measure instance2 can be emplace into the Area instance without exception" ) {
+      THEN( "the Measure instances can be emplace into the Area instance without exception" ) {
 
         REQUIRE_NOTHROW( area.setMeasure(codename1, measure1) );
         REQUIRE_NOTHROW( area.setMeasure(codename2, measure2) );

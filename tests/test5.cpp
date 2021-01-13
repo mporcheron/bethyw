@@ -16,7 +16,7 @@
 
 #include <fstream>
 
-#include "../input.h"
+#include "../src/input.h"
 
 SCENARIO( "a source file can be opened and read", "[InputFile][existent]" ) {
 

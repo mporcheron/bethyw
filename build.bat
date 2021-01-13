@@ -2,7 +2,7 @@
 
 SET bin_dir=bin
 SET tests_dir=tests
-SET source_files=bethyw.cpp input.cpp data.cpp
+SET source_files=src\bethyw.cpp src\input.cpp src\areas.cpp src\area.cpp src\measure.cpp
 SET main_file=main.cpp
 SET executable=%bin_dir%\bethyw.exe
 

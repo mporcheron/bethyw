@@ -940,7 +940,8 @@ void Areas<>::populateFromAuthorityByYearCSV(
 template <>
 void Areas<>::populate(std::istream &is,
                        const BethYw::SourceDataType &type,
-                       const BethYw::SourceColumnMapping &cols) noexcept(false) {
+                       const BethYw::SourceColumnMapping &cols)
+                       noexcept(false) {
   // check if the stream is open and readable
   is.seekg(1, is.beg);
   if (is.eof() || is.fail()) {
@@ -953,6 +954,8 @@ void Areas<>::populate(std::istream &is,
     populateFromAuthorityCodeCSV(is, cols);
   } else if (type == BethYw::WelshStatsJSON) {
     populateFromWelshStatsJSON(is, cols);
+  } else if (type == BethYw::AuthorityByYearCSV) {
+    populateFromAuthorityByYearCSV(is, cols);
   } else {
     throw std::runtime_error("Areas::populate: Unexpected data type");
   }

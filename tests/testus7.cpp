@@ -17,8 +17,8 @@
 #include <fstream>
 #include <string>
 
-#include "../BethYw::SourceColumnMpping"
 #include "../datasets.h"
+#include "../src/areas.h"
 
 SCENARIO( "envi0201.json can be correctly parsed", "[Areas<>][envi0201]" ) {
 

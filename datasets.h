@@ -40,7 +40,7 @@ namespace BethYw {
 
   Unlike Java, enum in C++ only map to intenger values. You can either let
   the compiler generate the values automatically, in which it allocates a
-  unique integer (0-indexed). Or,SourceColumnMappingan set the valBethYw::SourceColumnMppinggiving the name
+  unique integer (0-indexed). Or, you can set the value by giving the name
   followed by = <value> (e.g. AuthorityCodeCSV=1).
 
   This enum specifies the format types that the InputSource class can parse.
@@ -78,7 +78,7 @@ enum SourceColumn {
 };
 
 /*
-  We use the shortcut BethYw::SourceColumnMapping in this file for simplcity.
+  We use the shortcut SourceColumnMapping in this file for simplicity.
 */
 using SourceColumnMapping = std::unordered_map<SourceColumn, std::string>;
 
@@ -104,7 +104,7 @@ struct InputFileSource {
   // the key is a SourceColumns enum value, which is defined in data.h
   // the value is the name of the column in the data file
   // this is really 
-  const std::unordered_map<SourceColumn, std::string> COLS;
+  const SourceColumnMapping COLS;
 };
 
 /*

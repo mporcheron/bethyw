@@ -17,7 +17,7 @@
 #include <stdexcept>
 #include <string>
 
-#include "../BethYw::SourceColumnMpping"
+#include "../src/measure.h"
 
 SCENARIO( "a Measure object can be constructed with a codename and label", "[Measure][construct]" ) {
 

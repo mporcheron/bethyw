@@ -17,8 +17,8 @@
 #include <fstream>
 #include <string>
 
-#include "../BethYw::SourceColumnMpping"
 #include "../datasets.h"
+#include "../src/areas.h"
 
 SCENARIO( "complete-popu1009-popden.csv can be correctly parsed", "[Areas<>][complete-popu1009-popden]" ) {
 

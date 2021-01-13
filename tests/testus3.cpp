@@ -16,8 +16,9 @@
 
 #include <fstream>
 
-#include "../BethYw::SourceColumnMpping"
 #include "../datasets.h"
+#include "../src/areas.h"
+#include "../src/area.h"
 
 SCENARIO( "an Areas<> instance can contain Area instances [extended]", "[Areas<>][contain][extended]" ) {
 
