@@ -14,66 +14,54 @@
 
 #include "../libs/catch2/catch.hpp"
 
-#include <stdexcept>
-#include <string>
+#include <fstream>
 
-#include "../data.h"
+#include "../input.h"
 
-SCENARIO( "a Measure object can be constructed with a codename and label", "[Measure][construct]" ) {
+SCENARIO( "a source file can be opened and read", "[InputFile][existent]" ) {
 
-  GIVEN( "a codename and a label as std::string instances" ) {
+  auto file_exists = [](const std::string &path) {
+    // fstream destructor closes the file
+    return std::ifstream(path).is_open();
+  };
 
-    const std::string codename = "Pop";
-    const std::string label = "Population";
+  const std::string test_file = "datasets/areas.csv";
+  REQUIRE( file_exists(test_file) );
 
-    THEN( "a Measure instance can be constructed" ) {
+  GIVEN( "a valid file path" ) {
 
-      REQUIRE_NOTHROW( Measure(codename, label) );
+    THEN( "an InputFile instance can be constructed" ) {
+
+      REQUIRE_NOTHROW( InputFile(test_file) );
 
     } // THEN
 
   } // GIVEN
 
-  GIVEN( "a newly constructed Measure instance with a codename and label" ) {
+  GIVEN( "a constructed InputFile instance" ) {
+    
+    InputFile input(test_file);
 
-    THEN( "the codename can be retrieved" ) {
+    THEN( "the source value can be retrieved" ) {
 
-      const std::string codename = "pop";
-      const std::string label = "Population";
-      Measure measure(codename, "Population");
-
-      REQUIRE( measure.getCodename() == codename );
+      REQUIRE( input.getSource() == test_file );
 
     } // THEN
 
-    THEN( "the codename will be converted to lowercase" ) {
+    THEN( "a stream to source file can be opened without exception" ) {
 
-      const std::string codename = "POP";
-      const std::string codenameLower = "pop";
-      const std::string label = "Population";
-      Measure measure(codename, label);
+      REQUIRE_NOTHROW( input.open() );
+      REQUIRE_NOTHROW( dynamic_cast<std::istream&> (input.open()) );
 
-      REQUIRE_NOTHROW( measure.getCodename() == codenameLower );
+      AND_THEN( "the stream remains open after open() returns" ) {
 
-    } // THEN
+        std::istream &stream = input.open();
 
-    THEN( "the label can be retreived" ) {
+        REQUIRE_NOTHROW( stream.seekg(1, stream.beg) );
+        REQUIRE_FALSE( stream.eof() );
+        REQUIRE_NOTHROW( stream.seekg(0, stream.beg) );
 
-      const std::string codename = "pop";
-      const std::string label = "Population";
-      Measure measure(codename, label);
-
-      REQUIRE_NOTHROW( measure.getLabel() == label );
-
-    } // THEN
-
-    THEN( "the instance has size 0" ) {
-
-      const std::string codename = "pop";
-      const std::string label = "Population";
-      Measure measure(codename, label);
-
-      REQUIRE_NOTHROW( measure.size() == 0 );
+      } // AND_THEN
 
     } // THEN
 
@@ -81,113 +69,45 @@ SCENARIO( "a Measure object can be constructed with a codename and label", "[Mea
 
 } // SCENARIO
 
-SCENARIO( "a Measure object can be populated with values", "[Measure][populate]" ) {
+SCENARIO( "a nonexistant source file cannot be opened for reading", "[InputFile][nonexistent]" ) {
 
-  GIVEN( "a newly constructed Measure instance" ) {
+  auto file_exists = [](const std::string &path) {
+    // fstream destructor closes the file
+    return std::ifstream(path).is_open();
+  };
+  
+  const std::string test_file = "datasets/jibberish.json";
+  REQUIRE_FALSE(file_exists(test_file));
 
-    const std::string codename = "pop";
-    const std::string label = "Population";
-    Measure measure(codename, label);
+  GIVEN( "a valid file path" ) {
 
-    WHEN( "there is a single year:value to insert" ) {
+    THEN( "an InputFile instance can be constructed" ) {
 
-      const int year     = 2010;
-      const double value = 1000;
+      REQUIRE_NOTHROW( InputFile(test_file) );
 
-      THEN( "they will be emplaced without exception" ) {
+    } // THEN
 
-        REQUIRE_NOTHROW( measure.setValue(year, value) );
+  } // GIVEN
 
-        AND_THEN( "the size will be 1" ) {
+  GIVEN( "a constructed InputFile instance" ) {
 
-          REQUIRE( measure.size() == 1 );
+    InputFile input(test_file);
 
-        AND_THEN( "the value can be retrieved" ) {
+    THEN( "the source value can be retrieved" ) {
 
-          REQUIRE( measure.getValue(year) == value );
+      REQUIRE( input.getSource() == test_file );
 
-        } // AND_THEN
+      const std::string exceptionMessage = "InputFile::import: Failed to open file";
 
-        } // AND_THEN
+      AND_THEN( "when the source file is attempted to be read, a std::runtime_error is thrown with message " + exceptionMessage ) {
 
-      } // THEN
-
-    } // WHEN
-
-    WHEN( "there are two different year:value pairs to insert" ) {
-
-      const int year1     = 2010;
-      const double value1 = 1000;
-      const int year2     = 2011;
-      const double value2 = 2000;
-
-      THEN( "they will both be emplaced without exception" ) {
-
-        REQUIRE_NOTHROW( measure.setValue(year1, value1) );
-        REQUIRE_NOTHROW( measure.setValue(year2, value2) );
-
-        AND_THEN( "the size will be 2" ) {
-
-          REQUIRE( measure.size() == 2 );
-
-        } // AND_THEN
-
-        AND_THEN( "both values can be retrieved" ) {
-
-          REQUIRE( measure.getValue(year1) == value1 );
-          REQUIRE( measure.getValue(year2) == value2 );
-
-        } // AND THEN
+        REQUIRE_THROWS_AS( input.open(), std::runtime_error );
+        REQUIRE_THROWS_WITH( input.open(), exceptionMessage );
 
       } // THEN
 
-    } // WHEN
-
-    WHEN( "there are two year:value pairs to insert, both with the same year" ) {
-
-      const int year1     = 2010;
-      const double value1 = 1000;
-      const int year2     = 2010;
-      const double value2 = 2000;
-
-      THEN( "they will both be emplaced without exception" ) {
-
-        REQUIRE_NOTHROW( measure.setValue(year1, value1) );
-        REQUIRE_NOTHROW( measure.setValue(year2, value2) );
-
-        AND_THEN( "the size will be 1" ) {
-
-          REQUIRE( measure.size() == 1 );
-
-        } // AND_THEN
-
-        AND_THEN( "the second value will have replaced the first value" ) {
-
-          REQUIRE( measure.getValue(year2) == value2 );
-
-        } // AND_THEN
-
-      } // THEN
-
-    } // WHEN
-
-    WHEN( "there are no inserted values" ) {
-
-      THEN( "the size will be 0" ) {
-
-        REQUIRE( measure.size() == 0 );
-
-        AND_THEN( "a std::out_of_range exception will be thrown when you a value is requested for a given year" ) {
-
-          REQUIRE_THROWS_AS( measure.getValue(1234), std::out_of_range );
-
-        } // AND_THEN
-
-      } // THEN
-
-    } // WHEN
+    } // THEN
 
   } // GIVEN
 
 } // SCENARIO
-

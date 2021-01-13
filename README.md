@@ -112,7 +112,7 @@ InputFile::import: Failed to open file
 #### 2. Parsing _areas.csv_ 
 Next you will need to parse _areas.csv_. This will require looking at the _datasets.h_ and _data.cpp_ files, both of which have a lot of comments to read through. Do that first.
 
-As you should see, the parsing is triggered through the `populate()` function, which takes a stream and an enum of the type of data to be parsed. For your benefit, this enum has been provided at the top of of _datasets.h_. `populate()` should hand off the parsing to `populateFromAuthorityCodeCSV()` and `populateFromWelshStatsJSON()`, depending on the enum value. You will have to implement all three of these functions eventually, although initially just the first two to parse _areas.csv_.
+As you should see, the parsing is triggered through the `populate()` function, which takes a stream and an enum of the type of data to be parsed. For your benefit, this enum has been provided at the top of of _datasets.h_. `populate()` should hand off the parsing to `populateFromAuthorityCodeCSV()` and `populateFromStatsWalesMultiMeasureJSON()`, depending on the enum value. You will have to implement all three of these functions eventually, although initially just the first two to parse _areas.csv_.
 
 To implement `populateFromAuthorityCodeCSV()`, you will have to implement the functions for the `Area` class in _data.cpp_ too. Read the TODO comments in each function and implement them appropriately.
 

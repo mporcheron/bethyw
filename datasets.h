@@ -25,9 +25,62 @@
 #include <string>
 #include <unordered_map>
 
-#include "data.h"
-
 namespace BethYw {
+
+/*
+  Enums (short for enumerations) are similar to their Java implementation.
+  It is a user-defined type, used to assign names to internal constants
+  in code, instead of simply passing in integers/strings etc.
+
+  For example, functions can take a value/constant from a specific enum
+  and use it in a switch statement, doing different things
+
+  As such, it is a useful way for us to specify information in both a
+  machine and human-readable format.
+
+  Unlike Java, enum in C++ only map to intenger values. You can either let
+  the compiler generate the values automatically, in which it allocates a
+  unique integer (0-indexed). Or,SourceColumnMappingan set the valBethYw::SourceColumnMppinggiving the name
+  followed by = <value> (e.g. AuthorityCodeCSV=1).
+
+  This enum specifies the format types that the InputSource class can parse.
+  We could have implemented an if statement that parsed a string for the data
+  type, or perhaps used integers. But with a enum both in code and to anyone
+  who just glances at the code can infer the meaning.
+*/
+enum SourceDataType {
+  None,
+  AuthorityCodeCSV,
+  WelshStatsJSON,
+  AuthorityByYearCSV
+};
+
+/*
+  Data from the different sources typically hagve different column headings
+  for the same value (e.g. some might say "Year" whereas others might say
+  "Year_Code"). Here we create another enum for these column headings for
+  the parser.
+
+  Each input passed to the Areas() object will have to specifiy a
+  an unordered map to match each of these enum values into a string that
+  the source contains.
+*/
+enum SourceColumn {
+  AUTH_CODE,
+  AUTH_NAME_ENG,
+  AUTH_NAME_CYM,
+  MEASURE_CODE,
+  MEASURE_NAME,
+  SINGLE_MEASURE_CODE,
+  SINGLE_MEASURE_NAME,
+  YEAR,
+  VALUE
+};
+
+/*
+  We use the shortcut BethYw::SourceColumnMapping in this file for simplcity.
+*/
+using SourceColumnMapping = std::unordered_map<SourceColumn, std::string>;
 
 /*
   This is a simple container that we use for storing information about the
@@ -43,9 +96,9 @@ struct InputFileSource {
   // FILE is the name of the file in the data directory
   const std::string FILE;
 
-  // PARSER is a DataType that tells the populate() function in Areas how
+  // PARSER is a SourceDataType that tells the populate() function in Areas how
   // to parse the text from the file
-  const DataType PARSER;
+  const SourceDataType PARSER;
 
   // COLS is a map of the column headings for this dataset
   // the key is a SourceColumns enum value, which is defined in data.h
@@ -64,7 +117,7 @@ const InputFileSource AREAS = {
   "areas",
   "areas",
   "areas.csv",
-  DataType::AuthorityCodeCSV,
+  BethYw::SourceDataType::AuthorityCodeCSV,
   {
       {AUTH_CODE,     "Local authority code"},
       {AUTH_NAME_ENG, "Name (eng)"},
@@ -76,7 +129,7 @@ const InputFileSource POPDEN = {
   "popden",
   "Population density",
   "popu1009.json",
-  DataType::WelshStatsJSON,
+  BethYw::SourceDataType::WelshStatsJSON,
   {
     {AUTH_CODE,     "Localauthority_Code"},
     {AUTH_NAME_ENG, "Localauthority_ItemName_ENG"},
@@ -91,7 +144,7 @@ const InputFileSource BIZ = {
   "biz",
   "Active Businesses",
   "econ0080.json",
-  DataType::WelshStatsJSON,
+  BethYw::SourceDataType::WelshStatsJSON,
   {
     {AUTH_CODE,     "Area_Code"},
     {AUTH_NAME_ENG, "Area_ItemName_ENG"},
@@ -106,7 +159,7 @@ const InputFileSource AQI = {
   "aqi",
   "Air Quality Indicators",
   "envi0201.json",
-  DataType::WelshStatsJSON,
+  BethYw::SourceDataType::WelshStatsJSON,
   {
     {AUTH_CODE,     "Area_Code"},
     {AUTH_NAME_ENG, "Area_ItemName_ENG"},
@@ -121,7 +174,7 @@ const InputFileSource TRAINS = {
   "trains",
   "Rail passenger journeys",
   "tran0152.json",
-  DataType::WelshStatsJSON,
+  BethYw::SourceDataType::WelshStatsJSON,
   {
     {AUTH_CODE,           "LocalAuthority_Code"},
     {AUTH_NAME_ENG,       "LocalAuthority_ItemName_ENG"},
@@ -136,7 +189,7 @@ const InputFileSource COMPLETE_POPDEN = {
   "complete-popden",
   "Population density",
   "complete-popu1009-popden.csv",
-  DataType::AuthorityByYearCSV,
+  BethYw::SourceDataType::AuthorityByYearCSV,
   {
     {AUTH_CODE,           "AuthorityCode"},
     {SINGLE_MEASURE_CODE, "Dens"},
@@ -148,7 +201,7 @@ const InputFileSource COMPLETE_POP = {
   "complete-pop",
   "Population",
   "complete-popu1009-pop.csv",
-  DataType::AuthorityByYearCSV,
+  BethYw::SourceDataType::AuthorityByYearCSV,
   {
     {AUTH_CODE,           "AuthorityCode"},
     {SINGLE_MEASURE_CODE, "Pop"},
@@ -160,7 +213,7 @@ const InputFileSource COMPLETE_AREA = {
   "complete-area",
   "Land area",
   "complete-popu1009-area.csv",
-  DataType::AuthorityByYearCSV,
+  BethYw::SourceDataType::AuthorityByYearCSV,
   {
     {AUTH_CODE,           "AuthorityCode"},
     {SINGLE_MEASURE_CODE, "Area"},

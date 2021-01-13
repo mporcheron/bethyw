@@ -12,7 +12,7 @@
   during marking.
  */
 
-#include "bethyw.h"
+#include "src/bethyw.h"
 
 int main(int argc, char *argv[]) {
   return BethYw::run(argc, argv);

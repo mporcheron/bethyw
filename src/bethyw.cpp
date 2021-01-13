@@ -29,14 +29,11 @@
 #include <unordered_set>
 #include <vector>
 
-#include "libs/cxxopts/cxxopts.hpp"
-#include "libs/nlohmann/json.hpp"
+#include "../libs/cxxopts/cxxopts.hpp"
 
+#include "../datasets.h"
 #include "bethyw.h"
 #include "input.h"
-#include "datasets.h"
-
-using json = nlohmann::json;
 
 /*
   Run Beth Yw?, parsing the command line arguments, importing the data,

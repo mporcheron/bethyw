@@ -15,10 +15,18 @@
   functions you need to declare in this file.
  */
 
-#include "libs/cxxopts/cxxopts.hpp"
+#include <string>
+#include <tuple>
+#include <unordered_set>
+#include <vector>
 
-#include "datasets.h"
+#include "../libs/cxxopts/cxxopts.hpp"
 
+#include "areas.h"
+
+/*
+  OS-specific directory separator
+*/
 const char DIR_SEP =
 #ifdef _WIN32
     '\\';

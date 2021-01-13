@@ -14,52 +14,164 @@
 
 #include "../libs/catch2/catch.hpp"
 
-#include <string>
+#include <fstream>
 
-#include "../data.h"
+#include "../BethYw::SourceColumnMpping"
+#include "../datasets.h"
 
-SCENARIO( "an Area instance can contain Measure instances", "[Area][names]" ) {
+SCENARIO( "an Areas<> instance can be constructed", "[Areas<>][construct]" ) {
 
-  GIVEN( "a newly constructed Area instance" ) {
+  THEN( "an Areas<> instance can be default constructed" ) {
 
-    std::string localAuthorityCode = "W06000011";
-    Area area(localAuthorityCode);
+    REQUIRE_NOTHROW( Areas<>() );
 
-    AND_GIVEN( "a newly constructed Measure instance ('{op')" ) {
+  } // THEN
 
-      const std::string codename      = "Pop";
-      const std::string codenameLower = "pop";
-      const std::string label         = "Population";
-      Measure measure(codename, label);
+} // SCENARIO
 
-      THEN( "the Measure instance can be emplace into the Area instance without exception" ) {
+SCENARIO( "an Areas<> instance can contain Area instances", "[Areas<>][contain]" ) {
 
-        REQUIRE_NOTHROW( area.setMeasure(codename, measure) );
+  GIVEN( "a newly constructed Areas<>" ) {
 
-        AND_THEN( "the Area instance size will be 1" ) {
+    Areas<> areas;
 
-          REQUIRE( area.size() == 1 );
+    THEN( "the Areas<> instance has size 0" ) {
+
+      REQUIRE_NOTHROW( areas.size() == 0 );
+
+    } // THEN
+    
+    AND_GIVEN( "a newly constructed Area instance ('W06000011')" ) {
+      
+      std::string localAuthorityCode = "W06000011";
+      Area area(localAuthorityCode);
+      
+      THEN( "the Area instance can be emplaced in the Areas<> instance without exception" ) {
+
+        REQUIRE_NOTHROW( areas.setArea(localAuthorityCode, area) );
+
+        AND_THEN( "the Areas<> instance has size 1" ) {
+
+          REQUIRE_NOTHROW( areas.size() == 1 );
 
         } // AND_THEN
 
-        AND_THEN( "the Measure instance can be retrieved without exception with a lowercase codename" ) {
+        AND_THEN( "the Area instance can be retrieved using the local authority code" ) {
 
-          REQUIRE_NOTHROW( area.getMeasure(codenameLower) );
-
-        } // AND_THEN
-
-        AND_THEN( "the Measure instance is equal to the original" ) {
-
-          Measure &newMeasure = area.getMeasure(codenameLower);
-          REQUIRE( measure == newMeasure );
+          Area &newArea = areas.getArea(localAuthorityCode);
+          REQUIRE( area == newArea );
 
         } // AND_THEN
 
       } // THEN
-
+    
     } // AND_GIVEN
+    
+    AND_GIVEN( "two newly constructed Area instances with different local authority codes ('W06000011' and 'W06000012') " ) {
+      
+      std::string localAuthorityCode1 = "W06000011";
+      std::string localAuthorityCode2 = "W06000012";
 
-    AND_GIVEN( "two newly constructed Measure instances with two different codenames ('pop', 'dens')" ) {
+      Area area1(localAuthorityCode1);
+      Area area2(localAuthorityCode2);
+      
+      THEN( "the Area instancse can be emplaced in the Areas<> instance without exception" ) {
+
+        REQUIRE_NOTHROW( areas.setArea(localAuthorityCode1, area1) );
+        REQUIRE_NOTHROW( areas.setArea(localAuthorityCode2, area2) );
+
+        AND_THEN( "the Areas<> instance has size 2" ) {
+
+          REQUIRE_NOTHROW( areas.size() == 2 );
+
+        } // AND_THEN
+
+        AND_THEN( "the Area instances can be retrieved using the local authority code" ) {
+
+          Area &newArea1 = areas.getArea(localAuthorityCode1);
+          Area &newArea2 = areas.getArea(localAuthorityCode2);
+          
+          REQUIRE( area1 == newArea1 );
+          REQUIRE( area2 == newArea2 );
+
+        } // AND_THEN
+
+      } // THEN
+    
+    } // AND_GIVEN
+    
+    AND_GIVEN( "two newly constructed Area instances with the same local authority codes ('W06000011') " ) {
+      
+      std::string localAuthorityCode = "W06000011";
+
+      Area area1(localAuthorityCode);
+      Area area2(localAuthorityCode);
+      
+      THEN( "the Area instances can be emplaced in the Areas<> instance without exception" ) {
+
+        REQUIRE_NOTHROW( areas.setArea(localAuthorityCode, area1) );
+        REQUIRE_NOTHROW( areas.setArea(localAuthorityCode, area2) );
+
+        AND_THEN( "the Areas<> instance has size 1" ) {
+
+          REQUIRE_NOTHROW( areas.size() == 1 );
+
+        } // AND_THEN
+
+      } // THEN
+    
+    } // AND_GIVEN
+    
+    AND_GIVEN( "two newly constructed Area instances with the same local authority codes ('W06000011') but different sets of names" ) {
+      
+      std::string localAuthorityCode = "W06000011";
+      std::string name1 = "Original name (should be replaced)";
+      std::string name2 = "Original name (should persist)";
+      std::string name3 = "New name (should have replaced an original name)";
+
+      Area area1(localAuthorityCode);
+      Area area2(localAuthorityCode);
+      Area areaCombined(localAuthorityCode);
+      
+      area1.setName("eng", name1);
+      area1.setName("cym", name2);
+      
+      area2.setName("eng", name3);
+      area2.setName("tes", name2);
+      
+      areaCombined.setName("eng", name3);
+      areaCombined.setName("cym", name2);
+      areaCombined.setName("tes", name2);
+      
+      THEN( "the Area instances can be emplaced in the Areas<> instance without exception" ) {
+
+        REQUIRE_NOTHROW( areas.setArea(localAuthorityCode, area1) );
+        REQUIRE_NOTHROW( areas.setArea(localAuthorityCode, area2) );
+
+        AND_THEN( "the Areas<> instance has size 1" ) {
+
+          REQUIRE_NOTHROW( areas.size() == 1 );
+
+        } // AND_THEN
+
+        AND_THEN( "the names of the second Area instances will overwrite the first" ) {
+
+          Area &newArea = areas.getArea(localAuthorityCode);
+          
+          REQUIRE( newArea == areaCombined );
+
+        } // AND_THEN
+
+      } // THEN
+    
+    } // AND_GIVEN
+    
+    AND_GIVEN( "two newly constructed Area instances with the same local authority codes ('W06000011') but overlapping Measures" ) {
+      
+      std::string localAuthorityCode = "W06000011";
+      Area area1(localAuthorityCode);
+      Area area2(localAuthorityCode);
+      Area areaCombined(localAuthorityCode);
 
       const std::string codename1 = "pop";
       const std::string label1 = "Population";
@@ -68,115 +180,28 @@ SCENARIO( "an Area instance can contain Measure instances", "[Area][names]" ) {
       const std::string codename2 = "dens";
       const std::string label2 = "Population density";
       Measure measure2(codename2, label2);
+      
+      area1.setMeasure(codename1, measure1);
+      area2.setMeasure(codename2, measure2);
+      
+      areaCombined.setMeasure(codename1, measure1);
+      areaCombined.setMeasure(codename2, measure2);
+      
+      THEN( "the Area instances can be emplaced in the Areas<> instance without exception" ) {
 
-      THEN( "the Measure instance2 can be emplace into the Area instance without exception" ) {
+        REQUIRE_NOTHROW( areas.setArea(localAuthorityCode, area1) );
+        REQUIRE_NOTHROW( areas.setArea(localAuthorityCode, area2) );
 
-        REQUIRE_NOTHROW( area.setMeasure(codename1, measure1) );
-        REQUIRE_NOTHROW( area.setMeasure(codename2, measure2) );
+        AND_THEN( "the Areas<> instance has size 1" ) {
 
-        AND_THEN( "the Area instance size will be 2" ) {
-
-          REQUIRE( area.size() == 2 );
-
-        } // AND_THEN
-
-        AND_THEN( "the Measure instances can be retrieved without exception" ) {
-
-          REQUIRE_NOTHROW( area.getMeasure(codename1) );
-          REQUIRE_NOTHROW( area.getMeasure(codename2) );
-
-        } // AND_THEN
-
-        AND_THEN( "the Measure instances are equal to the original" ) {
-
-          Measure &newMeasure1 = area.getMeasure(codename1);
-          REQUIRE( measure1 == newMeasure1 );
-
-          Measure &newMeasure2 = area.getMeasure(codename2);
-          REQUIRE( measure2 == newMeasure2 );
+          REQUIRE_NOTHROW( areas.size() == 1 );
 
         } // AND_THEN
 
       } // THEN
-
+    
     } // AND_GIVEN
 
-    AND_GIVEN( "two newly constructed Measure instances with the same codenames ('pop') and overlapping data" ) {
-
-      const std::string codename = "pop";
-
-      const std::string label1 = "Population";
-      const std::string label2 = "My new population";
-
-      const int year1   = 2010;
-      const int value1  = 1000;
-
-      const int year2   = 2011;
-      const int value2  = 2000;
-      const int value2a = 4000;
-
-      const int year3   = 2012;
-      const int value3  = 3000;
-
-      Measure measure1(codename, label1);
-      Measure measure2(codename, label2);
-
-      measure1.setValue(year1, value1);
-      measure1.setValue(year2, value2);
-
-      measure2.setValue(year2, value2a);
-      measure2.setValue(year3, value3);
-
-      THEN( "the Measure instance2 can be emplace into the Area instance without exception" ) {
-
-        REQUIRE_NOTHROW( area.setMeasure(codename, measure1) );
-        REQUIRE_NOTHROW( area.setMeasure(codename, measure2) );
-
-        AND_THEN( "the Area instance size will be 1" ) {
-
-          REQUIRE( area.size() == 1 );
-
-        } // AND_THEN
-
-        AND_THEN( "the Measure instance can be retrieved without exception" ) {
-
-          REQUIRE_NOTHROW( area.getMeasure(codename) );
-
-        } // AND_THEN
-
-        AND_THEN( "the Measure instance returned will have the second Measure instance's label" ) {
-
-          Measure &newMeasure = area.getMeasure(codename);
-          REQUIRE( newMeasure.getLabel() == label2 );
-
-        } // AND_THEN
-
-        AND_THEN( "the Measure instance returned will have non-overlapping data from the first Measure instance" ) {
-
-          Measure &newMeasure = area.getMeasure(codename);
-          REQUIRE( newMeasure.getValue(year1) == value1 );
-
-        } // AND_THEN
-
-        AND_THEN( "the Measure instance returned will have non-overlapping data from the second Measure instance" ) {
-
-          Measure &newMeasure = area.getMeasure(codename);
-          REQUIRE( newMeasure.getValue(year3) == value3 );
-
-        } // AND_THEN
-
-        AND_THEN( "the Measure instance returned will have overlapping data from the second Measure instance" ) {
-
-          Measure &newMeasure = area.getMeasure(codename);
-          REQUIRE( newMeasure.getValue(year2) != value2 );
-          REQUIRE( newMeasure.getValue(year2) == value2a );
-
-        } // AND_THEN
-
-      } // THEN
-
-    } // AND_GIVEN
-
-  } // GIVEN
+  } // THEN
 
 } // SCENARIO

@@ -14,99 +14,157 @@
 
 #include "../libs/catch2/catch.hpp"
 
-#include <fstream>
+#include <string>
+#include <tuple>
 
-#include "../input.h"
+#include "../libs/cxxopts/cxxopts.hpp"
+#include "../libs/cxxopts/argv.hpp"
 
-SCENARIO( "a source file can be opened and read", "[InputFile][existent]" ) {
+#include "../bethyw.h"
 
-  auto file_exists = [](const std::string &path) {
-    // fstream destructor closes the file
-    return std::ifstream(path).is_open();
-  };
+SCENARIO( "the year program argument can be parsed correctly", "[args][years]" ) {
 
-  const std::string test_file = "datasets/areas.csv";
-  REQUIRE( file_exists(test_file) );
+  GIVEN( "a --years argument with a value" ) {
 
-  GIVEN( "a valid file path" ) {
+    WHEN( "the value is a single four-digit year ('2010')" ) {
 
-    THEN( "an InputFile instance can be constructed" ) {
+      Argv argv({"test", "--years", "2010"});
+      auto** actual_argv = argv.argv();
+      auto argc          = argv.argc();
 
-      REQUIRE_NOTHROW( InputFile(test_file) );
+      auto cxxopts = BethYw::cxxoptsSetup();
+      auto args    = cxxopts.parse(argc, actual_argv);
 
-    } // THEN
+      THEN( "the argument value is parsed without exception" ) {
 
-  } // GIVEN
+        REQUIRE_NOTHROW( BethYw::parseYearsArg(args) );
+        
+        AND_THEN( "the response is a two-pair tuple where both values are equal to the argument value" ) {
 
-  GIVEN( "a constructed InputFile instance" ) {
-    
-    InputFile input(test_file);
-
-    THEN( "the source value can be retrieved" ) {
-
-      REQUIRE( input.getSource() == test_file );
-
-    } // THEN
-
-    THEN( "a stream to source file can be opened without exception" ) {
-
-      REQUIRE_NOTHROW( input.open() );
-      REQUIRE_NOTHROW( dynamic_cast<std::istream&> (input.open()) );
-
-      AND_THEN( "the stream remains open after open() returns" ) {
-
-        std::istream &stream = input.open();
-
-        REQUIRE_NOTHROW( stream.seekg(1, stream.beg) );
-        REQUIRE_FALSE( stream.eof() );
-        REQUIRE_NOTHROW( stream.seekg(0, stream.beg) );
-
-      } // AND_THEN
-
-    } // THEN
-
-  } // GIVEN
-
-} // SCENARIO
-
-SCENARIO( "a nonexistant source file cannot be opened for reading", "[InputFile][nonexistent]" ) {
-
-  auto file_exists = [](const std::string &path) {
-    // fstream destructor closes the file
-    return std::ifstream(path).is_open();
-  };
-  
-  const std::string test_file = "datasets/jibberish.json";
-  REQUIRE_FALSE(file_exists(test_file));
-
-  GIVEN( "a valid file path" ) {
-
-    THEN( "an InputFile instance can be constructed" ) {
-
-      REQUIRE_NOTHROW( InputFile(test_file) );
-
-    } // THEN
-
-  } // GIVEN
-
-  GIVEN( "a constructed InputFile instance" ) {
-
-    InputFile input(test_file);
-
-    THEN( "the source value can be retrieved" ) {
-
-      REQUIRE( input.getSource() == test_file );
-
-      const std::string exceptionMessage = "InputFile::import: Failed to open file";
-
-      AND_THEN( "when the source file is attempted to be read, a std::runtime_error is thrown with message " + exceptionMessage ) {
-
-        REQUIRE_THROWS_AS( input.open(), std::runtime_error );
-        REQUIRE_THROWS_WITH( input.open(), exceptionMessage );
+          auto years = BethYw::parseYearsArg(args);
+          REQUIRE( std::get<0>(years) == 2010 );
+          REQUIRE( std::get<1>(years) == 2010 );
+      
+        } // AND_THEN
 
       } // THEN
 
-    } // THEN
+    } // WHEN
+
+    WHEN( "the value is nill ('0')" ) {
+
+      Argv argv({"test", "--years", "0"});
+      auto** actual_argv = argv.argv();
+      auto argc          = argv.argc();
+
+      auto cxxopts = BethYw::cxxoptsSetup();
+      auto args    = cxxopts.parse(argc, actual_argv);
+
+      THEN( "the argument value is parsed without exception" ) {
+
+        REQUIRE_NOTHROW( BethYw::parseYearsArg(args) );
+        
+        AND_THEN( "the response is a two-pair tuple where both values are equal to 0" ) {
+
+          auto years = BethYw::parseYearsArg(args);
+          REQUIRE( std::get<0>(years) == 0 );
+          REQUIRE( std::get<1>(years) == 0 );
+      
+        } // AND_THEN
+
+      } // THEN
+
+    } // WHEN
+
+    WHEN( "the value is nill ('0-0')" ) {
+
+      Argv argv({"test", "--years", "0-0"});
+      auto** actual_argv = argv.argv();
+      auto argc          = argv.argc();
+
+      auto cxxopts = BethYw::cxxoptsSetup();
+      auto args    = cxxopts.parse(argc, actual_argv);
+
+      THEN( "the argument value is parsed without exception" ) {
+
+        REQUIRE_NOTHROW( BethYw::parseYearsArg(args) );
+        
+        AND_THEN( "the response is a two-pair tuple where both values are equal to 0" ) {
+
+          auto years = BethYw::parseYearsArg(args);
+          REQUIRE( std::get<0>(years) == 0 );
+          REQUIRE( std::get<1>(years) == 0 );
+      
+        } // AND_THEN
+
+      } // THEN
+
+    } // WHEN
+
+    WHEN( "the value is two four-digit years as a range ('2010-2015')" ) {
+
+      Argv argv({"test", "--years", "2010-2015"});
+      auto** actual_argv = argv.argv();
+      auto argc          = argv.argc();
+
+      auto cxxopts = BethYw::cxxoptsSetup();
+      auto args    = cxxopts.parse(argc, actual_argv);
+
+      THEN( "the argument value is parsed without exception" ) {
+
+        REQUIRE_NOTHROW( BethYw::parseYearsArg(args) );
+        
+        AND_THEN( "the response is a two-pair tuple where the values are 2010 and 2015 respectively" ) {
+
+          auto years = BethYw::parseYearsArg(args);
+          REQUIRE( std::get<0>(years) == 2010 );
+          REQUIRE( std::get<1>(years) == 2015 );
+      
+        } // AND_THEN
+
+      } // THEN
+
+    } // WHEN
+
+    WHEN( "the value is not a number ('qwerty')" ) {
+
+      Argv argv({"test", "--years", "qwerty"});
+      auto** actual_argv = argv.argv();
+      auto argc          = argv.argc();
+
+      auto cxxopts = BethYw::cxxoptsSetup();
+      auto args    = cxxopts.parse(argc, actual_argv);
+
+      const std::string exceptionMessage = "Invalid input for years argument";
+      
+      THEN( "a std::invalid_argument exception is thrown with the message '" + exceptionMessage + "'" ) {
+
+        REQUIRE_THROWS_AS(   BethYw::parseYearsArg(args), std::invalid_argument );
+        REQUIRE_THROWS_WITH( BethYw::parseYearsArg(args), exceptionMessage      );
+
+      } // THEN
+
+    } // WHEN
+
+    WHEN( "the value is partially numeric ('2010-qwerty')" ) {
+
+      Argv argv({"test", "--years", "2010-qwerty"});
+      auto** actual_argv = argv.argv();
+      auto argc          = argv.argc();
+
+      auto cxxopts = BethYw::cxxoptsSetup();
+      auto args    = cxxopts.parse(argc, actual_argv);
+
+      const std::string exceptionMessage = "Invalid input for years argument";
+      
+      THEN( "a std::invalid_argument exception is thrown with the message '" + exceptionMessage + "'" ) {
+
+        REQUIRE_THROWS_AS(    BethYw::parseYearsArg(args), std::invalid_argument );
+        REQUIRE_THROWS_WITH(  BethYw::parseYearsArg(args), exceptionMessage      );
+
+      } // THEN
+
+    } // WHEN
 
   } // GIVEN
 

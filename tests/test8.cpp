@@ -14,167 +14,75 @@
 
 #include "../libs/catch2/catch.hpp"
 
-#include <fstream>
+#include <string>
 
-#include "../data.h"
-#include "../datasets.h"
+#include "../BethYw::SourceColumnMpping"
 
-SCENARIO( "areas.csv can be correctly parsed", "[Areas<>][authorityCodeCSV]" ) {
+SCENARIO( "an Area instance be constructed with a local authority code", "[Area][construct]" ) {
 
-  auto get_istream = [](const std::string &path) {
-    return std::ifstream(path);
-  };
+  GIVEN( "a local authority code as a std::string" ) {
 
-  GIVEN( "a newly constructed Areas<> instance" ) {
+    std::string localAuthorityCode = "W06000011";
 
-    Areas<> areas = Areas<>();
+    THEN( "an Area instance can be constructed" ) {
 
-    AND_GIVEN( "a valid areas.csv file as an open std::istream" ) {
+      REQUIRE_NOTHROW( Area(localAuthorityCode) );
 
-      const std::string test_file = "datasets/areas.csv";
-      auto stream                 = get_istream(test_file);
+    } // THEN
+    
+  } // GIVEN
 
-      REQUIRE( stream.is_open() );
+} // SCENARIO
 
-      THEN( "the Areas<> instance will be populated without exception" ) {
+SCENARIO( "an Area instance can have names in multiple languages", "[Area][names]" ) {
 
-        REQUIRE_NOTHROW( areas.populateFromAuthorityCodeCSV(stream, BethYw::InputFiles::AREAS.COLS, nullptr) );
+  GIVEN( "a newly constructed Area instance" ) {
 
-        AND_THEN( "the instance has size 22" ) {
+    std::string localAuthorityCode = "W06000011";
+    Area area(localAuthorityCode);
 
-          REQUIRE( areas.size() == 22 );
+    THEN( "the local authority code can be retrieved" ) {
 
-        } // AND_THEN
+      REQUIRE( area.getLocalAuthorityCode() == localAuthorityCode );
 
-        AND_THEN( "each area has been imported with the correct local authority code as an Area instance" ) {
+    } // THEN
 
-          REQUIRE_NOTHROW( areas.getArea("W06000001") );
-          REQUIRE_NOTHROW( areas.getArea("W06000002") );
-          REQUIRE_NOTHROW( areas.getArea("W06000003") );
-          REQUIRE_NOTHROW( areas.getArea("W06000004") );
-          REQUIRE_NOTHROW( areas.getArea("W06000005") );
-          REQUIRE_NOTHROW( areas.getArea("W06000006") );
-          REQUIRE_NOTHROW( areas.getArea("W06000008") );
-          REQUIRE_NOTHROW( areas.getArea("W06000009") );
-          REQUIRE_NOTHROW( areas.getArea("W06000010") );
-          REQUIRE_NOTHROW( areas.getArea("W06000011") );
-          REQUIRE_NOTHROW( areas.getArea("W06000012") );
-          REQUIRE_NOTHROW( areas.getArea("W06000013") );
-          REQUIRE_NOTHROW( areas.getArea("W06000014") );
-          REQUIRE_NOTHROW( areas.getArea("W06000015") );
-          REQUIRE_NOTHROW( areas.getArea("W06000016") );
-          REQUIRE_NOTHROW( areas.getArea("W06000018") );
-          REQUIRE_NOTHROW( areas.getArea("W06000019") );
-          REQUIRE_NOTHROW( areas.getArea("W06000020") );
-          REQUIRE_NOTHROW( areas.getArea("W06000021") );
-          REQUIRE_NOTHROW( areas.getArea("W06000022") );
-          REQUIRE_NOTHROW( areas.getArea("W06000023") );
-          REQUIRE_NOTHROW( areas.getArea("W06000024") );
+    THEN( "names in multiple languages can be set" ) {
+      
+      auto langCode = GENERATE( as<std::string>{}, "eng", "cym" );
+      auto name     = GENERATE( as<std::string>{}, "Name in English", "Name in Welsh" );
 
-          REQUIRE_NOTHROW( dynamic_cast<Area&> (areas.getArea("W06000001")) );
-          REQUIRE_NOTHROW( dynamic_cast<Area&> (areas.getArea("W06000002")) );
-          REQUIRE_NOTHROW( dynamic_cast<Area&> (areas.getArea("W06000003")) );
-          REQUIRE_NOTHROW( dynamic_cast<Area&> (areas.getArea("W06000004")) );
-          REQUIRE_NOTHROW( dynamic_cast<Area&> (areas.getArea("W06000005")) );
-          REQUIRE_NOTHROW( dynamic_cast<Area&> (areas.getArea("W06000006")) );
-          REQUIRE_NOTHROW( dynamic_cast<Area&> (areas.getArea("W06000008")) );
-          REQUIRE_NOTHROW( dynamic_cast<Area&> (areas.getArea("W06000009")) );
-          REQUIRE_NOTHROW( dynamic_cast<Area&> (areas.getArea("W06000010")) );
-          REQUIRE_NOTHROW( dynamic_cast<Area&> (areas.getArea("W06000011")) );
-          REQUIRE_NOTHROW( dynamic_cast<Area&> (areas.getArea("W06000012")) );
-          REQUIRE_NOTHROW( dynamic_cast<Area&> (areas.getArea("W06000013")) );
-          REQUIRE_NOTHROW( dynamic_cast<Area&> (areas.getArea("W06000014")) );
-          REQUIRE_NOTHROW( dynamic_cast<Area&> (areas.getArea("W06000015")) );
-          REQUIRE_NOTHROW( dynamic_cast<Area&> (areas.getArea("W06000016")) );
-          REQUIRE_NOTHROW( dynamic_cast<Area&> (areas.getArea("W06000018")) );
-          REQUIRE_NOTHROW( dynamic_cast<Area&> (areas.getArea("W06000019")) );
-          REQUIRE_NOTHROW( dynamic_cast<Area&> (areas.getArea("W06000020")) );
-          REQUIRE_NOTHROW( dynamic_cast<Area&> (areas.getArea("W06000021")) );
-          REQUIRE_NOTHROW( dynamic_cast<Area&> (areas.getArea("W06000022")) );
-          REQUIRE_NOTHROW( dynamic_cast<Area&> (areas.getArea("W06000023")) );
-          REQUIRE_NOTHROW( dynamic_cast<Area&> (areas.getArea("W06000024")) );
+      REQUIRE_NOTHROW( area.setName(langCode, name) );
+      REQUIRE( area.getName(langCode) == name );
 
-        } // AND_THEN
+    } // THEN
 
-        AND_THEN( "each area has been correctly imported with the correct names" ) {
+    THEN( "language codes are converted to lower case" ) {
+      
+      const std::string name = "Name";
 
-          REQUIRE( areas.getArea("W06000001").getName("eng") == "Isle of Anglesey" );
-          REQUIRE( areas.getArea("W06000001").getName("cym") == "Ynys Môn" );
+      REQUIRE_NOTHROW( area.setName("eNg", name) );
+      REQUIRE( area.getName("eng") == name );
 
-          REQUIRE( areas.getArea("W06000002").getName("eng") == "Gwynedd" );
-          REQUIRE( areas.getArea("W06000002").getName("cym") == "Gwynedd" );
+    } // THEN
 
-          REQUIRE( areas.getArea("W06000003").getName("eng") == "Conwy" );
-          REQUIRE( areas.getArea("W06000003").getName("cym") == "Conwy" );
+    const std::string exceptionMessage = "Area::setName: Language code must be three alphabetical letters only";
+    
+    THEN( "setting a name with a non-three letter code throws an std::invalid_argumet with the message " + exceptionMessage ) {
 
-          REQUIRE( areas.getArea("W06000004").getName("eng") == "Denbighshire" );
-          REQUIRE( areas.getArea("W06000004").getName("cym") == "Sir Ddinbych" );
+      auto langCode          = GENERATE( as<std::string>{}, "", "test", "123" );
+      const std::string name = "Name";
 
-          REQUIRE( areas.getArea("W06000005").getName("eng") == "Flintshire" );
-          REQUIRE( areas.getArea("W06000005").getName("cym") == "Sir y Fflint" );
+      REQUIRE_THROWS_AS( area.setName(langCode, name), std::invalid_argument );
+      REQUIRE_THROWS_WITH( area.setName(langCode, name), exceptionMessage );
 
-          REQUIRE( areas.getArea("W06000006").getName("eng") == "Wrexham" );
-          REQUIRE( areas.getArea("W06000006").getName("cym") == "Wrecsam" );
+    } // THEN
 
-          REQUIRE( areas.getArea("W06000008").getName("eng") == "Ceredigion" );
-          REQUIRE( areas.getArea("W06000008").getName("cym") == "Ceredigion" );
+    THEN( "the object contains no Measures" ) {
 
-          REQUIRE( areas.getArea("W06000009").getName("eng") == "Pembrokeshire" );
-          REQUIRE( areas.getArea("W06000009").getName("cym") == "Sir Benfro" );
+      REQUIRE_NOTHROW( area.size() == 0 );
 
-          REQUIRE( areas.getArea("W06000010").getName("eng") == "Carmarthenshire" );
-          REQUIRE( areas.getArea("W06000010").getName("cym") == "Sir Gaerfyrddin" );
-
-          REQUIRE( areas.getArea("W06000011").getName("eng") == "Swansea" );
-          REQUIRE( areas.getArea("W06000011").getName("cym") == "Abertawe" );
-
-          REQUIRE( areas.getArea("W06000012").getName("eng") == "Neath Port Talbot" );
-          REQUIRE( areas.getArea("W06000012").getName("cym") == "Castell-nedd Port Talbot" );
-
-          REQUIRE( areas.getArea("W06000013").getName("eng") == "Bridgend" );
-          REQUIRE( areas.getArea("W06000013").getName("cym") == "Pen-y-bont ar Ogwr" );
-
-          REQUIRE( areas.getArea("W06000014").getName("eng") == "Vale of Glamorgan" );
-          REQUIRE( areas.getArea("W06000014").getName("cym") == "Bro Morgannwg" );
-
-          REQUIRE( areas.getArea("W06000015").getName("eng") == "Cardiff" );
-          REQUIRE( areas.getArea("W06000015").getName("cym") == "Caerdydd" );
-
-          REQUIRE( areas.getArea("W06000016").getName("eng") == "Rhondda Cynon Taf" );
-          REQUIRE( areas.getArea("W06000016").getName("cym") == "Rhondda Cynon Taf" );
-
-          REQUIRE( areas.getArea("W06000018").getName("eng") == "Caerphilly" );
-          REQUIRE( areas.getArea("W06000018").getName("cym") == "Caerffili" );
-
-          REQUIRE( areas.getArea("W06000019").getName("eng") == "Blaenau Gwent" );
-          REQUIRE( areas.getArea("W06000019").getName("cym") == "Blaenau Gwent" );
-
-          REQUIRE( areas.getArea("W06000020").getName("eng") == "Torfaen" );
-          REQUIRE( areas.getArea("W06000020").getName("cym") == "Torfaen" );
-
-          REQUIRE( areas.getArea("W06000021").getName("eng") == "Monmouthshire" );
-          REQUIRE( areas.getArea("W06000021").getName("cym") == "Sir Fynwy" );
-
-          REQUIRE( areas.getArea("W06000022").getName("eng") == "Newport" );
-          REQUIRE( areas.getArea("W06000022").getName("cym") == "Casnewydd" );
-
-          REQUIRE( areas.getArea("W06000023").getName("eng") == "Powys" );
-          REQUIRE( areas.getArea("W06000023").getName("cym") == "Powys" );
-
-          REQUIRE( areas.getArea("W06000024").getName("eng") == "Merthyr Tydfil" );
-          REQUIRE( areas.getArea("W06000024").getName("cym") == "Merthyr Tudful" );
-
-        } // AND_THEN
-
-        AND_THEN( "attempting to retrieve an area with an unexpected local authority code ('junk') throws a std::out_of_range error" ) {
-
-          REQUIRE_THROWS_AS( areas.getArea("junk"), std::out_of_range );
-
-        } // AND_THEN
-
-      } // THEN
-
-    } // AND_GIVEN
+    } // THEN
 
   } // GIVEN
 

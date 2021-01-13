@@ -15,20 +15,20 @@
 #include "../libs/catch2/catch.hpp"
 
 #include <string>
-#include <tuple>
+#include <unordered_set>
 
 #include "../libs/cxxopts/cxxopts.hpp"
 #include "../libs/cxxopts/argv.hpp"
 
 #include "../bethyw.h"
 
-SCENARIO( "the year program argument can be parsed correctly", "[args][years]" ) {
+SCENARIO( "the measures program argument can be parsed correctly", "[args][measures]" ) {
 
-  GIVEN( "a --years argument with a value" ) {
+  GIVEN( "a --measures program argument and value" ) {
 
-    WHEN( "the value is a single four-digit year ('2010')" ) {
+    WHEN( "the value is a single measure ('pop')" ) {
 
-      Argv argv({"test", "--years", "2010"});
+      Argv argv({"test", "--measures", "pop"});
       auto** actual_argv = argv.argv();
       auto argc          = argv.argc();
 
@@ -37,23 +37,29 @@ SCENARIO( "the year program argument can be parsed correctly", "[args][years]" )
 
       THEN( "the argument value is parsed without exception" ) {
 
-        REQUIRE_NOTHROW( BethYw::parseYearsArg(args) );
+        REQUIRE_NOTHROW( BethYw::parseMeasuresArg(args) );
         
-        AND_THEN( "the response is a two-pair tuple where both values are equal to the argument value" ) {
+        AND_THEN( "the response is a container with 1 value" ) {
 
-          auto years = BethYw::parseYearsArg(args);
-          REQUIRE( std::get<0>(years) == 2010 );
-          REQUIRE( std::get<1>(years) == 2010 );
+          auto measures = BethYw::parseMeasuresArg(args);
+          REQUIRE( measures.size() == 1 );
       
+        } // AND_THEN
+        
+        AND_THEN ( "the container contains the measure in the program argument" ) {
+
+          auto measures = BethYw::parseMeasuresArg(args);
+          REQUIRE( measures.find("pop") != measures.end() );
+    
         } // AND_THEN
 
       } // THEN
 
     } // WHEN
 
-    WHEN( "the value is nill ('0')" ) {
+    WHEN( "the value is multiple comma-separated measures ('pop', 'dens')" ) {
 
-      Argv argv({"test", "--years", "0"});
+      Argv argv({"test", "--measures", "pop,dens"});
       auto** actual_argv = argv.argv();
       auto argc          = argv.argc();
 
@@ -62,150 +68,75 @@ SCENARIO( "the year program argument can be parsed correctly", "[args][years]" )
 
       THEN( "the argument value is parsed without exception" ) {
 
-        REQUIRE_NOTHROW( BethYw::parseYearsArg(args) );
+        REQUIRE_NOTHROW( BethYw::parseMeasuresArg(args) );
         
-        AND_THEN( "the response is a two-pair tuple where both values are equal to 0" ) {
+        AND_THEN( "the response is a container with 2 values" ) {
 
-          auto years = BethYw::parseYearsArg(args);
-          REQUIRE( std::get<0>(years) == 0 );
-          REQUIRE( std::get<1>(years) == 0 );
+          auto measures = BethYw::parseMeasuresArg(args);
+          REQUIRE( measures.size() == 2 );
       
+        } // AND_THEN
+        
+        AND_THEN ( "the container contains the measures in the program argument" ) {
+
+          auto measures = BethYw::parseMeasuresArg(args);
+          REQUIRE( measures.find("pop") != measures.end() );
+          REQUIRE( measures.find("dens") != measures.end() );
+    
         } // AND_THEN
 
       } // THEN
 
     } // WHEN
 
-    WHEN( "the value is nill ('0-0')" ) {
+    WHEN( "the value is 'all'" ) {
 
-      Argv argv({"test", "--years", "0-0"});
+      Argv argv({"test", "--measures", "all"});
       auto** actual_argv = argv.argv();
-      auto argc          = argv.argc();
+      auto argc = argv.argc();
 
       auto cxxopts = BethYw::cxxoptsSetup();
-      auto args    = cxxopts.parse(argc, actual_argv);
+      auto args = cxxopts.parse(argc, actual_argv);
 
       THEN( "the argument value is parsed without exception" ) {
 
-        REQUIRE_NOTHROW( BethYw::parseYearsArg(args) );
+        REQUIRE_NOTHROW( BethYw::parseMeasuresArg(args) );
         
-        AND_THEN( "the response is a two-pair tuple where both values are equal to 0" ) {
+        AND_THEN( "the response is a container with 0 values" ) {
 
-          auto years = BethYw::parseYearsArg(args);
-          REQUIRE( std::get<0>(years) == 0 );
-          REQUIRE( std::get<1>(years) == 0 );
-      
+          auto measures = BethYw::parseMeasuresArg(args);
+          REQUIRE( measures.size() == 0 );
+
         } // AND_THEN
 
       } // THEN
 
     } // WHEN
 
-    WHEN( "the value is two four-digit years as a range ('2010-2015')" ) {
+    WHEN( "the value contains 'all' among other values ('dens')" ) {
 
-      Argv argv({"test", "--years", "2010-2015"});
+      Argv argv({"test", "--measures", "dens,all"});
       auto** actual_argv = argv.argv();
-      auto argc          = argv.argc();
+      auto argc = argv.argc();
 
       auto cxxopts = BethYw::cxxoptsSetup();
-      auto args    = cxxopts.parse(argc, actual_argv);
+      auto args = cxxopts.parse(argc, actual_argv);
 
       THEN( "the argument value is parsed without exception" ) {
 
-        REQUIRE_NOTHROW( BethYw::parseYearsArg(args) );
-        
-        AND_THEN( "the response is a two-pair tuple where the values are 2010 and 2015 respectively" ) {
+        REQUIRE_NOTHROW( BethYw::parseMeasuresArg(args) );
 
-          auto years = BethYw::parseYearsArg(args);
-          REQUIRE( std::get<0>(years) == 2010 );
-          REQUIRE( std::get<1>(years) == 2015 );
-      
+        AND_THEN( "the response is a container with 0 values" ) {
+
+          auto measures = BethYw::parseMeasuresArg(args);
+          REQUIRE( measures.size() == 0 );
+
         } // AND_THEN
 
-      } // THEN
-
-    } // WHEN
-
-    WHEN( "the value is not a number ('qwerty')" ) {
-
-      Argv argv({"test", "--years", "qwerty"});
-      auto** actual_argv = argv.argv();
-      auto argc          = argv.argc();
-
-      auto cxxopts = BethYw::cxxoptsSetup();
-      auto args    = cxxopts.parse(argc, actual_argv);
-
-      const std::string exceptionMessage = "Invalid input for years argument";
-      
-      THEN( "a std::invalid_argument exception is thrown with the message '" + exceptionMessage + "'" ) {
-
-        REQUIRE_THROWS_AS(   BethYw::parseYearsArg(args), std::invalid_argument );
-        REQUIRE_THROWS_WITH( BethYw::parseYearsArg(args), exceptionMessage      );
-
-      } // THEN
-
-    } // WHEN
-
-    WHEN( "the value is partially numeric ('2010-qwerty')" ) {
-
-      Argv argv({"test", "--years", "2010-qwerty"});
-      auto** actual_argv = argv.argv();
-      auto argc          = argv.argc();
-
-      auto cxxopts = BethYw::cxxoptsSetup();
-      auto args    = cxxopts.parse(argc, actual_argv);
-
-      const std::string exceptionMessage = "Invalid input for years argument";
-      
-      THEN( "a std::invalid_argument exception is thrown with the message '" + exceptionMessage + "'" ) {
-
-        REQUIRE_THROWS_AS(    BethYw::parseYearsArg(args), std::invalid_argument );
-        REQUIRE_THROWS_WITH(  BethYw::parseYearsArg(args), exceptionMessage      );
-
-      } // THEN
-
-    } // WHEN 
-
-    WHEN( "the value is numeric, but not nil and not four digits long ('25')" ) {
-
-      Argv argv({"test", "--years", "25"});
-      auto** actual_argv = argv.argv();
-      auto argc          = argv.argc();
-
-      auto cxxopts = BethYw::cxxoptsSetup();
-      auto args    = cxxopts.parse(argc, actual_argv);
-
-      const std::string exceptionMessage = "Invalid input for years argument";
-      
-      THEN( "a std::invalid_argument exception is thrown with the message '" + exceptionMessage + "'" ) {
-
-        REQUIRE_THROWS_AS(   BethYw::parseYearsArg(args), std::invalid_argument );
-        REQUIRE_THROWS_WITH( BethYw::parseYearsArg(args), exceptionMessage      );
-      
-      } // THEN
-
-    } // WHEN
-
-    WHEN( "the value is two numeric values, but one is not nil and not four digits long ('25-2010')" ) {
-
-      Argv argv({"test", "--years", "25"});
-      auto** actual_argv = argv.argv();
-      auto argc          = argv.argc();
-
-      auto cxxopts = BethYw::cxxoptsSetup();
-      auto args    = cxxopts.parse(argc, actual_argv);
-
-      const std::string exceptionMessage = "Invalid input for years argument";
-      
-      THEN( "a std::invalid_argument exception is thrown with the message '" + exceptionMessage + "'" ) {
-
-        REQUIRE_THROWS_AS(   BethYw::parseYearsArg(args), std::invalid_argument );
-        REQUIRE_THROWS_WITH( BethYw::parseYearsArg(args), exceptionMessage      );
-      
       } // THEN
 
     } // WHEN
 
   } // GIVEN
-
+  
 } // SCENARIO

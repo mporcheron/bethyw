@@ -1,5 +1,5 @@
-#ifndef INPUT_H_
-#define INPUT_H_
+#ifndef SRC_INPUT_H_
+#define SRC_INPUT_H_
 
 /*
   +---------------------------------------+
@@ -69,4 +69,4 @@ public:
   virtual std::istream &open() noexcept(false);
 };
 
-#endif // INPUT_H_
+#endif // SRC_INPUT_H_

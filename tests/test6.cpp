@@ -14,76 +14,70 @@
 
 #include "../libs/catch2/catch.hpp"
 
+#include <stdexcept>
 #include <string>
 
-#include "../data.h"
+#include "../BethYw::SourceColumnMpping"
 
-SCENARIO( "an Area instance be constructed with a local authority code", "[Area][construct]" ) {
+SCENARIO( "a Measure object can be constructed with a codename and label", "[Measure][construct]" ) {
 
-  GIVEN( "a local authority code as a std::string" ) {
+  GIVEN( "a codename and a label as std::string instances" ) {
 
-    std::string localAuthorityCode = "W06000011";
+    const std::string codename = "Pop";
+    const std::string label = "Population";
 
-    THEN( "an Area instance can be constructed" ) {
+    THEN( "a Measure instance can be constructed" ) {
 
-      REQUIRE_NOTHROW( Area(localAuthorityCode) );
+      REQUIRE_NOTHROW( Measure(codename, label) );
 
     } // THEN
-    
+
   } // GIVEN
 
-} // SCENARIO
+  GIVEN( "a newly constructed Measure instance with a codename and label" ) {
 
-SCENARIO( "an Area instance can have names in multiple languages", "[Area][names]" ) {
+    THEN( "the codename can be retrieved" ) {
 
-  GIVEN( "a newly constructed Area instance" ) {
+      const std::string codename = "pop";
+      const std::string label = "Population";
+      Measure measure(codename, "Population");
 
-    std::string localAuthorityCode = "W06000011";
-    Area area(localAuthorityCode);
-
-    THEN( "the local authority code can be retrieved" ) {
-
-      REQUIRE( area.getLocalAuthorityCode() == localAuthorityCode );
+      REQUIRE( measure.getCodename() == codename );
 
     } // THEN
 
-    THEN( "names in multiple languages can be set" ) {
-      
-      auto langCode = GENERATE( as<std::string>{}, "eng", "cym" );
-      auto name     = GENERATE( as<std::string>{}, "Name in English", "Name in Welsh" );
+    THEN( "the codename will be converted to lowercase" ) {
 
-      REQUIRE_NOTHROW( area.setName(langCode, name) );
-      REQUIRE( area.getName(langCode) == name );
+      const std::string codename = "POP";
+      const std::string codenameLower = "pop";
+      const std::string label = "Population";
+      Measure measure(codename, label);
 
-    } // THEN
-
-    THEN( "language codes are converted to lower case" ) {
-      
-      const std::string name = "Name";
-
-      REQUIRE_NOTHROW( area.setName("eNg", name) );
-      REQUIRE( area.getName("eng") == name );
+      REQUIRE_NOTHROW( measure.getCodename() == codenameLower );
 
     } // THEN
 
-    const std::string exceptionMessage = "Area::setName: Language code must be three alphabetical letters only";
-    
-    THEN( "setting a name with a non-three letter code throws an std::invalid_argumet with the message " + exceptionMessage ) {
+    THEN( "the label can be retreived" ) {
 
-      auto langCode          = GENERATE( as<std::string>{}, "", "test", "123" );
-      const std::string name = "Name";
+      const std::string codename = "pop";
+      const std::string label = "Population";
+      Measure measure(codename, label);
 
-      REQUIRE_THROWS_AS( area.setName(langCode, name), std::invalid_argument );
-      REQUIRE_THROWS_WITH( area.setName(langCode, name), exceptionMessage );
+      REQUIRE_NOTHROW( measure.getLabel() == label );
 
     } // THEN
 
-    THEN( "the object contains no Measures" ) {
+    THEN( "the instance has size 0" ) {
 
-      REQUIRE_NOTHROW( area.size() == 0 );
+      const std::string codename = "pop";
+      const std::string label = "Population";
+      Measure measure(codename, label);
+
+      REQUIRE_NOTHROW( measure.size() == 0 );
 
     } // THEN
 
   } // GIVEN
 
 } // SCENARIO
+

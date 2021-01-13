@@ -8,8 +8,8 @@
 
   AUTHOR: Dr Martin Porcheron
 
-  The file's classes are structured in a granular way, from the most
-  specific to most broad.
+  The file's contains the Areas<> class implementation. Areas<> are the top
+  level of the data structure in Beth Yw?:
 
   Measure       — Represents a single measure for an area, e.g.
    |              population. Contains a human-readable label and a map of
@@ -26,6 +26,9 @@
                   DataContainer exists so that in future we can expand our
                   code to include areas broken down by different groupings
                   instead of geographic areas.
+
+  Areas<> is also responsible for importing data from a stream (using the
+  various populate() functions) and creating the Area and Measure objects.
 
   This file contains numerous functions you must implement. Each function you
   must implement has a TODO block comment. 
@@ -44,657 +47,16 @@
 #include "libs/cxxopts/cxxopts.hpp"
 #include "libs/nlohmann/json.hpp"
 
-#include "data.h"
+#include "areas.h"
+#include "area.h"
+#include "measure.h"
 
 using json = nlohmann::json;
 
 /*
-  TODO: Measure::Measure(code, label);
-
-  Construct a single measure, that has values across many years.
-
-  All StatsWales JSON files have a codename for measures. We use this to 
-  allow filtering in the command line arguments. You should convert all codes
-  to lowercase.
-
-  @param codename
-    The codename for the measure
-
-  @param label
-    Human-readable (i.e. nice/explanatory) label for the measure
-
-  @example
-    Measure measure("Pop", "Population");
-*/
-Measure::Measure(std::string codename, const std::string &label)
-    : mLabel(label), mData(), mSum(0) {
-  std::transform(codename.begin(),
-                 codename.end(),
-                 codename.begin(),
-                 ::tolower);
-   mCodename = std::move(codename);
-}
-
-/*
-  TODO: Measure::getCodename()
-
-  Retrieve the code for the measure. This function should be callable from a 
-  constant context.
-
-  @return
-    The code for the measure
-
-  @example
-    Measure measure("pop", "Population");
-    measure.setValue(1999, 12345678.9);
-    ...
-    auto code = measure.getCodename();
-*/
-const std::string &Measure::getCodename() const { return mCodename; }
-
-/*
-  TODO: Measure::getLabel()
-
-  Retrieve the human-friendly label for the measure. This function should be 
-  callable from a constant context.
-
-  @return
-    The label for the measure
-
-  @example
-    Measure measure("pop", "Population");
-    measure.setValue(1999, 12345678.9);
-    ...
-    auto label = measure.getLabel();
-*/
-const std::string &Measure::getLabel() const { return mLabel; }
-
-/*
-  TODO: Measure::setLabel(label)
-
-  Change the label for the Measure.
-
-  @param label
-    The new label for the Measure
-
-  @example
-    Measure measure("pop", "Population");
-    measure.setValue(1999, 12345678.9);
-    ...
-    measure.setLabel("New Population");
-*/
-void Measure::setLabel(const std::string &label) { mLabel = label; }
-
-/*
-  TODO: Measure::getValue(key)
-
-  Retrieve a measure's value for a given year.
-
-  @param key
-    The year to find the value for
-
-  @throws
-    std::out_of_range if year does not exist in measure
-
-  @example
-    Measure measure("pop", "Population");
-    measure.setValue(1999, 12345678.9);
-    ...
-    double value = measure.getValue(1999); // returns 12345678.9
-*/
-Measure_t &Measure::getValue(const int &key) {
-  return mData.at(key);
-}
-
-/*
-  TODO: Measure::setValue(key, value)
-
-  Add a particular year's value to the Measure object.
-
-  @param key
-    The year to insert a value at
-
-  @param value
-    The value for the given year
-
-  @example
-    Measure measure("pop", "Population");
-    measure.setValue(1999, 12345678.9);
-*/
-void Measure::setValue(const int &key, const Measure_t &value) {
-  auto existingIt = mData.find(key);
-  if (existingIt != mData.end()) {
-    mSum -= existingIt->second;
-    mData.erase(key);
-  }
-  
-  mSum += value;
-  mData.emplace(key, value);
-}
-
-/*
-  TODO: Measure::setValue(key, value)
-
-  Add a particular year's value to the Measure object.
-
-  Note that this overloaded function should be called with std::move() 
-  encasing the value so that Measure takes ownership over the resource.
-
-  @param key
-    The year
-
-  @param value
-    The value for the given year, which Measure will take ownership of
-
-  @example
-    Measure measure("pop", "Population");
-    double value = 12345678.9;
-    measure.setValue(1999, std::move(value));
-*/
-void Measure::setValue(const int &key, const Measure_t &&value) {
-  auto existingIt = mData.find(key);
-  if (existingIt != mData.end()) {
-    mSum -= existingIt->second;
-    mData.erase(key);
-  }
-
-  mSum += value;
-  mData.emplace(key, std::move(value));
-}
-
-/*
-  TODO: Measure::size()
-
-  Retrieve the number of years data we have for this measure. This function
-  should not modify the object or throw an exception.
-
-  @return
-    The size of the measure
-
-  @example
-    Measure measure("pop", "Population");
-    measure.setValue(1999, 12345678.9);
-    auto size = measure.size(); // returns 1
-*/
-size_t Measure::size() const noexcept {
-  return mData.size();
-}
-
-/*
-  TODO: operator<<(os, measure)
-
-  Overload the << operator to print all of the Measure's imported data.
-
-  We align the year and value outputs by padding the outputs with spaces,
-  i.e. the year and values should be right-aligned to each other so they
-  can be read as a table of numerical values.
-
-  See the coursework specification for more information.
-
-  @param os
-    The output stream to write to
-
-  @param measure
-    The Measure to write to the output stream
-
-  @return
-    Reference to the output stream
-
-  @example
-    Measure measure("pop", "Population");
-    measure.setValue(1999, 12345678.9);
-    std::cout << measure << std::end;
-*/
-std::ostream &operator<<(std::ostream &os, const Measure &measure) {
-  // TODO map: add average and change
-  os << measure.getLabel() << " (" << measure.getCodename();
-  os << ") "  << std::endl;
-
-  if (measure.size() == 0) {
-    os << "<no data>" << std::endl;
-    return os;
-  }
-
-  // Iterate through and print the years and save the values to a stringstream
-  std::stringstream values;
-  for (auto it = measure.cbegin(); it != measure.cend(); it++) {
-    std::string year = std::to_string(it->first);
-    std::string value = std::to_string(it->second);
-
-    int len = std::max(year.length(), value.length());
-
-    os << std::setw(len) << year << " ";
-    values << std::setw(len) << value << " ";
-  }
-
-  // Add average and change values
-  {
-    std::string title = "Average";
-    double average = measure.mSum/measure.size();
-    std::string averageStr = std::to_string(average);
-
-    int len = std::max(title.length(), averageStr.length());
-
-    os << std::setw(len) << title << " ";
-    values << std::setw(len) << averageStr << " ";
-  }
-
-  double change = measure.crbegin()->second - measure.cbegin()->second;
-  {
-    std::string title = "Diff.";
-    std::string changeStr = std::to_string(change);
-
-    int len = std::max(title.length(), changeStr.length());
-
-    os << std::setw(len) << title << " ";
-    values << std::setw(len) << changeStr << " ";
-  }
-
-  {
-    std::string title = "% Diff.";
-    double changeP = change / measure.crbegin()->second * 100;
-    std::string changePStr = std::to_string(changeP);
-
-    int len = std::max(title.length(), changePStr.length());
-
-    os << std::setw(len) << title << " ";
-    values << std::setw(len) << changePStr << " ";
-  }
-  
-  os << "\n" << values.str() << std::endl;
-
-  return os;
-}
-
-/*
-  TODO: operator==(lhs, rhs)
-
-  Overload the == operator for two Measure objects. Two Measure objects
-  are only equal when their codename, label and data are all equal.
-
-  @param lhs
-    A Measure object
-
-  @param lhs
-    A second Measure object
-
-  @return
-    true if they are equal
-*/
-bool operator==(const Measure &lhs, const Measure &rhs) {
-  return lhs.mCodename == rhs.mCodename &&
-         lhs.mLabel    == rhs.mLabel &&
-         lhs.mData     == rhs.mData &&
-         lhs.mSum      == rhs.mSum;
-}
-
-/*
-  TODO: Area::Area(localAuthorityCode)
-
-  Construct an area with a given local authority code.
-
-  @param localAuthorityCode
-    A reference to the local authority code
-
-  @example
-    Area("W06000023");
-*/
-Area::Area(const std::string &localAuthorityCode)
-    : mLocalAuthorityCode(localAuthorityCode),
-      mNames(),
-      mNamesList(),
-      mMeasures() {
-}
-
-/*
-  TODO: getLocalAuthorityCode()
-
-  Retrieve the local authority code for this area. This function should be 
-  callable from a constant context.
-  
-  @return
-    The area's local authority code
-
-  @example
-    Area area("W06000023");
-    ...
-    std::string authCode = area.getLocalAuthorityCode(); // returns "W06000023"
-*/
-const std::string &Area::getLocalAuthorityCode() const {
-  return mLocalAuthorityCode;
-}
-
-/*
-  TODO: getName(lang)
-
-  Get a name for the area in a specific language. This function should be 
-  callable from a constant context.
-
-  @param lang
-    A three-leter language code in ISO 639-2/B format
-
-  @return
-    The name for the area in the given language
-
-  @throws
-    std::out_of_range if lang is not a set language
-
-  @example
-    Area area("W06000023");
-    area.setName("eng", "Powys");
-    ...
-    std::string name = area.getName("eng"); // returns "Powys"
-*/
-const std::string &Area::getName(std::string lang) const {
-  std::transform(lang.begin(), lang.end(), lang.begin(), ::tolower);
-  return mNames.at(lang);
-}
-
-/*
-  Get a map of all the different names for the Area, organised by language
-  code.
-
-  @return
-    The names for the Area
-
-  @example
-    Area area("W06000023");
-    area.setName("eng", "Powys");
-    ...
-    auto names = area.getNames();
-*/
-const std::map<std::string, std::string> &Area::getNames() const {
-  return mNames;
-}
-
-/*
-  TODO: setName(lang, name)
-
-  Set a name for the area in a specific language.
-
-  @param lang
-    A three-letter language code in ISO 639-2/B format
-
-  @param name
-    The name of the area in this language
-
-  @example
-    Area area("W06000023");
-    area.setName("eng", "Powys");
-    area.setName("cym", "Powys");
-*/
-void Area::setName(std::string lang, const std::string &name) {
-  std::transform(lang.begin(), lang.end(), lang.begin(), ::tolower);
-
-  const std::string alphabet = "abcdefghijklmnopqrstuvwxyz";
-  if (lang.length() != 3 || 
-      lang.find_first_not_of(alphabet) != std::string::npos) {
-    throw std::invalid_argument("Area::setName: Language code must be three "
-                                "alphabetical letters only");
-  }
-
-  auto existingIt = mNames.find(lang);
-  if (existingIt != mNames.end()) {
-    mNames.erase(lang);
-  }
-  
-  mNames.emplace(lang, name);
-}
-
-/*
-  TODO: setName(lang, name)
-
-  Set a name for the area in a specific language.
-
-  Note that this overloaded function should be called with std::move() 
-  encasing the value so that Measure takes ownership over the resource.
-
-  @param lang
-    A three-leter language code in ISO 639-2/B format
-
-  @param name
-    The name of the area in this language, which Area will take ownership of
-
-  @example
-    Area area("W06000023");
-    std::string name = "Powys";
-    area.setName("eng", std::move(name));
-*/
-void Area::setName(std::string lang, std::string &&name) {
-  std::transform(lang.begin(), lang.end(), lang.begin(), ::tolower);
-
-  const std::string alphabet = "abcdefghijklmnopqrstuvwxyz";
-  if (lang.length() != 3 || 
-      lang.find_first_not_of(alphabet) != std::string::npos) {
-    throw std::invalid_argument("Area::setName: Language code must be three "
-                                "alphabetical letters only");
-  }
-
-  auto existingIt = mNames.find(lang);
-  if (existingIt != mNames.end()) {
-    mNames.erase(lang);
-  }
-
-  mNames.emplace(lang, std::move(name));
-}
-
-/*
-  TODO: Area::getMeasure(key)
-
-  Retrieve a Measure given its code. This function should be case insensitive.
-
-  @param key
-    The code for the measure you want to retrieve
-
-  @throws
-    std::out_of_range if there is no measure with the given code
-
-  @example
-    Area area("W06000023");
-    area.setName("eng", "Powys");
-
-    Measure measure("Pop", "Population");
-    area.setMeasure("Pop", measure);
-    ...
-    auto measure2 = area.getMeasure("pop");
-*/
-Measure &Area::getMeasure(std::string key) {
-  return mMeasures.at(key);
-}
-
-/*
-  TODO: Area::setMeasure(key, value)
-
-  Add a particular Measure to the Area object. Note that the measure's
-  code should be converted to lowercase.
-
-  @param key
-    The code for the measure
-
-  @param value
-    The Measure object
-
-  @example
-    Area area("W06000023");
-    area.setName("eng", "Powys");
-
-    Measure measure("Pop", "Population");
-    double value = 12345678.9;
-    measure.setValue(1999, value);
-
-    area.setMeasure("Pop", measure);
-*/
-void Area::setMeasure(std::string key, Measure &value) {
-  std::transform(key.begin(), key.end(), key.begin(), ::tolower);
-  
-  auto existingIt = mMeasures.find(key);
-  if (existingIt != mMeasures.end()) {
-    Measure &existingMeasure = existingIt->second;
-
-    existingMeasure.setLabel(value.getLabel());
-    for (auto it = value.begin(); it != value.end(); it++) {
-      existingMeasure.setValue(it->first, it->second);
-    }    
-    return;
-  }
-  
-  mMeasures.emplace(key, value);
-}
-
-/*
-  TODO: Area::setMeasure(key, value)
-
-  Add a particular Measure to the Area object. Note that the measure's
-  code should be converted to lowercase.
-
-  Note, this overloaded function should be called with std::move() 
-  encasing the value so that Area takes ownership over the resource.
-
-  @param key
-    The code for the measure
-
-  @param value
-    The Measure object
-
-  @example
-    Area area("W06000023");
-    area.setName("eng", "Powys");
-
-    Measure measure("Pop", "Population");
-    double value = 12345678.9;
-    measure.setValue(1999, value);
-
-    area.setMeasure("Pop", std::move(measure));
-*/
-void Area::setMeasure(std::string key, Measure &&value) {
-  std::transform(key.begin(), key.end(), key.begin(), ::tolower);
-  
-  auto existingIt = mMeasures.find(key);
-  if (existingIt != mMeasures.end()) {
-    Measure &existingMeasure = existingIt->second;
-
-    existingMeasure.setLabel(value.getLabel());
-    for (auto it = value.begin(); it != value.end(); it++) {
-      existingMeasure.setValue(it->first, it->second);
-    }    
-    return;
-  }
-  
-  mMeasures.emplace(key, std::move(value));
-}
-
-/*
-  TODO: Area::size()
-
-  Retrieve the number of measures we have for this area. This function
-  should not modify the object or throw an exception.
-
-  @return
-    The size of the area (i.e. the number of measures)
-
-  @example
-    Area area("W06000023");
-    area.setName("eng", "Powys");
-
-    Measure measure("Pop", "Population");
-    double value = 12345678.9;
-    measure.setValue(1999, value);
-
-    area.setMeasure("Pop", measure);
-    auto size = area.size(); // returns 1
-*/
-size_t Area::size() const noexcept {
-  return mMeasures.size();
-}
-
-/*
-  TODO: operator<<(os, area)
-
-  Output the name of the area in English and Welsh, followed by all the 
-  measures for the area. If the area only has only one name, output this. If the
-  area has no names, output the name "Unnamed".
-
-  If there are no measures, print the names and authority code and on the 
-  next line print <no measures>
-
-  See the coursework specification for more information.
-
-  @param os
-    The output stream to write to
-
-  @param area
-    Area to write to the output stream
-
-  @return
-    Reference to the output stream
-
-  @example
-    Area area("W06000023");
-    area.setName("eng", "Powys");
-    std::cout << area << std::end;
-*/
-std::ostream &operator<<(std::ostream &os, const Area &area) {
-  bool hasName = false;
-
-  try {
-    os << area.getName("eng");
-    hasName = true;
-  } catch(std::out_of_range &ex) {
-  }
-  
-  try {
-    std::string name = area.getName("cym");
-    if (hasName) {
-      os << " / ";
-    }
-    os << name;
-  } catch(std::out_of_range &ex) {
-  }
-  
-  if (!hasName) {
-    os << "Unnamed";
-  }
-  os << " (" << area.getLocalAuthorityCode() << ")" << std::endl;
-
-  if (area.size() == 0) {
-    os << "<no measures>";
-    return os;
-  }
-  
-  for (auto measure = area.cbegin(); measure != area.cend(); measure++) {
-    os << measure->second << std::endl;
-  }
-
-  return os;
-}
-
-/*
-  TODO: operator==(lhs, rhs)
-
-  Overload the == operator for two Area objects. Two Area objects
-  are only equal when their local authority code, all names, and all data are
-  equal.
-
-  @param lhs
-    A Area object
-
-  @param lhs
-    A second Area object
-
-  @return
-    true if they are equal
-*/
-bool operator==(const Area &lhs, const Area &rhs) {
-  return lhs.mLocalAuthorityCode == rhs.mLocalAuthorityCode &&
-         lhs.mNames              == rhs.mNames &&
-         lhs.mNamesList          == rhs.mNamesList &&
-         lhs.mMeasures           == rhs.mMeasures;
-}
-
-/*
   TODO: Areas<>::Areas()
 
-  Constructor for an areas object.
+  Constructor for an Areas<> object.
 
   Hint: because we have templated Areas, you have to include:
     template <> (with a space after it)
@@ -965,7 +327,7 @@ size_t Areas<>::size() const noexcept {
     The input stream from InputSource
 
   @param cols
-    A map of the enum SourceColumn (see data.h) to strings that give the
+    A map of the enum SourceColumn (see areas.h) to strings that give the
     column header in the CSV file, which is statically defined in datasets.h
 
   @param areasFilter
@@ -1066,7 +428,7 @@ void Areas<>::populateFromAuthorityCodeCSV(
     The input stream from InputSource
 
   @param cols
-    A map of the enum SourceColumn (see data.h) to strings that give the
+    A map of the enum SourceColumn (see areas.h) to strings that give the
     column header in the CSV file, which is statically defined in datasets.h
 
   @param areasFilter
@@ -1320,7 +682,7 @@ void Areas<>::populateFromAuthorityByYearCSV(
     The input stream from InputSource
 
   @param cols
-    A map of the enum SourceColumn (see data.h) to strings that give the
+    A map of the enum SourceColumn (see areas.h) to strings that give the
     column header in the CSV file, which is statically defined in datasets.h
 
   @param areasFilter
@@ -1558,7 +920,7 @@ void Areas<>::populateFromWelshStatsJSON(
     structure
 
   @param cols
-    A map of the enum SourceColumn (see data.h) to strings that give the
+    A map of the enum SourceColumn (see areas.h) to strings that give the
     column header in the CSV file, which is statically defined in datasets.h
 
   @throws 
@@ -1639,7 +1001,7 @@ void Areas<>::populate(std::istream &is,
     structure
 
   @param cols
-    A map of the enum SourceColumn (see data.h) to strings that give the
+    A map of the enum SourceColumn (see areas.h) to strings that give the
     column header in the CSV file, which is statically defined in datasets.h
 
   @param areasFilter
@@ -1806,7 +1168,12 @@ std::string Areas<>::toJSON() const {
     }
   }
   
-  return j.dump();
+  const std::string result = j.dump();
+  if (result == "null") {
+    return "{}";
+  }
+  
+  return result;
 }
 
 /*

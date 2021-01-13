@@ -2,7 +2,7 @@
 
 BIN_DIR="bin"
 TESTS_DIR="tests"
-SOURCE_FILES="bethyw.cpp input.cpp data.cpp"
+SOURCE_FILES="src/bethyw.cpp src/input.cpp src/areas.cpp src/area.cpp src/measure.cpp"
 MAIN_FILE="main.cpp"
 EXECUTABLE="./${BIN_DIR}/bethyw"
 
