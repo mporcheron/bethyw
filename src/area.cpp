@@ -339,7 +339,7 @@ std::ostream &operator<<(std::ostream &os, const Area &area) {
   os << " (" << area.getLocalAuthorityCode() << ")" << std::endl;
 
   if (area.size() == 0) {
-    os << "<no measures>";
+    os << "<no measures>\n" << std::endl;
     return os;
   }
   

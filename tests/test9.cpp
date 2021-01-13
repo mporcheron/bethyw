@@ -20,13 +20,9 @@
 #include "../src/area.h"
 #include "../src/measure.h"
 
-SCENARIO( "an areas<> instance can be constructed", "[Areas<>][construct]" ) {
+SCENARIO( "an Areas<> instance can be constructed", "[Areas<>][construct]" ) {
 
-  THEN( "an Areas<> instance can be default constructed" ) {
-
-    REQUIRE_NOTHROW( Areas<>() );
-
-  } // THEN
+  REQUIRE_NOTHROW( Areas<>() );
 
 } // SCENARIO
 

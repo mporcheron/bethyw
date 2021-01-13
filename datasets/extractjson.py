@@ -7,12 +7,12 @@ import webbrowser as wb
 
 this_dir = os.path.dirname(os.path.abspath(__file__)) + "/"
 
-colAuthorityCode = 'Area_Code'
-colMeasureCodename = 'Pollutant_ItemName_ENG'
+colAuthorityCode = 'Localauthority_Code'
+colMeasureCodename = 'Measure_Code'
 colYear = 'Year_Code'
 colValue = 'Data'
 
-with open(this_dir + 'envi0201.json') as data_file:    
+with open(this_dir + 'popu1009.json') as data_file:    
     data = json.load(data_file)
 
 df = pd.json_normalize(data, 'value', [])
@@ -81,38 +81,37 @@ print('REQUIRE( areas.size() == ' + str(len(counts.values())) + ' );')
 
 print('\n\n')
 
-# for localAuthorityCode, area in counts.items():
-#   areaDf = df[df[colAuthorityCode].str.contains(localAuthorityCode)]
-#   for measureCodename, count in area.items():
-#     measureDf = areaDf[areaDf[colMeasureCodename].str.contains(measureCodename)]
+for localAuthorityCode, area in counts.items():
+  areaDf = df[df[colAuthorityCode].str.contains(localAuthorityCode)]
+  for measureCodename, count in area.items():
+    measureDf = areaDf[areaDf[colMeasureCodename].str.contains(measureCodename)]
+    mean = "(("
+    count = 0
+    for val in iter(measureDf[colValue]):
+      mean += str(val) + " + "
+      count += 1
+    mean += " 0) / " + str(count) + ")"
+    print('REQUIRE( std::to_string(areas.getArea("' + localAuthorityCode + '").getMeasure("' + measureCodename.lower() + '").getAverage()) == std::to_string(' + mean + ') );')
+
+  print('')
+
+print('\n\n')
 #
-#     mean = str(int(measureDf[colValue].mean() * 100)/100.0)
-#     meanlen = str(len(mean))
-#     print('REQUIRE( std::to_string(areas.getArea("' + localAuthorityCode + '").getMeasure("' + measureCodename.lower() + '").getAverage()).substr(0,' + meanlen + ') == "' + mean + '" );')
-#
-#   print('')
-#
-# print('\n\n')
-#
-# for localAuthorityCode, area in minYear.items():
-#   areaDf = df[df[colAuthorityCode].str.contains(localAuthorityCode)]
-#   for measureCodename, count in area.items():
-#     diff = float(maxYear[localAuthorityCode][measureCodename][1]) - float(minYear[localAuthorityCode][measureCodename][1])
-#     diff = str(int(diff * 100)/100.0)
-#     difflen = str(len(diff))
-#     print('REQUIRE( std::to_string(areas.getArea("' + localAuthorityCode + '").getMeasure("' + measureCodename.lower() + '").getDifference()).substr(0,' + difflen + ') == "' + diff + '" );')
-#
-#   print('')
-#
-# print('\n\n')
-#
-# for localAuthorityCode, area in minYear.items():
-#   areaDf = df[df[colAuthorityCode].str.contains(localAuthorityCode)]
-#   for measureCodename, count in area.items():
-#     diff = (float(maxYear[localAuthorityCode][measureCodename][1]) - float(minYear[localAuthorityCode][measureCodename][1])) / float(minYear[localAuthorityCode][measureCodename][1]) * 100
-#     diff = str(int(diff * 100)/100.0)
-#     difflen = str(len(diff))
-#     print('REQUIRE( std::to_string(areas.getArea("' + localAuthorityCode + '").getMeasure("' + measureCodename.lower() + '").getDifferenceAsPercentage()).substr(0,' + difflen + ') == "' + diff + '" );')
-#
-#   print('')
+for localAuthorityCode, area in minYear.items():
+  areaDf = df[df[colAuthorityCode].str.contains(localAuthorityCode)]
+  for measureCodename, count in area.items():
+    diff = str(maxYear[localAuthorityCode][measureCodename][1]) + " - " + str(minYear[localAuthorityCode][measureCodename][1])
+    print('REQUIRE( areas.getArea("' + localAuthorityCode + '").getMeasure("' + measureCodename.lower() + '").getDifference() == (' +  diff + ') );')
+
+  print('')
+
+print('\n\n')
+
+for localAuthorityCode, area in minYear.items():
+  areaDf = df[df[colAuthorityCode].str.contains(localAuthorityCode)]
+  for measureCodename, count in area.items():
+    diff = "std::to_string((" + str(maxYear[localAuthorityCode][measureCodename][1]) + " - " + str(minYear[localAuthorityCode][measureCodename][1]) + ")/" + str(minYear[localAuthorityCode][measureCodename][1]) + "*100)"
+    print('REQUIRE( std::to_string(areas.getArea("' + localAuthorityCode + '").getMeasure("' + measureCodename.lower() + '").getDifferenceAsPercentage()) == ' + diff + ' );')
+
+   print('')
 # https://canvas.swansea.ac.uk/api/v1/groups/17533/users?per_page=300&include%5B%5D=sections&include%5B%5D=group_submissions&include%5B%5D=active_status&exclude%5B%5D=pseudonym

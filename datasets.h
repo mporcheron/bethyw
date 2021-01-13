@@ -78,7 +78,10 @@ enum SourceColumn {
 };
 
 /*
-  We use the shortcut SourceColumnMapping in this file for simplicity.
+  Finally, we create a mapping type for mapping the SourceColumn enum above
+  to a std::string, which will be the name of the key/column in the dataset.
+
+  i.e. the mapping of AUTH_CODE could be to "Authority_Code", and so on
 */
 using SourceColumnMapping = std::unordered_map<SourceColumn, std::string>;
 
@@ -101,15 +104,14 @@ struct InputFileSource {
   const SourceDataType PARSER;
 
   // COLS is a map of the column headings for this dataset
-  // the key is a SourceColumns enum value, which is defined in data.h
-  // the value is the name of the column in the data file
-  // this is really 
+  //   - the key is a SourceColumns enum value, which is defined in data.h
+  //   - the value is the name of the column in the data file
   const SourceColumnMapping COLS;
 };
 
 /*
-  In this namespace, we store all the static data for the various datasets
-  that can be found in the data directory.
+  In this namespace, we store all the data for the various datasets that can
+  be found in the datasets directory.
 */
 namespace InputFiles {
 

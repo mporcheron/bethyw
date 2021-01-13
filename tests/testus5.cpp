@@ -20,7 +20,7 @@
 #include "../datasets.h"
 #include "../src/areas.h"
 
-SCENARIO( "popu1009.json can be correctly parsed [extended]", "[Areas<>][popu1009][extended]" ) {
+SCENARIO( "popu1009.json can be correctly parsed [extended for non-lowercase]", "[Areas<>][popu1009][extended]" ) {
 
   auto get_istream = [](const std::string &path) {
     return std::ifstream(path);

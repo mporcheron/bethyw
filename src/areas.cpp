@@ -1171,96 +1171,88 @@ std::string Areas<>::toJSON() const {
 
   Overload the << operator to print all of the imported data.
 
-  Output should be formatted like the following to pass the tests. Note:
-  area names and measure names should be alphabetically sorted.
-
-  Areas should be printed, ordered by their local authority code.
+  Output should be formatted like the following to pass the tests. Areas should
+  be printed, ordered alphabetically by their local authority code. Measures 
+  within each Area should be ordered alphabetically by their codename.
 
   See the coursework specification for more information, although for reference
   here is a quick example of how output should be formatted:
 
     <English name of area 1> / <Welsh name of area 1> (<authority code 1>)
     <Measure 1 name> (<Measure 1 code>)
-     <year 1>  <year 2> <year 3> ...  <year n>
-    <value 1>  <year 2> <year 3> ... <value n>
-
+     <year 1>  <year 2> <year 3> ...  <year n>  Average    Diff.   % Diff.
+    <value 1>  <year 2> <year 3> ... <value n> <mean 1> <diff 1> <diffp 1>
 
     <Measure 2 name> (<Measure 2 code>)
-     <year 1>  <year 2> <year 3> ...  <year n>
-    <value 1>  <year 2> <year 3> ... <value n>
-
+     <year 1>  <year 2> <year 3> ...  <year n>  Average    Diff.   % Diff.
+    <value 1>  <year 2> <year 3> ... <value n> <mean 2> <diff 2> <diffp 2>
 
     <Measure 3 name> (<Measure 3 code>)
-     <year 1>  <year 2> <year 3> ...  <year n>
-    <value 1>  <year 2> <year 3> ... <value n>
+     <year 1>  <year 2> <year 3> ...  <year n>  Average    Diff.   % Diff.
+    <value 1>  <year 2> <year 3> ... <value n> <mean 3> <diff 3> <diffp 3>
 
     ...
 
     <Measure x name> (<Measure x code>)
-     <year 1>  <year 2> <year 3> ...  <year n>
-    <value 1>  <year 2> <year 3> ... <value n>
-
+     <year 1>  <year 2> <year 3> ...  <year n>  Average    Diff.   % Diff.
+    <value 1>  <year 2> <year 3> ... <value n> <mean x> <diff x> <diffp x>
 
 
     <English name of area 2> / <Welsh name of area 2> (<authority code 2>)
     <Measure 1 name> (<Measure 1 code>)
-     <year 1>  <year 2> <year 3> ...  <year n>
-    <value 1>  <year 2> <year 3> ... <value n>
-
+     <year 1>  <year 2> <year 3> ...  <year n>  Average    Diff.   % Diff.
+    <value 1>  <year 2> <year 3> ... <value n> <mean 1> <diff 1> <diffp 1>
 
     <Measure 2 name> (<Measure 2 code>)
-     <year 1>  <year 2> <year 3> ...  <year n>
-    <value 1>  <year 2> <year 3> ... <value n>
-
+     <year 1>  <year 2> <year 3> ...  <year n>  Average    Diff.   % Diff.
+    <value 1>  <year 2> <year 3> ... <value n> <mean 2> <diff 2> <diffp 2>
 
     <Measure 3 name> (<Measure 3 code>)
-     <year 1>  <year 2> <year 3> ...  <year n>
-    <value 1>  <year 2> <year 3> ... <value n>
+     <year 1>  <year 2> <year 3> ...  <year n>  Average    Diff.   % Diff.
+    <value 1>  <year 2> <year 3> ... <value n> <mean 3> <diff 3> <diffp 3>
 
     ...
 
     <Measure x name> (<Measure x code>)
      <year 1>  <year 2> <year 3> ...  <year n>
-    <value 1>  <year 2> <year 3> ... <value n>
+    <value 1>  <year 2> <year 3> ... <value n> <mean x> <diff x> <diffp x>
 
     ...
 
     <English name of area y> / <Welsh name of area y> (<authority code y>)
-    <Measure 1 name> (<Measure 1 code>)
+    <Measure 1 name> (<Measure 1 codename>)
      <year 1>  <year 2> <year 3> ...  <year n>
-    <value 1>  <year 2> <year 3> ... <value n>
+    <value 1>  <year 2> <year 3> ... <value n> <mean 1> <diff 1> <diffp 1>
 
-
-    <Measure 2 name> (<Measure 2 code>)
+    <Measure 2 name> (<Measure 2 codename>)
      <year 1>  <year 2> <year 3> ...  <year n>
-    <value 1>  <year 2> <year 3> ... <value n>
+    <value 1>  <year 2> <year 3> ... <value n> <mean 2> <diff 2> <diffp 2>
 
-
-    <Measure 3 name> (<Measure 3 code>)
+    <Measure 3 name> (<Measure 3 codename>)
      <year 1>  <year 2> <year 3> ...  <year n>
-    <value 1>  <year 2> <year 3> ... <value n>
+    <value 1>  <year 2> <year 3> ... <value n> <mean 3> <diff 3> <diffp 3>
 
     ...
 
-    <Measure x name> (<Measure x code>)
-     <year 1>  <year 2> <year 3> ...  <year n>
-    <value 1>  <year 2> <year 3> ... <value n>
+    <Measure x name> (<Measure x codename>)
+     <year 1>  <year 2> <year 3> ...  <year n>  Average    Diff.   % Diff.
+    <value 1>  <year 2> <year 3> ... <value n> <mean x> <diff x> <diffp x>
 
   With real data, your output should start like this for the command
-  bethyw --dir <dir> -p popden (truncated for readability):
+  bethyw --dir <dir> -p popden -y 1991-1993 (truncated for readability):
 
     Isle of Anglesey / Ynys Môn (W06000001)
-    Land area (Area)
-          1991       1992       1993       1994       1995       1996 ...
-    711.680100 711.680100 711.680100 711.680100 711.680100 711.680100 ...
+    Land area (area) 
+          1991       1992       1993    Average    Diff.  % Diff. 
+    711.680100 711.680100 711.680100 711.680100 0.000000 0.000000 
 
-    Population density (Dens)
-         1991      1992      1993      1994      1995      1996      1997 ...
-    97.126504 97.486216 98.038430 97.216432 96.147131 96.380382 95.701706 ...
+    Population density (dens) 
+         1991      1992      1993   Average    Diff.  % Diff. 
+    97.126504 97.486216 98.038430 97.550383 0.911926 0.938905 
 
-    Population (Pop)
-            1991         1992         1993         1994         1995 ...
-    69123.000000 69379.000000 69772.000000 69187.000000 68426.000000 ...
+    Population (pop) 
+            1991         1992         1993      Average      Diff.  % Diff. 
+    69123.000000 69379.000000 69772.000000 69424.666667 649.000000 0.938906 
 
 
     Gwynedd / Gwynedd (W06000002)
@@ -1273,7 +1265,7 @@ std::string Areas<>::toJSON() const {
     The output stream to write to
 
   @param areas
-    The Areas to write to the output stream
+    The Areas<> object to write to the output stream
 
   @return
     Reference to the output stream
@@ -1284,7 +1276,7 @@ std::string Areas<>::toJSON() const {
 */
 std::ostream &operator<<(std::ostream &os, const Areas<> &areas) {
   for (auto area = areas.cbegin(); area != areas.cend(); area++) {
-    os << area->second << std::endl;
+    os << area->second;
   }
 
   return os;
