@@ -14,193 +14,191 @@
 
 #include "../libs/catch2/catch.hpp"
 
-#include <fstream>
-#include <unordered_set>
+#include <string>
 
-#include "../datasets.h"
 #include "../src/areas.h"
+#include "../src/area.h"
+#include "../src/measure.h"
 
-SCENARIO( "areas.csv can be correctly parsed", "[Areas<>][authorityCodeCSV]" ) {
+SCENARIO( "an Areas instance can be constructed", "[Areas][construct]" ) {
 
-  auto get_istream = [](const std::string &path) {
-    return std::ifstream(path);
-  };
+  REQUIRE_NOTHROW( Areas() );
 
-  GIVEN( "a newly constructed Areas<> instance" ) {
+} // SCENARIO
 
-      Areas<> areas = Areas<>();
+SCENARIO( "an Areas instance can contain Area instances", "[Areas][contain]" ) {
 
-    AND_GIVEN( "a valid areas.csv file as an open std::istream" ) {
+  GIVEN( "a newly constructed Areas" ) {
 
-      const std::string test_file = "datasets/areas.csv";
-      auto stream                 = get_istream(test_file);
+    Areas areas;
 
-      REQUIRE( stream.is_open() );
+    THEN( "the Areas instance has size 0" ) {
 
-      AND_GIVEN( "an empty areasFilter" ) {
+      REQUIRE_NOTHROW( areas.size() == 0 );
 
-        std::unordered_set<std::string> areasFilter(0);
-
-        THEN( "the Areas<> instance will be populated without exception" ) {
-
-          REQUIRE_NOTHROW( areas.populateFromAuthorityCodeCSV(stream, BethYw::InputFiles::AREAS.COLS, &areasFilter) );
-
-          AND_THEN( "the Areas<> instance has size 22" ) {
-
-            REQUIRE( areas.size() == 22 );
-
-          } // AND_THEN
-
-          AND_THEN( "each area has been imported with the correct local authority code as an Area instance (mixed)" ) {
-
-            REQUIRE_NOTHROW( areas.getArea("W06000001") );
-            REQUIRE_NOTHROW( areas.getArea("W06000002") );
-            REQUIRE_NOTHROW( areas.getArea("W06000003") );
-            REQUIRE_NOTHROW( areas.getArea("W06000004") );
-            REQUIRE_NOTHROW( areas.getArea("W06000005") );
-            REQUIRE_NOTHROW( areas.getArea("W06000006") );
-            REQUIRE_NOTHROW( areas.getArea("W06000008") );
-            REQUIRE_NOTHROW( areas.getArea("W06000009") );
-            REQUIRE_NOTHROW( areas.getArea("W06000010") );
-            REQUIRE_NOTHROW( areas.getArea("W06000011") );
-            REQUIRE_NOTHROW( areas.getArea("W06000012") );
-            REQUIRE_NOTHROW( areas.getArea("W06000013") );
-            REQUIRE_NOTHROW( areas.getArea("W06000014") );
-            REQUIRE_NOTHROW( areas.getArea("W06000015") );
-            REQUIRE_NOTHROW( areas.getArea("W06000016") );
-            REQUIRE_NOTHROW( areas.getArea("W06000018") );
-            REQUIRE_NOTHROW( areas.getArea("W06000019") );
-            REQUIRE_NOTHROW( areas.getArea("W06000020") );
-            REQUIRE_NOTHROW( areas.getArea("W06000021") );
-            REQUIRE_NOTHROW( areas.getArea("W06000022") );
-            REQUIRE_NOTHROW( areas.getArea("W06000023") );
-            REQUIRE_NOTHROW( areas.getArea("W06000024") );
-
-            REQUIRE_NOTHROW( dynamic_cast<Area&> (areas.getArea("W06000001")) );
-            REQUIRE_NOTHROW( dynamic_cast<Area&> (areas.getArea("W06000002")) );
-            REQUIRE_NOTHROW( dynamic_cast<Area&> (areas.getArea("W06000003")) );
-            REQUIRE_NOTHROW( dynamic_cast<Area&> (areas.getArea("W06000004")) );
-            REQUIRE_NOTHROW( dynamic_cast<Area&> (areas.getArea("W06000005")) );
-            REQUIRE_NOTHROW( dynamic_cast<Area&> (areas.getArea("W06000006")) );
-            REQUIRE_NOTHROW( dynamic_cast<Area&> (areas.getArea("W06000008")) );
-            REQUIRE_NOTHROW( dynamic_cast<Area&> (areas.getArea("W06000009")) );
-            REQUIRE_NOTHROW( dynamic_cast<Area&> (areas.getArea("W06000010")) );
-            REQUIRE_NOTHROW( dynamic_cast<Area&> (areas.getArea("W06000011")) );
-            REQUIRE_NOTHROW( dynamic_cast<Area&> (areas.getArea("W06000012")) );
-            REQUIRE_NOTHROW( dynamic_cast<Area&> (areas.getArea("W06000013")) );
-            REQUIRE_NOTHROW( dynamic_cast<Area&> (areas.getArea("W06000014")) );
-            REQUIRE_NOTHROW( dynamic_cast<Area&> (areas.getArea("W06000015")) );
-            REQUIRE_NOTHROW( dynamic_cast<Area&> (areas.getArea("W06000016")) );
-            REQUIRE_NOTHROW( dynamic_cast<Area&> (areas.getArea("W06000018")) );
-            REQUIRE_NOTHROW( dynamic_cast<Area&> (areas.getArea("W06000019")) );
-            REQUIRE_NOTHROW( dynamic_cast<Area&> (areas.getArea("W06000020")) );
-            REQUIRE_NOTHROW( dynamic_cast<Area&> (areas.getArea("W06000021")) );
-            REQUIRE_NOTHROW( dynamic_cast<Area&> (areas.getArea("W06000022")) );
-            REQUIRE_NOTHROW( dynamic_cast<Area&> (areas.getArea("W06000023")) );
-            REQUIRE_NOTHROW( dynamic_cast<Area&> (areas.getArea("W06000024")) );
-
-          } // AND_THEN
-
-          AND_THEN( "each area has been correctly imported with the correct names (mixed)" ) {
-
-            REQUIRE( areas.getArea("W06000001").getName("eng") == "Isle of Anglesey" );
-            REQUIRE( areas.getArea("W06000001").getName("cym") == "Ynys Môn" );
-
-            REQUIRE( areas.getArea("W06000002").getName("eng") == "Gwynedd" );
-            REQUIRE( areas.getArea("W06000002").getName("cym") == "Gwynedd" );
-
-            REQUIRE( areas.getArea("W06000003").getName("eng") == "Conwy" );
-            REQUIRE( areas.getArea("W06000003").getName("cym") == "Conwy" );
-
-            REQUIRE( areas.getArea("W06000004").getName("eng") == "Denbighshire" );
-            REQUIRE( areas.getArea("W06000004").getName("cym") == "Sir Ddinbych" );
-
-            REQUIRE( areas.getArea("W06000005").getName("eng") == "Flintshire" );
-            REQUIRE( areas.getArea("W06000005").getName("cym") == "Sir y Fflint" );
-
-            REQUIRE( areas.getArea("W06000006").getName("eng") == "Wrexham" );
-            REQUIRE( areas.getArea("W06000006").getName("cym") == "Wrecsam" );
-
-            REQUIRE( areas.getArea("W06000008").getName("eng") == "Ceredigion" );
-            REQUIRE( areas.getArea("W06000008").getName("cym") == "Ceredigion" );
-
-            REQUIRE( areas.getArea("W06000009").getName("eng") == "Pembrokeshire" );
-            REQUIRE( areas.getArea("W06000009").getName("cym") == "Sir Benfro" );
-
-            REQUIRE( areas.getArea("W06000010").getName("eng") == "Carmarthenshire" );
-            REQUIRE( areas.getArea("W06000010").getName("cym") == "Sir Gaerfyrddin" );
-
-            REQUIRE( areas.getArea("W06000011").getName("eng") == "Swansea" );
-            REQUIRE( areas.getArea("W06000011").getName("cym") == "Abertawe" );
-
-            REQUIRE( areas.getArea("W06000012").getName("eng") == "Neath Port Talbot" );
-            REQUIRE( areas.getArea("W06000012").getName("cym") == "Castell-nedd Port Talbot" );
-
-            REQUIRE( areas.getArea("W06000013").getName("eng") == "Bridgend" );
-            REQUIRE( areas.getArea("W06000013").getName("cym") == "Pen-y-bont ar Ogwr" );
-
-            REQUIRE( areas.getArea("W06000014").getName("eng") == "Vale of Glamorgan" );
-            REQUIRE( areas.getArea("W06000014").getName("cym") == "Bro Morgannwg" );
-
-            REQUIRE( areas.getArea("W06000015").getName("eng") == "Cardiff" );
-            REQUIRE( areas.getArea("W06000015").getName("cym") == "Caerdydd" );
-
-            REQUIRE( areas.getArea("W06000016").getName("eng") == "Rhondda Cynon Taf" );
-            REQUIRE( areas.getArea("W06000016").getName("cym") == "Rhondda Cynon Taf" );
-
-            REQUIRE( areas.getArea("W06000018").getName("eng") == "Caerphilly" );
-            REQUIRE( areas.getArea("W06000018").getName("cym") == "Caerffili" );
-
-            REQUIRE( areas.getArea("W06000019").getName("eng") == "Blaenau Gwent" );
-            REQUIRE( areas.getArea("W06000019").getName("cym") == "Blaenau Gwent" );
-
-            REQUIRE( areas.getArea("W06000020").getName("eng") == "Torfaen" );
-            REQUIRE( areas.getArea("W06000020").getName("cym") == "Torfaen" );
-
-            REQUIRE( areas.getArea("W06000021").getName("eng") == "Monmouthshire" );
-            REQUIRE( areas.getArea("W06000021").getName("cym") == "Sir Fynwy" );
-
-            REQUIRE( areas.getArea("W06000022").getName("eng") == "Newport" );
-            REQUIRE( areas.getArea("W06000022").getName("cym") == "Casnewydd" );
-
-            REQUIRE( areas.getArea("W06000023").getName("eng") == "Powys" );
-            REQUIRE( areas.getArea("W06000023").getName("cym") == "Powys" );
-
-            REQUIRE( areas.getArea("W06000024").getName("eng") == "Merthyr Tydfil" );
-            REQUIRE( areas.getArea("W06000024").getName("cym") == "Merthyr Tudful" );
-
-          } // AND_THEN
-
-          const std::string exceptionMessage = "No area found matching junk";
-          AND_THEN( "attempting to retrieve an Area with an unexpected local authority code ('junk') throws a std::out_of_range error with exception message '" + exceptionMessage +"'" ) {
-
-            REQUIRE_THROWS_AS( areas.getArea("junk"), std::out_of_range );
-            REQUIRE_THROWS_WITH( areas.getArea("junk"), exceptionMessage );
-
-          } // AND_THEN
-
-        } // THEN
-
-      } // AND_GIVEN
-
-      AND_GIVEN( "a nullptr for an areasFilter" ) {
-
-        THEN( "the Areas<> instance will be populated without exception" ) {
-
-          REQUIRE_NOTHROW( areas.populateFromAuthorityCodeCSV(stream, BethYw::InputFiles::AREAS.COLS, nullptr) );
-
-          AND_THEN( "the Areas<> instance has size 22" ) {
-
-            REQUIRE( areas.size() == 22 );
-
-          } // AND_THEN
-          
-        } // THEN  
+    } // THEN
+    
+    AND_GIVEN( "a newly constructed Area instance ('W06000011')" ) {
       
-      } // AND_GIVEN
+      std::string localAuthorityCode = "W06000011";
+      Area area(localAuthorityCode);
+      
+      THEN( "the Area instance can be emplaced in the Areas instance without exception" ) {
 
+        REQUIRE_NOTHROW( areas.setArea(localAuthorityCode, area) );
+
+        AND_THEN( "the Areas instance has size 1" ) {
+
+          REQUIRE_NOTHROW( areas.size() == 1 );
+
+        } // AND_THEN
+
+        AND_THEN( "the Area instance can be retrieved using the local authority code" ) {
+
+          Area &newArea = areas.getArea(localAuthorityCode);
+          REQUIRE( area == newArea );
+
+        } // AND_THEN
+
+      } // THEN
+    
+    } // AND_GIVEN
+    
+    AND_GIVEN( "two newly constructed Area instances with different local authority codes ('W06000011' and 'W06000012') " ) {
+      
+      std::string localAuthorityCode1 = "W06000011";
+      std::string localAuthorityCode2 = "W06000012";
+
+      Area area1(localAuthorityCode1);
+      Area area2(localAuthorityCode2);
+      
+      THEN( "the Area instancse can be emplaced in the Areas instance without exception" ) {
+
+        REQUIRE_NOTHROW( areas.setArea(localAuthorityCode1, area1) );
+        REQUIRE_NOTHROW( areas.setArea(localAuthorityCode2, area2) );
+
+        AND_THEN( "the Areas instance has size 2" ) {
+
+          REQUIRE_NOTHROW( areas.size() == 2 );
+
+        } // AND_THEN
+
+        AND_THEN( "the Area instances can be retrieved using the local authority code" ) {
+
+          Area &newArea1 = areas.getArea(localAuthorityCode1);
+          Area &newArea2 = areas.getArea(localAuthorityCode2);
+          
+          REQUIRE( area1 == newArea1 );
+          REQUIRE( area2 == newArea2 );
+
+        } // AND_THEN
+
+      } // THEN
+    
+    } // AND_GIVEN
+    
+    AND_GIVEN( "two newly constructed Area instances with the same local authority codes ('W06000011') " ) {
+      
+      std::string localAuthorityCode = "W06000011";
+
+      Area area1(localAuthorityCode);
+      Area area2(localAuthorityCode);
+      
+      THEN( "the Area instances can be emplaced in the Areas instance without exception" ) {
+
+        REQUIRE_NOTHROW( areas.setArea(localAuthorityCode, area1) );
+        REQUIRE_NOTHROW( areas.setArea(localAuthorityCode, area2) );
+
+        AND_THEN( "the Areas instance has size 1" ) {
+
+          REQUIRE_NOTHROW( areas.size() == 1 );
+
+        } // AND_THEN
+
+      } // THEN
+    
+    } // AND_GIVEN
+    
+    AND_GIVEN( "two newly constructed Area instances with the same local authority codes ('W06000011') but different sets of names" ) {
+      
+      std::string localAuthorityCode = "W06000011";
+      std::string name1 = "Original name (should be replaced)";
+      std::string name2 = "Original name (should persist)";
+      std::string name3 = "New name (should have replaced an original name)";
+
+      Area area1(localAuthorityCode);
+      Area area2(localAuthorityCode);
+      Area areaCombined(localAuthorityCode);
+      
+      area1.setName("eng", name1);
+      area1.setName("cym", name2);
+      
+      area2.setName("eng", name3);
+      area2.setName("tes", name2);
+      
+      areaCombined.setName("eng", name3);
+      areaCombined.setName("cym", name2);
+      areaCombined.setName("tes", name2);
+      
+      THEN( "the Area instances can be emplaced in the Areas instance without exception" ) {
+
+        REQUIRE_NOTHROW( areas.setArea(localAuthorityCode, area1) );
+        REQUIRE_NOTHROW( areas.setArea(localAuthorityCode, area2) );
+
+        AND_THEN( "the Areas instance has size 1" ) {
+
+          REQUIRE_NOTHROW( areas.size() == 1 );
+
+        } // AND_THEN
+
+        AND_THEN( "the names of the second Area instances will overwrite the first" ) {
+
+          Area &newArea = areas.getArea(localAuthorityCode);
+          
+          REQUIRE( newArea == areaCombined );
+
+        } // AND_THEN
+
+      } // THEN
+    
+    } // AND_GIVEN
+    
+    AND_GIVEN( "two newly constructed Area instances with the same local authority codes ('W06000011') but overlapping Measures" ) {
+      
+      std::string localAuthorityCode = "W06000011";
+      Area area1(localAuthorityCode);
+      Area area2(localAuthorityCode);
+      Area areaCombined(localAuthorityCode);
+
+      const std::string codename1 = "pop";
+      const std::string label1 = "Population";
+      Measure measure1(codename1, label1);
+      
+      const std::string codename2 = "dens";
+      const std::string label2 = "Population density";
+      Measure measure2(codename2, label2);
+      
+      area1.setMeasure(codename1, measure1);
+      area2.setMeasure(codename2, measure2);
+      
+      areaCombined.setMeasure(codename1, measure1);
+      areaCombined.setMeasure(codename2, measure2);
+      
+      THEN( "the Area instances can be emplaced in the Areas instance without exception" ) {
+
+        REQUIRE_NOTHROW( areas.setArea(localAuthorityCode, area1) );
+        REQUIRE_NOTHROW( areas.setArea(localAuthorityCode, area2) );
+
+        AND_THEN( "the Areas instance has size 1" ) {
+
+          REQUIRE_NOTHROW( areas.size() == 1 );
+
+        } // AND_THEN
+
+      } // THEN
+    
     } // AND_GIVEN
 
-  } // GIVEN
+  } // THEN
 
 } // SCENARIO

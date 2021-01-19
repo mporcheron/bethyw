@@ -8,10 +8,10 @@
 
   AUTHOR: Dr Martin Porcheron
 
-  The file's contains the Areas<> class implementation. Areas<> are the top
+  The file's contains the Areas class implementation. Areas are the top
   level of the data structure in Beth Yw?:
 
-  Areas<> is also responsible for importing data from a stream (using the
+  Areas is also responsible for importing data from a stream (using the
   various populate() functions) and creating the Area and Measure objects.
 
   This file contains numerous functions you must implement. Each function you
@@ -40,23 +40,17 @@
 using json = nlohmann::json;
 
 /*
-  TODO: Areas<>::Areas()
+  TODO: Areas::Areas()
 
-  Constructor for an Areas<> object.
-
-  Hint: because we have templated Areas, you have to include:
-    template <> (with a space after it)
-  before name of the class in the header here. For each function you wish to 
-  implement in Areas, you will have to do this.
+  Constructor for an Areas object.
 
   @example
-    Areas<> data = Areas<>();
+    Areas data = Areas();
 */
-template <>
-Areas<>::Areas() : mAreasByCode(), mAreasByName() {}
+Areas::Areas() : mAreasByCode(), mAreasByName() {}
 
 /*
-  TODO: Areas<>::setArea(key, value)
+  TODO: Areas::setArea(key, value)
 
   Add a particular area to the Areas object.
 
@@ -67,12 +61,11 @@ Areas<>::Areas() : mAreasByCode(), mAreasByName() {}
     The Area object that will contain the measures
 
   @example
-    Areas<> data = Areas<>();
+    Areas data = Areas();
     Area area("W06000023");
     data.setArea("W06000023", area);
 */
-template<>
-void Areas<>::setArea(std::string &key, Area &value) {
+void Areas::setArea(std::string &key, Area &value) {
   auto existingIt = mAreasByCode.find(key);
   if (existingIt != mAreasByCode.end()) {
     Area &existingArea = existingIt->second;
@@ -93,7 +86,7 @@ void Areas<>::setArea(std::string &key, Area &value) {
 }
 
 /*
-  TODO: Areas<>::setArea(key, value)
+  TODO: Areas::setArea(key, value)
 
   Add a particular area to the Areas object.
 
@@ -107,12 +100,11 @@ void Areas<>::setArea(std::string &key, Area &value) {
     The Area object that will contain the measures
 
   @example
-    Areas<> data = Areas<>();
+    Areas data = Areas();
     Area area("W06000023");
     areas.setArea("W06000023", std::move(area));
 */
-template<>
-void Areas<>::setArea(std::string &key, Area &&value) {
+void Areas::setArea(std::string &key, Area &&value) {
   auto existingIt = mAreasByCode.find(key);
   if (existingIt != mAreasByCode.end()) {
     Area &existingArea = existingIt->second;
@@ -133,7 +125,7 @@ void Areas<>::setArea(std::string &key, Area &&value) {
 }
 
 /*
-  TODO: Areas<>::getArea(key)
+  TODO: Areas::getArea(key)
 
   Retrieve an Area instance for a local authority code or by name
 
@@ -151,14 +143,13 @@ void Areas<>::setArea(std::string &key, Area &&value) {
     std::out_of_range if year does not exist in Areas
 
   @example
-    Areas<> data = Areas<>();
+    Areas data = Areas();
     Area area("W06000023");
     areas.setArea("W06000023", area);
     ...
     Area area2 = areas.getArea("W06000023");
 */
-template<>
-Area &Areas<>::getArea(const std::string &key) {
+Area &Areas::getArea(const std::string &key) {
   // mAreasByCode.at(key);
   try {
     return mAreasByCode.at(key);
@@ -188,8 +179,7 @@ Area &Areas<>::getArea(const std::string &key) {
   @returns
     Number of occurences
 */
-template<>
-size_t Areas<>::wildcardCountSet(
+size_t Areas::wildcardCountSet(
     const std::unordered_set<std::string> &needles,
     const std::string &haystack) const {
   // count exact matches first
@@ -233,8 +223,7 @@ size_t Areas<>::wildcardCountSet(
   @return
     True if the area should be excluded, false otherwise
 */
-template <>
-bool Areas<>::isLocalAuthorityFiltered(
+bool Areas::isLocalAuthorityFiltered(
     const std::unordered_set<std::string> &areasFilter,
     const std::string localAuthorityCode)
     noexcept {
@@ -274,7 +263,7 @@ bool Areas<>::isLocalAuthorityFiltered(
 }
 
 /*
-  TODO: Areas<>::size()
+  TODO: Areas::size()
 
   Retrieve the number of areas within the container This function should not
   modify the object or throw an exception.
@@ -283,18 +272,17 @@ bool Areas<>::isLocalAuthorityFiltered(
     The number of Areas
 
   @example
-    Areas<> data = Areas<>();
+    Areas data = Areas();
     Area area("W06000023");
     areas.setArea("W06000023", area);
     auto size = areas.size(); // returns 1
 */
-template<>
-size_t Areas<>::size() const noexcept {
+size_t Areas::size() const noexcept {
   return mAreasByCode.size();
 }
 
 /*
-  TODO: Areas<>::populateFromAuthorityCodeCSV(is, cols, areasFilter)
+  TODO: Areas::populateFromAuthorityCodeCSV(is, cols, areasFilter)
 
   This function specifically parses the compiled areas.csv file of local 
   authority codes, and their names in English and Welsh.
@@ -334,15 +322,14 @@ size_t Areas<>::size() const noexcept {
 
     auto areasFilter = BethYw::parseAreasArg();
 
-    Areas<> data = Areas<>();
+    Areas data = Areas();
     areas.populateFromAuthorityCodeCSV(is, cols, &areasFilter);
 
   @throws 
     std::runtime_error if a parsing error occurs (e.g. due to a malformed file)
     std::out_of_range if there are not enough columns in cols
 */
-template <>
-void Areas<>::populateFromAuthorityCodeCSV(
+void Areas::populateFromAuthorityCodeCSV(
     std::istream &is,
     const BethYw::SourceColumnMapping &cols,
     const std::unordered_set<std::string> * const areasFilter) noexcept(false) {
@@ -402,7 +389,7 @@ void Areas<>::populateFromAuthorityCodeCSV(
 }
 
 /*
-  TODO: Areas<>::populateFromWelshStatsJSON(is,
+  TODO: Areas::populateFromWelshStatsJSON(is,
                                             cols,
                                             areasFilter,
                                             measuresFilter,
@@ -497,7 +484,7 @@ void Areas<>::populateFromAuthorityCodeCSV(
     auto measuresFilter = BethYw::parseMeasuresArg();
     auto yearsFilter = BethYw::parseMeasuresArg();
 
-    Areas<> data = Areas<>();
+    Areas data = Areas();
     areas.populateFromWelshStatsJSON(
       is,
       cols,
@@ -505,8 +492,7 @@ void Areas<>::populateFromAuthorityCodeCSV(
       &measuresFilter,
       &yearsFilter);
 */
-template <>
-void Areas<>::populateFromWelshStatsJSON(
+void Areas::populateFromWelshStatsJSON(
     std::istream &is,
     const BethYw::SourceColumnMapping &cols,
     const std::unordered_set<std::string> *const areasFilter,
@@ -680,7 +666,7 @@ void Areas<>::populateFromWelshStatsJSON(
 
 
 /*
-  TODO: Areas<>::populateFromAuthorityByYearCSV(is, cols, areasFilter, yearFilter)
+  TODO: Areas::populateFromAuthorityByYearCSV(is, cols, areasFilter, yearFilter)
 
   This function imports CSV files that consist of columns containing the
   authority code followed by years. Each row is an authority code, and then 
@@ -722,15 +708,14 @@ void Areas<>::populateFromWelshStatsJSON(
     auto areasFilter = BethYw::parseAreasArg();
     auto yearsFilter = BethYw::parseYearsArg();
 
-    Areas<> data = Areas<>();
+    Areas data = Areas();
     areas.populateFromAuthorityCodeCSV(is, cols, &areasFilter, &yearsFilter);
 
   @throws 
     std::runtime_error if a parsing error occurs (e.g. due to a malformed file)
     std::out_of_range if there are not enough columns in cols
 */
-template <>
-void Areas<>::populateFromAuthorityByYearCSV(
+void Areas::populateFromAuthorityByYearCSV(
     std::istream &is,
     const BethYw::SourceColumnMapping &cols,
     const std::unordered_set<std::string> * const areasFilter,
@@ -879,7 +864,7 @@ void Areas<>::populateFromAuthorityByYearCSV(
       }
     }
   } catch (std::exception &ex) {
-    const std::string err = "Areas<>::populateFromAuthorityByYearCSV: "
+    const std::string err = "Areas::populateFromAuthorityByYearCSV: "
                             "Error on or near line " +
                             std::to_string(lineNo);
     throw std::runtime_error(err);
@@ -887,7 +872,7 @@ void Areas<>::populateFromAuthorityByYearCSV(
 }
 
 /*
-  TODO: Areas<>::populate(is, type, cols)
+  TODO: Areas::populate(is, type, cols)
 
   Parse data from an standard input stream, that is of a particular type,
   and with a given column mapping, filtering for specific area authority codes,
@@ -931,14 +916,13 @@ void Areas<>::populateFromAuthorityByYearCSV(
 
     auto cols = InputFiles::DATASETS["popden"].COLS;
 
-    Areas<> data = Areas<>();
+    Areas data = Areas();
     areas.populate(
       is,
       BethYw::SourceDataType::WelshStatsJSON,
       cols);
 */
-template <>
-void Areas<>::populate(std::istream &is,
+void Areas::populate(std::istream &is,
                        const BethYw::SourceDataType &type,
                        const BethYw::SourceColumnMapping &cols)
                        noexcept(false) {
@@ -962,7 +946,7 @@ void Areas<>::populate(std::istream &is,
 }
 
 /*
-  TODO: Areas<>::populate(
+  TODO: Areas::populate(
     is,
     type,
     cols,
@@ -1032,7 +1016,7 @@ void Areas<>::populate(std::istream &is,
     auto measuresFilter = BethYw::parseMeasuresArg();
     auto yearsFilter = BethYw::parseMeasuresArg();
 
-    Areas<> data = Areas<>();
+    Areas data = Areas();
     areas.populate(
       is,
       BethYw::SourceDataType::WelshStatsJSON,
@@ -1041,8 +1025,7 @@ void Areas<>::populate(std::istream &is,
       &measuresFilter,
       &yearsFilter);
 */
-template <>
-void Areas<>::populate(
+void Areas::populate(
     std::istream &is,
     const BethYw::SourceDataType &type,
     const BethYw::SourceColumnMapping &cols,
@@ -1077,9 +1060,9 @@ void Areas<>::populate(
 }
 
 /*
-  TODO: Areas<>::toJSON()
+  TODO: Areas::toJSON()
 
-  Convert this Areas<> object, and all its containing Area instances, and
+  Convert this Areas object, and all its containing Area instances, and
   the Measure instances within those all to values.
 
   Use the sample JSON library as above to create this. Construct a blank
@@ -1130,8 +1113,7 @@ void Areas<>::populate(
   @return
     std::string of JSON
 */
-template<>
-std::string Areas<>::toJSON() const {
+std::string Areas::toJSON() const {
   json j;
 
   for (auto areaIt = cbegin(); areaIt != cend(); areaIt++) {
@@ -1265,16 +1247,16 @@ std::string Areas<>::toJSON() const {
     The output stream to write to
 
   @param areas
-    The Areas<> object to write to the output stream
+    The Areas object to write to the output stream
 
   @return
     Reference to the output stream
 
   @example
-    Areas<> areas();
+    Areas areas();
     std::cout << areas << std::end;
 */
-std::ostream &operator<<(std::ostream &os, const Areas<> &areas) {
+std::ostream &operator<<(std::ostream &os, const Areas &areas) {
   for (auto area = areas.cbegin(); area != areas.cend(); area++) {
     os << area->second;
   }

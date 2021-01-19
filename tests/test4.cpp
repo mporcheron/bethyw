@@ -22,7 +22,7 @@
 
 #include "../src/bethyw.h"
 
-SCENARIO( "the year program argument can be parsed correctly", "[args][years]" ) {
+SCENARIO( "the years program argument can be parsed correctly", "[args][years]" ) {
 
   GIVEN( "a --years argument with a value" ) {
 

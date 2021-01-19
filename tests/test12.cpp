@@ -20,15 +20,15 @@
 #include "../datasets.h"
 #include "../src/areas.h"
 
-SCENARIO( "popu1009.json can be correctly parsed", "[Areas<>][popu1009]" ) {
+SCENARIO( "popu1009.json can be correctly parsed", "[Areas][popu1009]" ) {
 
   auto get_istream = [](const std::string &path) {
     return std::ifstream(path);
   };
 
-  GIVEN( "a newly constructed Areas<> instance" ) {
+  GIVEN( "a newly constructed Areas instance" ) {
 
-    Areas<> areas = Areas<>();
+    Areas areas = Areas();
 
     AND_GIVEN( "a valid popu1009.json file as an open std::istream" ) {
 
@@ -43,17 +43,17 @@ SCENARIO( "popu1009.json can be correctly parsed", "[Areas<>][popu1009]" ) {
         std::unordered_set<std::string> measuresFilter(0);
         std::tuple<unsigned int, unsigned int> yearsFilter = std::make_tuple(0,0);
 
-        THEN( "the Areas<> instance will be populated without exception" ) {
+        THEN( "the Areas instance will be populated without exception" ) {
 
           REQUIRE_NOTHROW( areas.populateFromWelshStatsJSON(stream, BethYw::InputFiles::DATASETS[0].COLS, &areasFilter, &measuresFilter, &yearsFilter) );
 
-          AND_THEN( "the Areas<> instance has size 12" ) {
+          AND_THEN( "the Areas instance has size 12" ) {
 
             REQUIRE( areas.size() == 12 );
 
           } // AND_THEN
 
-          AND_THEN( "each Area in the Areas<> instance has correct size (3)" ) {
+          AND_THEN( "each Area in the Areas instance has correct size (3)" ) {
 
             REQUIRE( areas.getArea("W06000001").size() == 3 );
             REQUIRE( areas.getArea("W06000002").size() == 3 );
@@ -70,7 +70,7 @@ SCENARIO( "popu1009.json can be correctly parsed", "[Areas<>][popu1009]" ) {
 
           } // AND_THEN
 
-          AND_THEN( "each Measure in each Area in the Areas<> instance has correct size (mixed)" ) {
+          AND_THEN( "each Measure in each Area in the Areas instance has correct size (mixed)" ) {
 
             REQUIRE( areas.getArea("W06000001").getMeasure("area").size() == 29 );
             REQUIRE( areas.getArea("W06000002").getMeasure("area").size() == 29 );
@@ -113,7 +113,7 @@ SCENARIO( "popu1009.json can be correctly parsed", "[Areas<>][popu1009]" ) {
 
           } // AND_THEN
 
-          AND_THEN( "each year in each Measure in each Area in the Areas<> instance has the correct value" ) {
+          AND_THEN( "each year in each Measure in each Area in the Areas instance has the correct value" ) {
 
             REQUIRE( areas.getArea("W06000001").getMeasure("area").getValue(1991) == 711.6801 );
             REQUIRE( areas.getArea("W06000001").getMeasure("area").getValue(1992) == 711.6801 );
@@ -1164,17 +1164,17 @@ SCENARIO( "popu1009.json can be correctly parsed", "[Areas<>][popu1009]" ) {
         std::unordered_set<std::string> measuresFilter(0);
         std::tuple<unsigned int, unsigned int> yearsFilter = std::make_tuple(0,0);
 
-        THEN( "the Areas<> instance will be populated without exception" ) {
+        THEN( "the Areas instance will be populated without exception" ) {
 
           REQUIRE_NOTHROW( areas.populateFromWelshStatsJSON(stream, BethYw::InputFiles::DATASETS[0].COLS, &areasFilter, &measuresFilter, &yearsFilter) );
 
-          AND_THEN( "the Areas<> instance has size 1" ) {
+          AND_THEN( "the Areas instance has size 1" ) {
 
             REQUIRE( areas.size() == 1 );
 
           } // AND_THEN
 
-          AND_THEN( "each imported Area in the Areas<> instance has correct size (3)" ) {
+          AND_THEN( "each imported Area in the Areas instance has correct size (3)" ) {
 
             REQUIRE( areas.getArea("W06000001").size() == 3 );
 
@@ -1189,7 +1189,7 @@ SCENARIO( "popu1009.json can be correctly parsed", "[Areas<>][popu1009]" ) {
 
           } // AND_THEN
 
-          AND_THEN( "each Measure in each imported Area in the Areas<> instance has correct size (29)" ) {
+          AND_THEN( "each Measure in each imported Area in the Areas instance has correct size (29)" ) {
 
             REQUIRE( areas.getArea("W06000001").getMeasure("area").size() == 29 );
             REQUIRE( areas.getArea("W06000001").getMeasure("dens").size() == 29 );
@@ -1197,7 +1197,7 @@ SCENARIO( "popu1009.json can be correctly parsed", "[Areas<>][popu1009]" ) {
 
           } // AND_THEN
 
-          AND_THEN( "each year in each Measure in each Area in the Areas<> instance has the correct value" ) {
+          AND_THEN( "each year in each Measure in each Area in the Areas instance has the correct value" ) {
 
             REQUIRE( areas.getArea("W06000001").getMeasure("area").getValue(1991) == 711.6801 );
             REQUIRE( areas.getArea("W06000001").getMeasure("area").getValue(1992) == 711.6801 );
@@ -1303,17 +1303,17 @@ SCENARIO( "popu1009.json can be correctly parsed", "[Areas<>][popu1009]" ) {
         measuresFilter.emplace("pop");
         std::tuple<unsigned int, unsigned int> yearsFilter = std::make_tuple(0,0);
 
-        THEN( "the Areas<> instance will be populated without exception" ) {
+        THEN( "the Areas instance will be populated without exception" ) {
 
           REQUIRE_NOTHROW( areas.populateFromWelshStatsJSON(stream, BethYw::InputFiles::DATASETS[0].COLS, &areasFilter, &measuresFilter, &yearsFilter) );
 
-          AND_THEN( "the Areas<> instance has size 1" ) {
+          AND_THEN( "the Areas instance has size 1" ) {
 
             REQUIRE( areas.size() == 1 );
 
           } // AND_THEN
 
-          AND_THEN( "each imported Area in the Areas<> instance has correct size (1)" ) {
+          AND_THEN( "each imported Area in the Areas instance has correct size (1)" ) {
 
             REQUIRE( areas.getArea("W06000001").size() == 1 );
 
@@ -1335,13 +1335,13 @@ SCENARIO( "popu1009.json can be correctly parsed", "[Areas<>][popu1009]" ) {
 
           } // AND_THEN
 
-          AND_THEN( "each Measure in each imported Area in the Areas<> instance has correct size (29)" ) {
+          AND_THEN( "each Measure in each imported Area in the Areas instance has correct size (29)" ) {
 
             REQUIRE( areas.getArea("W06000001").getMeasure("pop").size() == 29 );
 
           } // AND_THEN
 
-          AND_THEN( "each year in each Measure in each Area in the Areas<> instance has the correct value" ) {
+          AND_THEN( "each year in each Measure in each Area in the Areas instance has the correct value" ) {
 
             REQUIRE( areas.getArea("W06000001").getMeasure("pop").getValue(1991) == 69123.0 );
             REQUIRE( areas.getArea("W06000001").getMeasure("pop").getValue(1992) == 69379.0 );
@@ -1387,17 +1387,17 @@ SCENARIO( "popu1009.json can be correctly parsed", "[Areas<>][popu1009]" ) {
         measuresFilter.emplace("pop");
         std::tuple<unsigned int, unsigned int> yearsFilter = std::make_tuple(1991,1995);
 
-        THEN( "the Areas<> instance will be populated without exception" ) {
+        THEN( "the Areas instance will be populated without exception" ) {
 
           REQUIRE_NOTHROW( areas.populateFromWelshStatsJSON(stream, BethYw::InputFiles::DATASETS[0].COLS, &areasFilter, &measuresFilter, &yearsFilter) );
 
-          AND_THEN( "the Areas<> instance has size 1" ) {
+          AND_THEN( "the Areas instance has size 1" ) {
 
             REQUIRE( areas.size() == 1 );
 
           } // AND_THEN
 
-          AND_THEN( "each imported Area in the Areas<> instance has correct size (1)" ) {
+          AND_THEN( "each imported Area in the Areas instance has correct size (1)" ) {
 
             REQUIRE( areas.getArea("W06000001").size() == 1 );
 
@@ -1419,7 +1419,7 @@ SCENARIO( "popu1009.json can be correctly parsed", "[Areas<>][popu1009]" ) {
 
           } // AND_THEN
 
-          AND_THEN( "each Measure in each imported Area in the Areas<> instance has correct size (5)" ) {
+          AND_THEN( "each Measure in each imported Area in the Areas instance has correct size (5)" ) {
 
             REQUIRE( areas.getArea("W06000001").getMeasure("pop").size() == 5 );
 
@@ -1433,7 +1433,7 @@ SCENARIO( "popu1009.json can be correctly parsed", "[Areas<>][popu1009]" ) {
 
           } // AND_THEN
 
-          AND_THEN( "each year in each Measure in each Area in the Areas<> instance has the correct value" ) {
+          AND_THEN( "each year in each Measure in each Area in the Areas instance has the correct value" ) {
 
             REQUIRE( areas.getArea("W06000001").getMeasure("pop").getValue(1991) == 69123.0 );
             REQUIRE( areas.getArea("W06000001").getMeasure("pop").getValue(1992) == 69379.0 );

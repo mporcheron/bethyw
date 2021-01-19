@@ -20,11 +20,11 @@
 #include "../src/areas.h"
 #include "../src/area.h"
 
-SCENARIO( "an Areas<> instance can contain Area instances [extended]", "[Areas<>][contain][extended]" ) {
+SCENARIO( "an Areas instance can contain Area instances [extended]", "[Areas][contain][extended]" ) {
 
-  GIVEN( "a newly constructed Areas<>" ) {
+  GIVEN( "a newly constructed Areas" ) {
 
-    Areas<> areas;
+    Areas areas;
     
     AND_GIVEN( "two newly constructed Area instances with the same local authority codes ('W06000011') but overlapping Measures" ) {
       
@@ -47,7 +47,7 @@ SCENARIO( "an Areas<> instance can contain Area instances [extended]", "[Areas<>
       areaCombined.setMeasure(codename1, measure1);
       areaCombined.setMeasure(codename2, measure2);
       
-      THEN( "the Area instances can be emplaced in the Areas<> instance without exception" ) {
+      THEN( "the Area instances can be emplaced in the Areas instance without exception" ) {
 
         REQUIRE_NOTHROW( areas.setArea(localAuthorityCode, area1) );
         REQUIRE_NOTHROW( areas.setArea(localAuthorityCode, area2) );

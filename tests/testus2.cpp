@@ -39,7 +39,6 @@ SCENARIO( "a Measure object can be populated with values [extended]", "[Measure]
         REQUIRE_NOTHROW( measure.setValue(year1, value1) );
         REQUIRE_NOTHROW( measure.setValue(year2, value2) );
 
-
         AND_THEN( "the second value will have replaced the first value" ) {
 
           REQUIRE( measure.getValue(year2) == value2 );

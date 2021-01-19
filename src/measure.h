@@ -61,7 +61,7 @@ public:
   Measure(const Measure &other) = default;
   Measure &operator=(const Measure &other) = default;
   Measure(Measure &&other) = default;
-  Measure &operator=(Measure &&ither) = default;
+  Measure &operator=(Measure &&other) = default;
 
   // Measure(const Measure &other)
   //     : mCodename(other.mCodename), mLabel(other.mLabel), mData(other.mData) {

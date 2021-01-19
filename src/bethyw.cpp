@@ -70,7 +70,7 @@ int BethYw::run(int argc, char *argv[]) {
     auto measuresFilter   = BethYw::parseMeasuresArg(args);
     auto yearsFilter      = BethYw::parseYearsArg(args);
 
-    Areas<> data = Areas<>();
+    Areas data = Areas();
 
     BethYw::loadAreas(data, dir, areasFilter);
 
@@ -407,10 +407,7 @@ std::tuple<unsigned int, unsigned int> BethYw::parseYearsArg(
   Hint: to implement this function. First you will need create an InputFile 
   object with the filename of the areas file, open it, and then pass the file 
   to the Areas::populate() function.
-
-  Hint 2: because Areas is a templated class, you will have to refer to it as 
-  Areas<>.
-
+S
   @param areas
     An Areas instance that should be modified
 
@@ -421,11 +418,11 @@ std::tuple<unsigned int, unsigned int> BethYw::parseYearsArg(
     An unordered set of areas to filter, or empty to import all areas
 
   @example
-    Areas<> areas();
+    Areas areas();
 
     BethYw::loadAreas(areas, "data", BethYw::parseAreasArg());
 */
-void BethYw::loadAreas(Areas<> &areas,
+void BethYw::loadAreas(Areas &areas,
                        const std::string &dir,
                        std::unordered_set<std::string> &areasFilter) {
   const std::string fileAreas = dir + InputFiles::AREAS.FILE;
@@ -472,7 +469,7 @@ void BethYw::loadAreas(Areas<> &areas,
     to import, which should both be 0 to import all years.
 
   @example
-    Areas<> areas();
+    Areas areas();
 
     BethYw::loadDatasets(
       areas,
@@ -483,7 +480,7 @@ void BethYw::loadAreas(Areas<> &areas,
       BethYw::parseYearsArg());
 */
 void BethYw::loadDatasets(
-    Areas<> &areas,
+    Areas &areas,
     const std::string &dir,
     std::vector<InputFileSource> &datasetsToImport,
     std::unordered_set<std::string> &areasFilter,

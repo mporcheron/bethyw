@@ -89,7 +89,7 @@ std::tuple<unsigned int, unsigned int> parseYearsArg(
   create the appropriate Area objects inside an Areas object.
 */
 void loadAreas(
-    Areas<> &areas,
+    Areas &areas,
     const std::string &dir,
     std::unordered_set<std::string> &filter);
 
@@ -105,7 +105,7 @@ void loadAreas(
   tuple.
 */
 void loadDatasets(
-    Areas<> &cat,
+    Areas &cat,
     const std::string &dir,
     std::vector<InputFileSource> &datasetsToImport,
     std::unordered_set<std::string> &areasFilter,

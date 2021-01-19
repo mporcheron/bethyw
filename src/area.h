@@ -90,9 +90,6 @@ public:
   Measure &getMeasure(std::string ident);
   size_t size() const noexcept;
 
-  friend bool operator==(const Area &lhs, const Area &rhs);
-  friend bool operator!=(const Area &lhs, const Area &rhs);
-  friend bool operator<(const Area &lhs, const Area &rhs);
   friend std::ostream &operator<<(std::ostream &os, const Area &area);
   friend bool operator==(const Area &lhs, const Area &rhs);
   

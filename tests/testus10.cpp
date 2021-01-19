@@ -20,15 +20,15 @@
 #include "../datasets.h"
 #include "../src/areas.h"
 
-SCENARIO( "complete-popu1009-popden.csv can be correctly parsed", "[Areas<>][complete-popu1009-popden]" ) {
+SCENARIO( "complete-popu1009-popden.csv can be correctly parsed", "[Areas][complete-popu1009-popden]" ) {
 
   auto get_istream = [](const std::string &path) {
     return std::ifstream(path);
   };
 
-  GIVEN( "a newly constructed Areas<> instance" ) {
+  GIVEN( "a newly constructed Areas instance" ) {
 
-    Areas<> areas = Areas<>();
+    Areas areas = Areas();
 
     AND_GIVEN( "a valid complete-popu1009-popden.csv file as an open std::istream" ) {
 
@@ -37,17 +37,17 @@ SCENARIO( "complete-popu1009-popden.csv can be correctly parsed", "[Areas<>][com
 
       REQUIRE( stream.is_open() );
 
-      THEN( "the Areas<> instance will be populated without exception" ) {
+      THEN( "the Areas instance will be populated without exception" ) {
 
         REQUIRE_NOTHROW( areas.populateFromAuthorityByYearCSV(stream, BethYw::InputFiles::DATASETS[4].COLS, nullptr, nullptr) );
 
-        AND_THEN( "the Areas<> instance has size 22" ) {
+        AND_THEN( "the Areas instance has size 22" ) {
 
           REQUIRE( areas.size() == 22 );
 
         } // AND_THEN
 
-        AND_THEN( "each Area in the Areas<> instance has the correct size (1)" ) {
+        AND_THEN( "each Area in the Areas instance has the correct size (1)" ) {
 
           REQUIRE( areas.getArea("W06000001").size() == 1 );
           REQUIRE( areas.getArea("W06000002").size() == 1 );
@@ -74,7 +74,7 @@ SCENARIO( "complete-popu1009-popden.csv can be correctly parsed", "[Areas<>][com
 
         } // AND_THEN
 
-        AND_THEN( "each Measure in each Area in the Areas<> instance has the correct size (11)" ) {
+        AND_THEN( "each Measure in each Area in the Areas instance has the correct size (11)" ) {
 
           REQUIRE( areas.getArea("W06000001").getMeasure("dens").size() == 11 );
           REQUIRE( areas.getArea("W06000002").getMeasure("dens").size() == 11 );
@@ -101,7 +101,7 @@ SCENARIO( "complete-popu1009-popden.csv can be correctly parsed", "[Areas<>][com
 
         } // AND THEN
 
-        AND_THEN( "each Measure in each Area in the Areas<> instance has the correct value (mixed)" ) {
+        AND_THEN( "each Measure in each Area in the Areas instance has the correct value (mixed)" ) {
 
           REQUIRE( areas.getArea("W06000001").getMeasure("dens").getValue(2001) == 95.275953 );
           REQUIRE( areas.getArea("W06000001").getMeasure("dens").getValue(2011) == 98.236553 );

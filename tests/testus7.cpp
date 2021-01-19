@@ -20,15 +20,15 @@
 #include "../datasets.h"
 #include "../src/areas.h"
 
-SCENARIO( "econ0080.json can be correctly parsed", "[Areas<>][econ0080]" ) {
+SCENARIO( "econ0080.json can be correctly parsed", "[Areas][econ0080]" ) {
 
   auto get_istream = [](const std::string &path) {
     return std::ifstream(path);
   };
 
-  GIVEN( "a newly constructed Areas<> instance" ) {
+  GIVEN( "a newly constructed Areas instance" ) {
 
-    Areas<> areas = Areas<>();
+    Areas areas = Areas();
 
     AND_GIVEN( "a valid econ0080.json file as an open std::istream" ) {
 
@@ -37,17 +37,17 @@ SCENARIO( "econ0080.json can be correctly parsed", "[Areas<>][econ0080]" ) {
 
       REQUIRE( stream.is_open() );
 
-      THEN( "the Areas<> instance will be populated without exception" ) {
+      THEN( "the Areas instance will be populated without exception" ) {
 
         REQUIRE_NOTHROW( areas.populateFromWelshStatsJSON(stream, BethYw::InputFiles::DATASETS[1].COLS, nullptr, nullptr, nullptr) );
 
-        AND_THEN( "the Areas<> instance has size 44" ) {
+        AND_THEN( "the Areas instance has size 44" ) {
 
           REQUIRE( areas.size() == 44 );
 
         } // AND_THEN
 
-        AND_THEN( "each Area in the Areas<> instance has the correct size (8)" ) {
+        AND_THEN( "each Area in the Areas instance has the correct size (8)" ) {
 
           REQUIRE( areas.getArea("E12000001").size() == 8 );
           REQUIRE( areas.getArea("E12000002").size() == 8 );
@@ -96,7 +96,7 @@ SCENARIO( "econ0080.json can be correctly parsed", "[Areas<>][econ0080]" ) {
 
         } // AND_THEN
 
-        AND_THEN( "each Measure in each Area in the Areas<> instance has the correct size (mixed)" ) {
+        AND_THEN( "each Measure in each Area in the Areas instance has the correct size (mixed)" ) {
 
           REQUIRE( areas.getArea("E12000001").getMeasure("a").size() == 3 );
           REQUIRE( areas.getArea("E12000001").getMeasure("b").size() == 3 );
@@ -496,7 +496,7 @@ SCENARIO( "econ0080.json can be correctly parsed", "[Areas<>][econ0080]" ) {
 
         } // AND_THEN
 
-        AND_THEN( "each year in each Measure in each Area in the Areas<> instance has the correct value (mixed)" ) {
+        AND_THEN( "each year in each Measure in each Area in the Areas instance has the correct value (mixed)" ) {
 
           REQUIRE( areas.getArea("E12000001").getMeasure("a").getValue(2002) == -999.0 );
           REQUIRE( areas.getArea("E12000001").getMeasure("a").getValue(2003) == -999.0 );

@@ -20,15 +20,15 @@
 #include "../datasets.h"
 #include "../src/areas.h"
 
-SCENARIO( "Statistics can be correctly calculated from imported data", "[Areas<>][popu1009][statistics]" ) {
+SCENARIO( "Statistics can be correctly calculated from imported data", "[Areas][popu1009][statistics]" ) {
 
   auto get_istream = [](const std::string &path) {
     return std::ifstream(path);
   };
 
-  GIVEN( "a newly constructed Areas<> instance" ) {
+  GIVEN( "a newly constructed Areas instance" ) {
 
-    Areas<> areas = Areas<>();
+    Areas areas = Areas();
 
     AND_GIVEN( "a valid popu1009.json file as an open std::istream" ) {
 
@@ -37,11 +37,11 @@ SCENARIO( "Statistics can be correctly calculated from imported data", "[Areas<>
 
       REQUIRE( stream.is_open() );
 
-      THEN( "the Areas<> instance will be populated without exception" ) {
+      THEN( "the Areas instance will be populated without exception" ) {
 
         REQUIRE_NOTHROW( areas.populateFromWelshStatsJSON(stream, BethYw::InputFiles::DATASETS[0].COLS, nullptr, nullptr, nullptr) );
 
-        AND_THEN( "the Areas<> instance has size 12" ) {
+        AND_THEN( "the Areas instance has size 12" ) {
 
           REQUIRE( areas.size() == 12 );
 

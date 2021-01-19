@@ -8,7 +8,7 @@
 
   AUTHOR: Dr Martin Porcheron
 
-  This file contains the Areas<> class, which is responsible for parsing data
+  This file contains the Areas class, which is responsible for parsing data
   from a standard input stream and converting it into a series of objects:
 
   Measure       — Represents a single measure for an area, e.g.
@@ -53,7 +53,7 @@ using StringFilterSet = std::unordered_set<std::string>;
 using YearFilterTuple = std::tuple<unsigned int, unsigned int>;
 
 /*
-  Shortcut for the data within an Areas<>() object that maps authority codes
+  Shortcut for the data within an Areas() object that maps authority codes
   to an area name.
 
   TODO: you should remove the declaration of the Null class below, and give
@@ -63,7 +63,7 @@ using AreasContainer = std::map<std::string, Area>;
 using AreasContainerNamesToAuthorityCodes = std::map<std::string, std::string>;
 
 /*
-  Areas<> is a class that stores all the data categorised by area. The 
+  Areas is a class that stores all the data categorised by area. The 
   underlying Standard Library container is customisable using the Container
   template parameter (with the default set to whatever AreasContainer is aliasing
   above).
@@ -71,7 +71,6 @@ using AreasContainerNamesToAuthorityCodes = std::map<std::string, std::string>;
   TODO: You should read the various block comments in the corresponding 
   implementation file to know what to declare.
 */
-template <class Container = AreasContainer>
 class Areas {
 protected:
   AreasContainer mAreasByCode;
@@ -79,7 +78,7 @@ protected:
 
 public:
   Areas();
-  virtual ~Areas() = default;
+  ~Areas() = default;
 
   Areas(const Areas &other) = delete;
   Areas &operator=(const Areas &other) = delete;
@@ -136,7 +135,7 @@ public:
 
   std::string toJSON() const;
 
-  friend std::ostream &operator<<(std::ostream &os, const Areas<> &areas);
+  friend std::ostream &operator<<(std::ostream &os, const Areas &areas);
   
   /*
     Wrapper around underlying iterator functions for ease.
