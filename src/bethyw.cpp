@@ -238,7 +238,7 @@ std::vector<BethYw::InputFileSource> BethYw::parseDatasetsArg(
     }
   } catch (const BethYw::ImportAllValues &ex) {
     datasetsToImport.clear();
-    for (int i = 0; i < numDatasets; i++) {
+    for (size_t i = 0; i < numDatasets; i++) {
       datasetsToImport.push_back(allDatasets[i]);
     }
   }

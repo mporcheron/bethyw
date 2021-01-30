@@ -18,6 +18,7 @@
   must implement has a TODO block comment. 
 */
 
+#include <algorithm>
 #include <iomanip>
 #include <iostream>
 #include <sstream>

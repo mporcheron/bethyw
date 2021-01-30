@@ -722,6 +722,8 @@ void Areas::populateFromAuthorityByYearCSV(
     const std::tuple<unsigned int, unsigned int> * const yearsFilter)
     noexcept(false) {
 
+  const unsigned int authorityCodeColIdent = -1;
+
   bool areasFilterEnabled = areasFilter != nullptr &&
                             !areasFilter->empty();
   bool yearsFilterEnabled = yearsFilter != nullptr &&
@@ -747,7 +749,7 @@ void Areas::populateFromAuthorityByYearCSV(
       while (std::getline(s, cell, ',')) {
         try {
           if (cell == cols.at(BethYw::AUTH_CODE)) {
-            colHeaders.push_back(-1);
+            colHeaders.push_back(authorityCodeColIdent);
           } else {
             colHeaders.push_back(std::stoi(cell));
           }
@@ -781,10 +783,10 @@ void Areas::populateFromAuthorityByYearCSV(
         unsigned int col = 0;
         std::string cell;
         while (std::getline(lineStream, cell, ',')) { // cell loop
-          int columnIdent = colHeaders.at(col++);
+          unsigned int columnIdent = colHeaders.at(col++);
 
           // As above, if year is == -1, its the authority code
-          if (columnIdent == -1) {
+          if (columnIdent == authorityCodeColIdent) {
             // This is the local authority!
             if (areasFilterEnabled &&
                 isLocalAuthorityFiltered(*areasFilter, cell)) {
