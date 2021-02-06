@@ -25,6 +25,7 @@
 #include <exception>
 #include <iostream>
 #include <string>
+#include <stdexcept>
 #include <tuple>
 #include <unordered_set>
 #include <vector>
@@ -243,7 +244,6 @@ std::vector<BethYw::InputFileSource> BethYw::parseDatasetsArg(
     }
   }
 
-
   return datasetsToImport;
 }
 
@@ -427,12 +427,17 @@ void BethYw::loadAreas(Areas &areas,
                        std::unordered_set<std::string> &areasFilter) {
   const std::string fileAreas = dir + InputFiles::AREAS.FILE;
 
-  InputSource *source = new InputFile(fileAreas);
-  std::istream &stream = source->open();
-  areas.populate(stream,
-                 InputFiles::AREAS.PARSER,
-                 InputFiles::AREAS.COLS,
-                 &areasFilter);
+  try {
+    InputSource *source = new InputFile(fileAreas);
+    std::istream &stream = source->open();
+    areas.populate(stream,
+                   InputFiles::AREAS.PARSER,
+                   InputFiles::AREAS.COLS,
+                   &areasFilter);
+  } catch (const std::runtime_error &ex) {
+    std::cerr << "Error importing dataset:\n" << ex.what() << std::endl;
+    std::exit(1);
+  }
 }
 
 /*
@@ -446,6 +451,8 @@ void BethYw::loadAreas(Areas &areas,
 
   Import datasets from datasetsToImport as files in dir into areas, filtering
   with areasFilter, measuresFilter, and yearsFilter.
+
+
 
   @param areas
     An Areas instance that should be modified
@@ -464,7 +471,7 @@ void BethYw::loadAreas(Areas &areas,
     An unordered set of measures (as measure codes encoded in std::strings)
     to filter, or empty to import all areas
 
-  @param yarsFilter
+  @param yearsFilter
     An two-pair tuple of unsigned ints corresponding to the range of years 
     to import, which should both be 0 to import all years.
 
@@ -485,7 +492,7 @@ void BethYw::loadDatasets(
     std::vector<InputFileSource> &datasetsToImport,
     std::unordered_set<std::string> &areasFilter,
     std::unordered_set<std::string> &measuresFilter,
-    std::tuple<unsigned int,unsigned int> &yearsFilter) {
+    std::tuple<unsigned int,unsigned int> &yearsFilter) noexcept {
   for (auto dataset = datasetsToImport.begin();
        dataset != datasetsToImport.end();
        dataset++) {

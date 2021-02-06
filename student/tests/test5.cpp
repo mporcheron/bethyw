@@ -12,7 +12,7 @@
   Catch2 is licensed under the BOOST license.
  */
 
-#include "../catch.hpp"
+#include "../lib_catch.hpp"
 
 #include <fstream>
 
@@ -97,7 +97,7 @@ SCENARIO( "a nonexistant source file cannot be opened for reading", "[InputFile]
 
       REQUIRE( input.getSource() == test_file );
 
-      const std::string exceptionMessage = "InputFile::import: Failed to open file";
+      const std::string exceptionMessage = "InputFile::open: Failed to open file " + test_file;
 
       AND_THEN( "when the source file is attempted to be read, a std::runtime_error is thrown with message " + exceptionMessage ) {
 

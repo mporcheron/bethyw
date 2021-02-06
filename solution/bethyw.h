@@ -110,7 +110,7 @@ void loadDatasets(
     std::vector<InputFileSource> &datasetsToImport,
     std::unordered_set<std::string> &areasFilter,
     std::unordered_set<std::string> &measuresFilter,
-    std::tuple<unsigned int,unsigned int> &yearsFilter);
+    std::tuple<unsigned int,unsigned int> &yearsFilter) noexcept;
 
 } // namespace BethYw
 

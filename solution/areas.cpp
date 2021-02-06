@@ -696,6 +696,10 @@ void Areas::populateFromWelshStatsJSON(
     An umodifiable pointer to set of strings for areas to import, or an empty 
     set if all areas should be imported
 
+  @param measuresFilter
+    An umodifiable pointer to set of strings for measures to import, or an empty 
+    set if all measures should be imported
+
   @param yearsFilter
     An umodifiable pointer to a tuple of two unsigned integers, where if both
     values are 0, then all years should be imported, otherwise they should be
@@ -730,8 +734,25 @@ void Areas::populateFromAuthorityByYearCSV(
     std::istream &is,
     const BethYw::SourceColumnMapping &cols,
     const std::unordered_set<std::string> * const areasFilter,
+    const std::unordered_set<std::string> * const measuresFilter,
     const std::tuple<unsigned int, unsigned int> * const yearsFilter)
     noexcept(false) {
+
+  bool measuresFilterEnabled     = measuresFilter != nullptr &&
+                                   !measuresFilter->empty();
+
+  // Get the measure code and name from the static data
+  std::string measureCode       = cols.at(BethYw::SINGLE_MEASURE_CODE);
+  const std::string measureName = cols.at(BethYw::SINGLE_MEASURE_NAME);
+
+  std::transform(
+      measureCode.begin(),
+      measureCode.end(),
+      measureCode.begin(),::tolower);
+
+  if (measuresFilterEnabled && measuresFilter->count(measureCode) == 0) {
+    return;
+  }
 
   const unsigned int authorityCodeColIdent = (unsigned int) -1;
 
@@ -740,7 +761,6 @@ void Areas::populateFromAuthorityByYearCSV(
   bool yearsFilterEnabled = yearsFilter != nullptr &&
                             std::get<0>(*yearsFilter) != 0 &&
                             std::get<1>(*yearsFilter) != 0;
-
 
   // Mapping of the column ordering to the year, the authority code
   // will be given a value of -1 (we can assume no stats go back 2000+ years)
@@ -826,15 +846,6 @@ void Areas::populateFromAuthorityByYearCSV(
         if (!importArea) {
           continue;
         }
-
-        // Get the measure code and name from the static data
-        std::string measureCode = cols.at(BethYw::SINGLE_MEASURE_CODE);
-        std::string measureName = cols.at(BethYw::SINGLE_MEASURE_NAME);
-
-        std::transform(
-            measureCode.begin(),
-            measureCode.end(),
-            measureCode.begin(),::tolower);
 
         // Finally, we add the value to the measure to the area to the areas
         auto existingArea = mAreasByCode.find(localAuthorityCode);
@@ -1058,7 +1069,7 @@ void Areas::populate(
     throw std::runtime_error("Areas::populate: Stream not open");
   }
   is.seekg(0, is.beg);
-
+  
   // hand off to the specific functions
   if (type == BethYw::AuthorityCodeCSV) {
     populateFromAuthorityCodeCSV(is, cols, areasFilter);
@@ -1072,6 +1083,7 @@ void Areas::populate(
     populateFromAuthorityByYearCSV(is,
                                    cols,
                                    areasFilter,
+                                   measuresFilter,
                                    yearsFilter);
   } else {
     throw std::runtime_error("Areas::populate: Unexpected data type");

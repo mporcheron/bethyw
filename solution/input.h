@@ -45,7 +45,7 @@ public:
   virtual ~InputSource() = default;
 
   virtual const std::string& getSource() const;
-  virtual std::istream &open() noexcept(false) = 0;
+  virtual std::istream &open() = 0;
 };
 
 /*
@@ -66,7 +66,7 @@ public:
   InputFile(const std::string &path);
   virtual ~InputFile();
 
-  virtual std::istream &open() noexcept(false);
+  virtual std::istream &open();
 };
 
 #endif // SRC_INPUT_H_

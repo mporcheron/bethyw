@@ -12,7 +12,7 @@
   Catch2 is licensed under the BOOST license.
  */
 
-#include "catch.hpp"
+#include "lib_catch.hpp"
 
 #include <fstream>
 #include <string>
@@ -32,7 +32,7 @@ SCENARIO( "complete-popu1009-popden.csv can be correctly parsed", "[Areas][compl
 
     AND_GIVEN( "a valid complete-popu1009-popden.csv file as an open std::istream" ) {
 
-      const std::string test_file = "datasets/complete-popu1009-popden.csv";
+      const std::string test_file = "complete-popu1009-popden.csv";
       auto stream                 = get_istream(test_file);
 
       REQUIRE( stream.is_open() );

@@ -12,7 +12,7 @@
   Catch2 is licensed under the BOOST license.
  */
 
-#include "catch.hpp"
+#include "lib_catch.hpp"
 
 #include <fstream>
 #include <string>
@@ -32,7 +32,7 @@ SCENARIO( "tran0152.json can be correctly parsed", "[Areas][tran0152]" ) {
 
     AND_GIVEN( "a valid tran0152.json file as an open std::istream" ) {
 
-      const std::string test_file = "datasets/tran0152.json";
+      const std::string test_file = "tran0152.json";
       auto stream                 = get_istream(test_file);
 
       REQUIRE( stream.is_open() );

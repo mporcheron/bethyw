@@ -12,7 +12,7 @@
   Catch2 is licensed under the BOOST license.
  */
 
-#include "catch.hpp"
+#include "lib_catch.hpp"
 
 #include <fstream>
 
@@ -25,7 +25,7 @@ SCENARIO( "a source file can be opened and read", "[InputFile][existent]" ) {
     return std::ifstream(path).is_open();
   };
 
-  const std::string test_file = "datasets/areas.csv";
+  const std::string test_file = "areas.csv";
   REQUIRE( file_exists(test_file) );
 
   GIVEN( "a valid file path" ) {
@@ -76,7 +76,7 @@ SCENARIO( "a nonexistant source file cannot be opened for reading", "[InputFile]
     return std::ifstream(path).is_open();
   };
   
-  const std::string test_file = "datasets/jibberish.json";
+  const std::string test_file = "jibberish.json";
   REQUIRE_FALSE(file_exists(test_file));
 
   GIVEN( "a valid file path" ) {
@@ -97,7 +97,7 @@ SCENARIO( "a nonexistant source file cannot be opened for reading", "[InputFile]
 
       REQUIRE( input.getSource() == test_file );
 
-      const std::string exceptionMessage = "InputFile::import: Failed to open file";
+      const std::string exceptionMessage = "InputFile::open: Failed to open file " + test_file;
 
       AND_THEN( "when the source file is attempted to be read, a std::runtime_error is thrown with message " + exceptionMessage ) {
 

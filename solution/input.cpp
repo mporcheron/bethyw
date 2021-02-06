@@ -18,6 +18,7 @@
 
 #include <exception>
 #include <fstream>
+#include <stdexcept>
 
 #include "input.h"
 
@@ -78,19 +79,15 @@ InputFile::~InputFile() {
     InputFile input("data/areas.csv");
     input.open();
 */
-std::istream &InputFile::open() noexcept(false) {
-  // TODO: Implement this function, which will read the contents of the file
-  // stored in the member variable mSource.
-  //
-  // Throw a std::runtime_error if you have an issue with the text:
-  // "InputFile::import: Failed to open file" (no quotes).
-  //
-  // Return an open stream so that code outside this function can convert the
-  // data into the internal data objects.
-  mFileStream.open(mSource, std::ifstream::in);
-
+std::istream &InputFile::open() {
+  try {
+    mFileStream.open(mSource, std::ifstream::in);
+  } catch(const std::runtime_error &ex) {
+    throw std::runtime_error("InputFile::open: Failed to open file " + mSource);
+  }
+  
   if (!mFileStream.is_open()) {
-    throw std::runtime_error("InputFile::import: Failed to open file");
+    throw std::runtime_error("InputFile::open: Failed to open file " + mSource);
   }
 
   return mFileStream;
