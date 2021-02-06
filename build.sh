@@ -27,4 +27,4 @@ fi
 
 mkdir -p ${BIN_DIR}
 rm ${EXECUTABLE} 2> /dev/null
-g++-10 --std=c++14 -Wall ${SOURCE_FILES} ${MAIN_FILE} -o ${EXECUTABLE}
+g++ --std=c++14 -Wall ${SOURCE_FILES} ${MAIN_FILE} -o ${EXECUTABLE}

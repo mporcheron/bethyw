@@ -27,7 +27,6 @@
 #include <tuple>
 #include <vector>
 
-#include "area.h"
 #include "measure.h"
 
 /*
