@@ -158,8 +158,9 @@ Measure::Measure(std::string codename, const std::string &label) {
 /*
   TODO: Measure::size()
 
-  Retrieve the number of years data we have for this measure. This function
-  should not modify the object or throw an exception.
+  Retrieve the number of years data we have for this measure. This
+  function should be callable from a constant context and should promise to not
+  throw an exception.
 
   @return
     The size of the measure

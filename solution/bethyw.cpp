@@ -174,33 +174,11 @@ cxxopts::Options BethYw::cxxoptsSetup() {
  */
 std::vector<BethYw::InputFileSource> BethYw::parseDatasetsArg(
     cxxopts::ParseResult& args) {
-  // TODO map: swap this function to the following:
-  // // This function is incomplete, but to get you started...
-  //  //
-  // // Retrieve all valid datasets (this is an unordered_map), see datasets.h
-  // auto &allDatasets = InputFiles::DATASETS;
-  //
-  // // Create the container for the return type
-  // std::vector<InputFileSource> datasetsToImport;
-  //
-  // // You can get the std::vector of arguments from cxxopts like this:
-  // auto inputDatasets = args["datasets"].as<std::vector<std::string>>();
-  // // You now to check this and compare the strings in this vector to the
-  // // keys in allDatasets above. Populate datasetsToImport with the values
-  // // from map allDatasets above and then return this vector
-  //
-  // // You'll want to ignore/remove the following lines of code, they simply
-  // // import all datasets (for now).
-  // for(auto const& dataset: allDatasets)
-  //     datasetsToImport.push_back(dataset.second);
-  // return datasetsToImport;
-
   size_t numDatasets = InputFiles::NUM_DATASETS;
   auto &allDatasets = InputFiles::DATASETS;
   std::vector<InputFileSource> datasetsToImport;
 
   try {
-    // TODO map: remove/simplify this code
     std::vector<std::string> inputDatasets;
     try {
       inputDatasets = args["datasets"].as<std::vector<std::string>>();
@@ -217,8 +195,8 @@ std::vector<BethYw::InputFileSource> BethYw::parseDatasetsArg(
     for (auto inputDataset = inputDatasets.begin();
          inputDataset != inputDatasets.end();
          inputDataset++) {
-      const std::string code = *inputDataset;
-      
+      std::string code = *inputDataset;
+      std::transform(code.begin(), code.end(), code.begin(), ::tolower);
       if (code == "all") {
         throw BethYw::ImportAllValues();
       }
@@ -281,7 +259,9 @@ std::unordered_set<std::string> BethYw::parseAreasArg(
   }
 
   for (auto it = areas.begin(); it != areas.end(); it++) {
-    if (*it == "all") {
+    std::string area = std::string(*it);
+    std::transform(area.begin(), area.end(), area.begin(), ::tolower);
+    if (area == "all") {
       areas.clear();
       break;
     }

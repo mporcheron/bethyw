@@ -12,7 +12,7 @@
   Catch2 is licensed under the BOOST license.
  */
 
-#include "../catch.hpp"
+#include "../lib_catch.hpp"
 
 #include <stdexcept>
 #include <string>
