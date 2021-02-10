@@ -79,17 +79,17 @@ public:
 
   const std::string &getLocalAuthorityCode() const;
 
-  const std::string &getName(std::string lang) const;
-  const std::map<std::string, std::string> &getNames() const;
+  const std::string& getName(std::string lang) const;
+  const std::map<std::string, std::string>& getNames() const;
   void setName(std::string lang, const std::string &name);
   void setName(std::string lang, std::string &&name);
 
   void setMeasure(std::string ident, Measure &stat);
   void setMeasure(std::string ident, Measure &&stat);
-  Measure &getMeasure(std::string ident);
+  Measure& getMeasure(std::string ident);
   size_t size() const noexcept;
 
-  friend std::ostream &operator<<(std::ostream &os, const Area &area);
+  friend std::ostream& operator<<(std::ostream &os, const Area &area);
   friend bool operator==(const Area &lhs, const Area &rhs);
   
   /*

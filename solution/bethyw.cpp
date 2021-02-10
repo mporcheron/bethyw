@@ -452,8 +452,6 @@ void BethYw::loadAreas(Areas &areas,
   Import datasets from datasetsToImport as files in dir into areas, filtering
   with areasFilter, measuresFilter, and yearsFilter.
 
-
-
   @param areas
     An Areas instance that should be modified
 

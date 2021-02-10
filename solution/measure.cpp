@@ -73,7 +73,7 @@ Measure::Measure(std::string codename, const std::string &label)
     ...
     auto code = measure.getCodename();
 */
-const std::string &Measure::getCodename() const { return mCodename; }
+const std::string& Measure::getCodename() const { return mCodename; }
 
 /*
   TODO: Measure::getLabel()
@@ -93,7 +93,7 @@ const std::string &Measure::getCodename() const { return mCodename; }
     ...
     auto label = measure.getLabel();
 */
-const std::string &Measure::getLabel() const { return mLabel; }
+const std::string& Measure::getLabel() const { return mLabel; }
 
 /*
   TODO: Measure::setLabel(label)
@@ -137,7 +137,7 @@ void Measure::setLabel(const std::string &label) { mLabel = label; }
     ...
     auto value = measure.getValue(1999); // returns 12345678.9
 */
-Measure_t &Measure::getValue(const int &key) {
+Measure_t& Measure::getValue(const int &key) {
   try {
     return mData.at(key);
   } catch (const std::out_of_range &ex) {
@@ -317,7 +317,7 @@ double Measure::getAverage() const noexcept {
     measure.setValue(1999, 12345678.9);
     std::cout << measure << std::end;
 */
-std::ostream &operator<<(std::ostream &os, const Measure &measure) {
+std::ostream& operator<<(std::ostream &os, const Measure &measure) {
   os << measure.getLabel() << " (" << measure.getCodename();
   os << ") "  << std::endl;
 

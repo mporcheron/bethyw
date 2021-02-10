@@ -59,7 +59,7 @@ Area::Area(const std::string &localAuthorityCode) {
   callable from a constant context.
 
   @param lang
-    A three-leter language code in ISO 639-2/B format, e.g. cym or eng
+    A three-leter language code in ISO 639-3 format, e.g. cym or eng
 
   @return
     The name for the area in the given language
@@ -81,7 +81,7 @@ Area::Area(const std::string &localAuthorityCode) {
   Set a name for the Area in a specific language.
 
   @param lang
-    A three-letter (alphabetical) language code in ISO 639-2/B format,
+    A three-letter (alphabetical) language code in ISO 639-3 format,
     e.g. cym or eng, which should be converted to lowercase
 
   @param name
@@ -162,8 +162,8 @@ Area::Area(const std::string &localAuthorityCode) {
 /*
   TODO: Area::size()
 
-  Retrieve the number of Measures we have for this Area. This function
-  should not modify the object or throw an exception.
+  Retrieve the number of Measures we have for this Area. This function should be 
+  callable from a constant context and must not throw an exception.
 
   @return
     The size of the Area (i.e. the number of Measures)

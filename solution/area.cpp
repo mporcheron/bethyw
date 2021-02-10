@@ -68,7 +68,7 @@ const std::string &Area::getLocalAuthorityCode() const {
   callable from a constant context.
 
   @param lang
-    A three-leter language code in ISO 639-2/B format, e.g. cym or eng
+    A three-leter language code in ISO 639-3 format, e.g. cym or eng
 
   @return
     The name for the area in the given language
@@ -82,7 +82,7 @@ const std::string &Area::getLocalAuthorityCode() const {
     ...
     auto name = area.getName("eng");
 */
-const std::string &Area::getName(std::string lang) const {
+const std::string& Area::getName(std::string lang) const {
   std::transform(lang.begin(), lang.end(), lang.begin(), ::tolower);
   return mNames.at(lang);
 }
@@ -100,7 +100,7 @@ const std::string &Area::getName(std::string lang) const {
     ...
     auto names = area.getNames();
 */
-const std::map<std::string, std::string> &Area::getNames() const {
+const std::map<std::string, std::string>& Area::getNames() const {
   return mNames;
 }
 
@@ -110,7 +110,7 @@ const std::map<std::string, std::string> &Area::getNames() const {
   Set a name for the Area in a specific language.
 
   @param lang
-    A three-letter (alphabetical) language code in ISO 639-2/B format,
+    A three-letter (alphabetical) language code in ISO 639-3 format,
     e.g. cym or eng, which should be converted to lowercase
 
   @param name
@@ -185,7 +185,7 @@ void Area::setName(std::string lang, std::string &&name) {
     ...
     auto measure2 = area.at("pop");
 */
-Measure &Area::getMeasure(std::string key) {
+Measure& Area::getMeasure(std::string key) {
   std::transform(key.begin(), key.end(), key.begin(), ::tolower);
   
   try {
@@ -316,13 +316,13 @@ size_t Area::size() const noexcept {
     area.setName("eng", "Powys");
     std::cout << area << std::end;
 */
-std::ostream &operator<<(std::ostream &os, const Area &area) {
+std::ostream& operator<<(std::ostream &os, const Area &area) {
   bool hasName = false;
 
   try {
     os << area.getName("eng");
     hasName = true;
-  } catch(std::out_of_range &ex) {
+  } catch(const std::out_of_range &ex) {
   }
   
   try {
@@ -331,7 +331,7 @@ std::ostream &operator<<(std::ostream &os, const Area &area) {
       os << " / ";
     }
     os << name;
-  } catch(std::out_of_range &ex) {
+  } catch(const std::out_of_range &ex) {
   }
   
   if (!hasName) {

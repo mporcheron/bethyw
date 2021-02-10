@@ -178,7 +178,8 @@ Measure::Measure(std::string codename, const std::string &label) {
   TODO: Measure:: getDifference()
 
   Calculate the difference between the first and last year imported. This
-  function should not modify the object or throw an exception.
+  function should be callable from a constant context and should promise to not
+  throw an exception.
 
   @return
     The difference/change in value from the first to the last year, or 0 if it
@@ -196,7 +197,8 @@ Measure::Measure(std::string codename, const std::string &label) {
   TODO: Measure:: getDifferenceAsPercentage()
 
   Calculate the difference between the first and last year imported as a 
-  percentage. This function should not modify the object or throw an exception.
+  percentage. This function should be callable from a constant context and
+  should promise to not throw an exception.
 
   @return
     The difference/change in value from the first to the last year as a decminal
@@ -213,8 +215,8 @@ Measure::Measure(std::string codename, const std::string &label) {
 /*
   TODO: Measure:: getAverage()
 
-  Calculate the average/mean value for all the values. This function should not
-  modify the object or throw an exception.
+  Calculate the average/mean value for all the values. This function should be
+  callable from a constant context and should promise to not throw an exception.
 
   @return
     The average value for all the years, or 0 if it cannot be calculated

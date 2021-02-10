@@ -34,8 +34,6 @@
   TODO: You should read the various block comments in the corresponding 
   implementation file to know what to declare.
 */
-// class InputSource {
-// };
 class InputSource {
 protected:
   const std::string mSource;
@@ -45,7 +43,7 @@ public:
   virtual ~InputSource() = default;
 
   virtual const std::string& getSource() const;
-  virtual std::istream &open() = 0;
+  virtual std::istream& open() = 0;
 };
 
 /*
@@ -55,9 +53,7 @@ public:
   TODO: You should read the various block comments in the corresponding 
   implementation file to know what to declare.
 */
-// TODO map: replace code with:
-// class InputFile : public InputSource {
-// };
+
 class InputFile : public InputSource {
 protected:
   std::ifstream mFileStream;
@@ -66,7 +62,7 @@ public:
   InputFile(const std::string &path);
   virtual ~InputFile();
 
-  virtual std::istream &open();
+  virtual std::istream& open();
 };
 
 #endif // SRC_INPUT_H_

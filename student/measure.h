@@ -20,19 +20,6 @@
 #include <string>
 
 /*
-  For each set of data, we have a value for each individual measure over
-  several years. Therefore, we will contain this in a "Measure" class, along
-  with a human-readable label.
-
-  For future proofing, we could  make use of std::variant, which is a C++17
-  feature that implements a "union". It allows us to state that the type of 
-  the value will be one of any number of given types. To keep our code simple,
-  we define, using the using keyword, the type for this data. For now, we'll
-  just set all data to doubles.
-*/
-using Measure_t = void;
-
-/*
   The Measure class contains a measure code, label, and a container readings
   from across a number of years.
 

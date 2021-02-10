@@ -79,7 +79,7 @@ InputFile::~InputFile() {
     InputFile input("data/areas.csv");
     input.open();
 */
-std::istream &InputFile::open() {
+std::istream& InputFile::open() {
   try {
     mFileStream.open(mSource, std::ifstream::in);
   } catch(const std::runtime_error &ex) {

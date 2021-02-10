@@ -100,11 +100,11 @@ Areas::Areas() {
 /*
   TODO: Areas::size()
 
-  Retrieve the number of Areas within the container. This function should not
-  modify the object or throw an exception.
+  Retrieve the number of Areas within the container. This function should be 
+  callable from a constant context and must not throw an exception.
 
   @return
-    The number of Areas
+    The number of Area instances
 
   @example
     Areas data = Areas();
@@ -134,8 +134,9 @@ Areas::Areas() {
     The input stream from InputSource
 
   @param cols
-    A map of the enum SourceColumn (see data.h) to strings that give the
-    column header in the CSV file, which is statically defined in datasets.h
+    A map of the enum BethyYw::SourceColumnMapping (see datasets.h) to strings
+    that give the column header in the CSV file, which is statically defined
+    in datasets.h
 
   @param areasFilter
     An umodifiable pointer to set of umodifiable strings for areas to import,
@@ -175,10 +176,10 @@ void Areas::populateFromAuthorityCodeCSV(
 
 /*
   TODO: Areas::populateFromWelshStatsJSON(is,
-                                            cols,
-                                            areasFilter,
-                                            measuresFilter,
-                                            yearsFilter)
+                                          cols,
+                                          areasFilter,
+                                          measuresFilter,
+                                          yearsFilter)
 
   Data from Welsh Statistics is in the JSON format, and contains three
   top-level keys: odata.metadata, value, odata.nextLink. value contains the
@@ -232,8 +233,9 @@ void Areas::populateFromAuthorityCodeCSV(
     The input stream from InputSource
 
   @param cols
-    A map of the enum SourceColumn (see data.h) to strings that give the
-    column header in the CSV file, which is statically defined in datasets.h
+    A map of the enum BethyYw::SourceColumnMapping (see datasets.h) to strings
+    that give the column header in the CSV file, which is statically defined
+    in datasets.h
 
   @param areasFilter
     An umodifiable pointer to set of umodifiable strings for areas to import,
@@ -283,9 +285,9 @@ void Areas::populateFromAuthorityCodeCSV(
 
 /*
   TODO: Areas::populateFromAuthorityByYearCSV(is,
-                                                cols,
-                                                areasFilter,
-                                                yearFilter)
+                                              cols,
+                                              areasFilter,
+                                              yearFilter)
 
   This function imports CSV files that contain a single measure. The 
   CSV file consist of columns containing the authority code and years.
@@ -304,8 +306,9 @@ void Areas::populateFromAuthorityCodeCSV(
     The input stream from InputSource
 
   @param cols
-    A map of the enum SourceColumn (see data.h) to strings that give the
-    column header in the CSV file, which is statically defined in datasets.h
+    A map of the enum BethyYw::SourceColumnMapping (see datasets.h) to strings
+    that give the column header in the CSV file, which is statically defined
+    in datasets.h
 
   @param areasFilter
     An umodifiable pointer to set of umodifiable strings for areas to import,
@@ -362,12 +365,13 @@ void Areas::populateFromAuthorityCodeCSV(
     The input stream from InputSource
 
   @param type
-    A value from the DataType enum which states the underlying data file
-    structure
+    A value from the BethYw::SourceDataType enum which states the underlying
+    data file structure
 
   @param cols
-    A map of the enum SourceColumn (see data.h) to strings that give the
-    column header in the CSV file, which is statically defined in datasets.h
+    A map of the enum BethyYw::SourceColumnMapping (see datasets.h) to strings
+    that give the column header in the CSV file, which is statically defined
+    in datasets.h
 
   @return
     void
@@ -434,12 +438,13 @@ void Areas::populate(std::istream &is,
     The input stream from InputSource
 
   @param type
-    A value from the DataType enum which states the underlying data file
-    structure
+    A value from the BethYw::SourceDataType enum which states the underlying
+    data file structure
 
   @param cols
-    A map of the enum SourceColumn (see data.h) to strings that give the
-    column header in the CSV file, which is statically defined in datasets.h
+    A map of the enum BethyYw::SourceColumnMapping (see datasets.h) to strings
+    that give the column header in the CSV file, which is statically defined
+    in datasets.h
 
   @param areasFilter
     An umodifiable pointer to set of umodifiable strings for areas to import,
@@ -586,9 +591,8 @@ std::string Areas::toJSON() const {
   return j.dump();
 }
 
-
 /*
-  TODO: operator<<(os, measure)
+  TODO: operator<<(os, areas)
 
   Overload the << operator to print all of the imported data.
 

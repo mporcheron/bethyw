@@ -90,9 +90,6 @@ void Areas::setArea(std::string &key, Area &value) {
 
   Add a particular area to the Areas object.
 
-  Note that this overloaded function should be called with std::move() 
-  encasing the value so that Measure takes ownership over the resource.
-
   @param key
     The local authority code to insert
 
@@ -130,13 +127,6 @@ void Areas::setArea(std::string &key, Area &&value) {
   Retrieve an Area instance for a local authority code or by name
 
   @param key
-    The local authority code or name to find the value
-
-  TODO map: remove lines above for student, remove liens below for solution
-
-  Retrieve an Area instance for a local authority code.
-
-  @param key
     The local authority code to find the value for
 
   @throws
@@ -165,8 +155,6 @@ Area &Areas::getArea(const std::string &key) {
 }
 
 /*
-  TODO map: delete this function and comment
-
   Given one or more needles, how many match to the haystack. This is a case
   insensitive search, and will search for partial strings.
 
@@ -301,8 +289,9 @@ size_t Areas::size() const noexcept {
     The input stream from InputSource
 
   @param cols
-    A map of the enum SourceColumn (see areas.h) to strings that give the
-    column header in the CSV file, which is statically defined in datasets.h
+    A map of the enum BethyYw::SourceColumnMapping (see datasets.h) to strings
+    that give the column header in the CSV file, which is statically defined
+    in datasets.h
 
   @param areasFilter
     An umodifiable pointer to set of strings for areas to import, or an empty 
@@ -390,10 +379,10 @@ void Areas::populateFromAuthorityCodeCSV(
 
 /*
   TODO: Areas::populateFromWelshStatsJSON(is,
-                                            cols,
-                                            areasFilter,
-                                            measuresFilter,
-                                            yearsFilter)
+                                          cols,
+                                          areasFilter,
+                                          measuresFilter,
+                                          yearsFilter)
 
   Implement the partsing of the data from JSON files.
 
@@ -448,8 +437,9 @@ void Areas::populateFromAuthorityCodeCSV(
     The input stream from InputSource
 
   @param cols
-    A map of the enum SourceColumn (see areas.h) to strings that give the
-    column header in the CSV file, which is statically defined in datasets.h
+    A map of the enum BethyYw::SourceColumnMapping (see datasets.h) to strings
+    that give the column header in the CSV file, which is statically defined
+    in datasets.h
 
   @param areasFilter
     An umodifiable pointer to set of strings for areas to import, or an empty 
@@ -495,8 +485,8 @@ void Areas::populateFromAuthorityCodeCSV(
 void Areas::populateFromWelshStatsJSON(
     std::istream &is,
     const BethYw::SourceColumnMapping &cols,
-    const std::unordered_set<std::string> *const areasFilter,
-    const std::unordered_set<std::string> *const measuresFilter,
+    const std::unordered_set<std::string> * const areasFilter,
+    const std::unordered_set<std::string> * const measuresFilter,
     const std::tuple<unsigned int, unsigned int> * const yearsFilter)
     noexcept(false) {
   json j;
@@ -918,8 +908,8 @@ void Areas::populateFromAuthorityByYearCSV(
     The input stream from InputSource
 
   @param type
-    A value from the BethYw::SourceDataType enum which states the underlying data file
-    structure
+    A value from the BethYw::SourceDataType enum which states the underlying
+    data file structure
 
   @param cols
     A map of the enum SourceColumn (see areas.h) to strings that give the
@@ -1001,12 +991,13 @@ void Areas::populate(std::istream &is,
     The input stream from InputSource
 
   @param type
-    A value from the BethYw::SourceDataType enum which states the underlying data file
-    structure
+    A value from the BethYw::SourceDataType enum which states the underlying
+    data file structure
 
   @param cols
-    A map of the enum SourceColumn (see areas.h) to strings that give the
-    column header in the CSV file, which is statically defined in datasets.h
+    A map of the enum BethyYw::SourceColumnMapping (see datasets.h) to strings
+    that give the column header in the CSV file, which is statically defined
+    in datasets.h
 
   @param areasFilter
     An umodifiable pointer to set of strings for areas to import, or an empty 
@@ -1059,9 +1050,9 @@ void Areas::populate(
     std::istream &is,
     const BethYw::SourceDataType &type,
     const BethYw::SourceColumnMapping &cols,
-    const std::unordered_set<std::string> *const areasFilter,
-    const std::unordered_set<std::string> *const measuresFilter,
-    const std::tuple<unsigned int, unsigned int> *const yearsFilter)
+    const std::unordered_set<std::string> * const areasFilter,
+    const std::unordered_set<std::string> * const measuresFilter,
+    const std::tuple<unsigned int, unsigned int> * const yearsFilter)
     noexcept(false) {
   // check if the stream is open and readable
   is.seekg(1, is.beg);
@@ -1196,7 +1187,7 @@ std::string Areas::toJSON() const {
 }
 
 /*
-  TODO: operator<<(os, measure)
+  TODO: operator<<(os, areas)
 
   Overload the << operator to print all of the imported data.
 

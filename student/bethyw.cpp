@@ -213,7 +213,7 @@ std::vector<BethYw::InputFileSource> BethYw::parseDatasetsArg(
   Therefore, we simply fetch the list of areas and later pass it to the
   Areas::populate() function.
 
-  The filtering of areas should be case insensitive.
+  The filtering of inputs should be case insensitive.
 
   @param args
     Parsed program arguments
@@ -250,7 +250,7 @@ std::unordered_set<std::string> BethYw::parseAreasArg(
   Therefore, we simply fetch the list of areas and later pass it to the
   Areas::populate() function.
 
-  The filtering of measures should be case insensitive.
+  The filtering of inputs should be case insensitive.
 
   @param args
     Parsed program arguments
@@ -306,7 +306,8 @@ std::unordered_set<std::string> BethYw::parseAreasArg(
   `areasFilter`.
 
   @param areas
-    An Areas instance that should be modified
+    An Areas instance that should be modified (i.e. the populate() function
+    in it should be called)
 
   @param dir
     Directory where the areas.csv file is
@@ -320,7 +321,7 @@ std::unordered_set<std::string> BethYw::parseAreasArg(
   @example
     Areas areas();
 
-    BethYw::loadAreas(areas, "data", BethYw::parseAreasArg());
+    BethYw::loadAreas(areas, "data", BethYw::parseAreasArg(args));
 */
 
 
@@ -344,7 +345,7 @@ std::unordered_set<std::string> BethYw::parseAreasArg(
   of the what() function on the exception.
 
   @param areas
-    An Areas instance that should be modified
+    An Areas instance that should be modified (i.e. datasets loaded into it)
 
   @param dir
     The directory where the datasets are

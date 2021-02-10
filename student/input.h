@@ -48,8 +48,6 @@ class InputSource {
   to overload.
 */
 class InputFile : public InputSource {
-  InputFile(const std::string &path);
-  virtual ~InputFile();
 };
 
 #endif // SRC_INPUT_H_
