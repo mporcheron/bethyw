@@ -297,7 +297,8 @@ size_t Area::size() const noexcept {
   If the Area only has only one name, output this. If the area has no names,
   output the name "Unnamed".
 
-  Measures should be ordered by their Measure codename.
+  Measures should be ordered by their Measure codename. If there are no measures
+  output the line "<no measures>" after you have output the area names.
 
   See the coursework specification for more examples.
 

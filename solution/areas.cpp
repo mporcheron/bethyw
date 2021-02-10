@@ -1140,9 +1140,25 @@ void Areas::populate(
                                             "<yearN>": <valueN> }
                                }
     }
-  
+
+  An empty JSON is "{}" (without the quotes), which you must return if your
+  Areas object is empty.
+
   @return
     std::string of JSON
+
+  @example
+    InputFile input("data/popu1009.json");
+    auto is = input.open();
+
+    auto cols = InputFiles::DATASETS["popden"].COLS;
+
+    auto areasFilter = BethYw::parseAreasArg();
+    auto measuresFilter = BethYw::parseMeasuresArg();
+    auto yearsFilter = BethYw::parseMeasuresArg();
+
+    Areas data = Areas();
+    std::cout << data.toJSON();
 */
 std::string Areas::toJSON() const {
   json j;
