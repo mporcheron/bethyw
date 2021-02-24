@@ -8,8 +8,8 @@
 
   AUTHOR: <STUDENT NUMBER>
 
-  This file contains the implementation for the Area class. Area are relatively
-  simple classes that contain a local authority code, a container of names in
+  This file contains the implementation for the Area class. Area is a relatively
+  simple class that contains a local authority code, a container of names in
   different languages (perhaps stored in an associative container?) and a series
   of Measure objects (also in some form of container).
 
@@ -32,7 +32,7 @@
   @example
     Area("W06000023");
 */
-Area::Area(const std::string &localAuthorityCode) {
+Area::Area(const std::string& localAuthorityCode) {
   throw std::logic_error("Area::Area() has not been implemented!");
 }
 
@@ -55,8 +55,8 @@ Area::Area(const std::string &localAuthorityCode) {
 /*
   TODO: Area::getName(lang)
 
-  Get a name for the Area in a specific language. This function should be 
-  callable from a constant context.
+  Get a name for the Area in a specific language. This function should not
+  modify the class instance.
 
   @param lang
     A three-leter language code in ISO 639-3 format, e.g. cym or eng
@@ -65,7 +65,7 @@ Area::Area(const std::string &localAuthorityCode) {
     The name for the area in the given language
 
   @throws
-    std::out_of_range if lang is not a set language
+    std::out_of_range if lang does not correspond to a language
 
   @example
     Area area("W06000023");
@@ -100,7 +100,7 @@ Area::Area(const std::string &localAuthorityCode) {
 /*
   TODO: Area::getMeasure(key)
 
-  Retrieve a Measure object given its codename. This function should be case
+  Retrieve a Measure objectm given its codename. This function should be case
   insensitive.
 
   @param key
@@ -163,7 +163,7 @@ Area::Area(const std::string &localAuthorityCode) {
   TODO: Area::size()
 
   Retrieve the number of Measures we have for this Area. This function should be 
-  callable from a constant context and must not throw an exception.
+  callable from a constant context and must promise not throw an exception.
 
   @return
     The size of the Area (i.e. the number of Measures)
@@ -209,7 +209,7 @@ Area::Area(const std::string &localAuthorityCode) {
   @example
     Area area("W06000023");
     area.setName("eng", "Powys");
-    std::cout << area << std::end;
+    std::cout << area << std::endl;
 */
 
 

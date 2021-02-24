@@ -12,11 +12,8 @@
   Measure objects for a given local area, along with names for that area and a
   unique authority code.
 
-  Some code has been provided in your coursework, along with explanatory 
-  comments.
-
   TODO: Read the block comments with TODO in area.cpp to know which 
-  functions and member variables you need to declare in these classes.
+  functions and member variables you need to declare in this class.
  */
 
 #include <string>
@@ -33,7 +30,7 @@
   to overload.
 */
 class Area {
-  Area(const std::string &localAuthorityCode);
+  Area(const std::string& localAuthorityCode);
 };
 
 #endif // SRC_AREA_H_

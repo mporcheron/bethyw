@@ -52,23 +52,31 @@ Areas::Areas() : mAreasByCode(), mAreasByName() {}
 /*
   TODO: Areas::setArea(key, value)
 
-  Add a particular area to the Areas object.
+  Add a particular Area to the Areas object.
+
+  If an Area already exists with the same local authority code, overwrite all
+  data contained within the existing Area with those in the new
+  Area (i.e. they should be combined, but the new Area's data should take
+  precedence, e.g. replace a name with the same language identifier).
 
   @param key
-    The local authority code to insert
+    The local authority code of the Area
 
   @param value
-    The Area object that will contain the measures
+    The Area object that will contain the Measure objects
+
+  @return
+    void
 
   @example
     Areas data = Areas();
     Area area("W06000023");
     data.setArea("W06000023", area);
 */
-void Areas::setArea(std::string &key, Area &value) {
+void Areas::setArea(std::string& key, Area& value) {
   auto existingIt = mAreasByCode.find(key);
   if (existingIt != mAreasByCode.end()) {
-    Area &existingArea = existingIt->second;
+    Area& existingArea = existingIt->second;
 
     auto names = value.getNames();
     for (auto it = names.begin(); it != names.end(); it++) {
@@ -85,26 +93,10 @@ void Areas::setArea(std::string &key, Area &value) {
   mAreasByCode.emplace(key, value);
 }
 
-/*
-  TODO: Areas::setArea(key, value)
-
-  Add a particular area to the Areas object.
-
-  @param key
-    The local authority code to insert
-
-  @param value
-    The Area object that will contain the measures
-
-  @example
-    Areas data = Areas();
-    Area area("W06000023");
-    areas.setArea("W06000023", std::move(area));
-*/
-void Areas::setArea(std::string &key, Area &&value) {
+void Areas::setArea(std::string& key, Area&& value) {
   auto existingIt = mAreasByCode.find(key);
   if (existingIt != mAreasByCode.end()) {
-    Area &existingArea = existingIt->second;
+    Area& existingArea = existingIt->second;
 
     auto names = value.getNames();
     for (auto it = names.begin(); it != names.end(); it++) {
@@ -124,13 +116,16 @@ void Areas::setArea(std::string &key, Area &&value) {
 /*
   TODO: Areas::getArea(key)
 
-  Retrieve an Area instance for a local authority code or by name
+  Retrieve an Area instance for a local authority code
 
   @param key
     The local authority code to find the value for
 
+  @return
+    An Area object
+
   @throws
-    std::out_of_range if year does not exist in Areas
+    std::out_of_range if an Area does not exist in Areas
 
   @example
     Areas data = Areas();
@@ -139,16 +134,15 @@ void Areas::setArea(std::string &key, Area &&value) {
     ...
     Area area2 = areas.getArea("W06000023");
 */
-Area &Areas::getArea(const std::string &key) {
-  // mAreasByCode.at(key);
+Area& Areas::getArea(const std::string& key) {
   try {
     return mAreasByCode.at(key);
-  } catch (const std::out_of_range &ex) {
+  } catch (const std::out_of_range& ex) {
   }
 
   try {
     return mAreasByCode.at(mAreasByName.at(key));
-  } catch (const std::out_of_range &ex) {
+  } catch (const std::out_of_range& ex) {
   }
 
   throw std::out_of_range("No area found matching " + key);
@@ -164,12 +158,12 @@ Area &Areas::getArea(const std::string &key) {
   @param haystack
     The haystack to count the number of occurences of the needles
 
-  @returns
-    Number of occurences
+  @return
+    The number of occurences
 */
 size_t Areas::wildcardCountSet(
-    const std::unordered_set<std::string> &needles,
-    const std::string &haystack) const {
+    const std::unordered_set<std::string>& needles,
+    const std::string& haystack) const {
   // count exact matches first
   size_t retval = needles.count(haystack);
   
@@ -212,7 +206,7 @@ size_t Areas::wildcardCountSet(
     True if the area should be excluded, false otherwise
 */
 bool Areas::isLocalAuthorityFiltered(
-    const std::unordered_set<std::string> &areasFilter,
+    const std::unordered_set<std::string>& areasFilter,
     const std::string localAuthorityCode)
     noexcept {
   if (areasFilter.size() > 0) {
@@ -242,7 +236,7 @@ bool Areas::isLocalAuthorityFiltered(
             return false;
           }
         }
-      } catch (const std::out_of_range &ex) {
+      } catch (const std::out_of_range& ex) {
       }
     } 
   }
@@ -253,11 +247,11 @@ bool Areas::isLocalAuthorityFiltered(
 /*
   TODO: Areas::size()
 
-  Retrieve the number of areas within the container This function should not
-  modify the object or throw an exception.
+  Retrieve the number of Areas within the container. This function should be 
+  callable from a constant context and must promise not throw an exception.
 
   @return
-    The number of Areas
+    The number of Area instances
 
   @example
     Areas data = Areas();
@@ -282,8 +276,8 @@ size_t Areas::size() const noexcept {
   For this coursework, you can assume that areas.csv will always have the same
   three columns in the same order.
 
-  Once the data is parsed, you need to create the appropriate Area() objects and
-  insert them in to a Standard Library container within Areas().
+  Once the data is parsed, you need to create the appropriate Area objects and
+  insert them in to a Standard Library container within Areas.
 
   @param is
     The input stream from InputSource
@@ -294,8 +288,11 @@ size_t Areas::size() const noexcept {
     in datasets.h
 
   @param areasFilter
-    An umodifiable pointer to set of strings for areas to import, or an empty 
-    set if all areas should be imported
+    An umodifiable pointer to set of umodifiable strings for areas to import,
+    or an empty set if all areas should be imported
+
+  @return
+    void
 
   @see
     See datasets.h for details of how the variable cols is organised
@@ -319,8 +316,8 @@ size_t Areas::size() const noexcept {
     std::out_of_range if there are not enough columns in cols
 */
 void Areas::populateFromAuthorityCodeCSV(
-    std::istream &is,
-    const BethYw::SourceColumnMapping &cols,
+    std::istream& is,
+    const BethYw::SourceColumnMapping& cols,
     const std::unordered_set<std::string> * const areasFilter) noexcept(false) {
   // First row is our column titles, skip it
   std::string line;
@@ -329,7 +326,7 @@ void Areas::populateFromAuthorityCodeCSV(
                              "File contains no data");
   }
 
-  bool areasFilterEnabled = areasFilter != nullptr && !areasFilter->empty();
+  bool areasFilterEnabled = areasFilter != nullptr&&  !areasFilter->empty();
 
   // Parse the data
   unsigned int lineNo = 2;
@@ -351,9 +348,9 @@ void Areas::populateFromAuthorityCodeCSV(
       // Third column is the title in Welsh
       getline(s, nameWelsh, ',');
 
-      if (areasFilterEnabled &&
-          wildcardCountSet(*areasFilter, localAuthorityCode) == 0 &&
-          wildcardCountSet(*areasFilter, nameEnglish) == 0 &&
+      if (areasFilterEnabled&& 
+          wildcardCountSet(*areasFilter, localAuthorityCode) == 0&& 
+          wildcardCountSet(*areasFilter, nameEnglish) == 0&& 
             wildcardCountSet(*areasFilter, nameWelsh) == 0) {
         continue;
       }
@@ -369,7 +366,7 @@ void Areas::populateFromAuthorityCodeCSV(
 
       lineNo++;
     }
-  } catch (const std::exception &ex) {
+  } catch (const std::exception& ex) {
     const std::string err = "AreaCSVParser::parse: "
                             "Error on or near line " +
                             std::to_string(lineNo);
@@ -384,21 +381,19 @@ void Areas::populateFromAuthorityCodeCSV(
                                           measuresFilter,
                                           yearsFilter)
 
-  Implement the partsing of the data from JSON files.
-
-  Data from Welsh Statistics is in the JSON format, and contains three
+  Data from StatsWales is in the JSON format, and contains three
   top-level keys: odata.metadata, value, odata.nextLink. value contains the
   data we need. Rather than been hierarchical, it contains data as a
   continuous list (e.g. as you would find in a table). For each row in value,
   there is a mapping of various column headings and their respective vaues.
 
-  Therefore, you need to loop through the items in value (in a loop)
+  Therefore, you need to go through the items in value (in a loop)
   using a JSON library. To help you, I've selected the nlohmann::json
-  library that you must use for your coursework. I've included this in the
-  libs folder. Read up on how to use it here: https://github.com/nlohmann/json
+  library that you must use for your coursework. Read up on how to use it here:
+  https://github.com/nlohmann/json
 
   Example of using this library:
-    - Reading/parsing in from a stream is very simply using the >> operators:
+    - Reading/parsing in from a stream is very simply using the >> operator:
         json j;
         stream >> j;
 
@@ -412,21 +407,22 @@ void Areas::populateFromAuthorityCodeCSV(
            // do stuff here...
         }
 
-  In this function, you will have to parse the statistics files, extracting
-  the area code, English name (the files only contain the English names),
-  and each measure by year.
+  In this function, you will have to parse the JSON datasets, extracting
+  the local authority code, English name (the files only contain the English
+  names), and each measure by year.
 
-  If you encounter an area that does not exist in the Areas container, you
-  should create the Area object.
+  If you encounter an Area that does not exist in the Areas container, you
+  should create the Area object. If areasFilter is a non-empty set only include
+  areas matching the filter. Note that these files do not include the name for
+  areas in Welsh, instead you have to rely on the names already populated
+  through Areas::populateFromAuthorityCodeCSV();
 
-  If areasFilter is a non-empty set only include areas where the authority
-  code is within areasFilter. If measuresFilter is a non-empty set only include
-  measures where the measure code is within measuresFilter. If yearsFilter is
-  not equal to <0,0>, only import years within the range specified by the
-  tuple (inclusive).
+  If measuresFilter is a non-empty set only include measures matching the
+  filter. If yearsFilter is not equal to <0,0>, only import years within the
+  range specified by the tuple (inclusive).
 
   I've provided the column names for each JSON file that you need to parse
-  as std::string's in datasets.h. This mapping should be passed through to the
+  as std::strings in datasets.h. This mapping should be passed through to the
   cols parameter of this function.
 
   Note that in the JSON format, years are stored as strings, but we need
@@ -442,17 +438,20 @@ void Areas::populateFromAuthorityCodeCSV(
     in datasets.h
 
   @param areasFilter
-    An umodifiable pointer to set of strings for areas to import, or an empty 
-    set if all areas should be imported
+    An umodifiable pointer to set of umodifiable strings for areas to import,
+    or an empty set if all areas should be imported
 
   @param measuresFilter
-    An umodifiable pointer to set of strings for measures to import, or an empty 
-    set if all measures should be imported
+    An umodifiable pointer to set of umodifiable strings for measures to import,
+    or an empty set if all measures should be imported
 
   @param yearsFilter
-    An umodifiable pointer to a tuple of two unsigned integers, where if both
-    values are 0, then all years should be imported, otherwise they should be
-    treated as a the range of years to be imported
+    An umodifiable pointer to an umodifiable tuple of two unsigned integers,
+    where if both values are 0, then all years should be imported, otherwise
+    they should be treated as a the range of years to be imported
+
+  @return
+    void
 
   @throws 
     std::runtime_error if a parsing error occurs (e.g. due to a malformed file)
@@ -483,8 +482,8 @@ void Areas::populateFromAuthorityCodeCSV(
       &yearsFilter);
 */
 void Areas::populateFromWelshStatsJSON(
-    std::istream &is,
-    const BethYw::SourceColumnMapping &cols,
+    std::istream& is,
+    const BethYw::SourceColumnMapping& cols,
     const std::unordered_set<std::string> * const areasFilter,
     const std::unordered_set<std::string> * const measuresFilter,
     const std::tuple<unsigned int, unsigned int> * const yearsFilter)
@@ -492,7 +491,7 @@ void Areas::populateFromWelshStatsJSON(
   json j;
   try {
     is >> j;
-  } catch (const json::exception &ex) {
+  } catch (const json::exception& ex) {
     const std::string err = "Areas::populateFromWelshStatsJSON: "
                             "Invalid JSON: " +
                             std::string(ex.what());
@@ -507,7 +506,7 @@ void Areas::populateFromWelshStatsJSON(
     COL_AREA_NAME = cols.at(BethYw::AUTH_NAME_ENG);
     COL_YEAR = cols.at(BethYw::YEAR);
     COL_VALUE = cols.at(BethYw::VALUE);
-  } catch(const std::out_of_range &ex) {
+  } catch(const std::out_of_range& ex) {
     throw std::out_of_range("Areas::populateFromWelshStatsJSON: "
                             "Incomplete column specification!");
   }
@@ -520,12 +519,12 @@ void Areas::populateFromWelshStatsJSON(
   try {
     COL_MEASURE_CODE = cols.at(BethYw::MEASURE_CODE);
     COL_MEASURE_NAME = cols.at(BethYw::MEASURE_NAME);
-  } catch(const std::out_of_range &ex) {
+  } catch(const std::out_of_range& ex) {
     try {
       COL_MEASURE_CODE = cols.at(BethYw::SINGLE_MEASURE_CODE);
       COL_MEASURE_NAME = cols.at(BethYw::SINGLE_MEASURE_NAME);
       multipleMeasures = false;
-    } catch(const std::out_of_range &ex2) {
+    } catch(const std::out_of_range& ex2) {
       throw std::out_of_range("Areas::populateFromWelshStatsJSON: "
                               "Incomplete column specification, "
                               "no measure details specified!");
@@ -534,18 +533,18 @@ void Areas::populateFromWelshStatsJSON(
 
   // Determine whether the respective area, measures, and years filters
   // are enabled or not
-  bool areasFilterEnabled    = areasFilter != nullptr &&
+  bool areasFilterEnabled    = areasFilter != nullptr&& 
                                !areasFilter->empty();
-  bool measuresFilterEnabled = measuresFilter != nullptr &&
+  bool measuresFilterEnabled = measuresFilter != nullptr&& 
                                !measuresFilter->empty();
-  bool yearsFilterEnabled    = yearsFilter != nullptr &&
-                               std::get<0>(*yearsFilter) != 0 &&
+  bool yearsFilterEnabled    = yearsFilter != nullptr&& 
+                               std::get<0>(*yearsFilter) != 0&& 
                                std::get<1>(*yearsFilter) != 0;
 
   // Now loop through each row in the JSON file
   // std::string localAuthorityCode;
-  for (auto &el : j["value"].items()) {
-    auto &data = el.value();
+  for (auto& el : j["value"].items()) {
+    auto& data = el.value();
 
     // Fetch the local authority code and name to check whether this
     // has been added to the imported data already
@@ -553,7 +552,7 @@ void Areas::populateFromWelshStatsJSON(
     try {
         localAuthorityCode = data[COL_AUTHORITY_CODE];
         areaNameEnglish = data[COL_AREA_NAME];
-    } catch (const nlohmann::detail::type_error &ex) {
+    } catch (const nlohmann::detail::type_error& ex) {
       throw std::out_of_range("Areas::populateFromWelshStatsJSON: "
                               "Column specification did not match file for "
                               "COL_AUTHORITY_CODE or COL_AREA_NAME!");
@@ -564,7 +563,7 @@ void Areas::populateFromWelshStatsJSON(
     if (areasFilterEnabled) {
       // Welsh names aren't in the JSON data, so we can only check local
       // authority codes and English names by default
-      if (wildcardCountSet(*areasFilter, localAuthorityCode) == 0 &&
+      if (wildcardCountSet(*areasFilter, localAuthorityCode) == 0&& 
           wildcardCountSet(*areasFilter, areaNameEnglish) == 0) {
 
         // But, if the area already exists, we might have a Welsh name for it 
@@ -573,12 +572,12 @@ void Areas::populateFromWelshStatsJSON(
         // match the filter and skip it.
         if (existingArea != mAreasByCode.end()) {
           try {
-            const std::string &areaNameWelsh =
+            const std::string& areaNameWelsh =
                 existingArea->second.getName("cym");
             if (wildcardCountSet(*areasFilter, areaNameWelsh) == 0) {
               continue;
             }
-          } catch (const std::out_of_range &ex) {
+          } catch (const std::out_of_range& ex) {
             continue;
           }
         } else {
@@ -602,7 +601,7 @@ void Areas::populateFromWelshStatsJSON(
         measureCode.begin(),
         measureCode.end(),
         measureCode.begin(),::tolower);
-    if (measuresFilterEnabled && measuresFilter->count(measureCode) == 0) {
+    if (measuresFilterEnabled&&  measuresFilter->count(measureCode) == 0) {
       continue;
     }
     
@@ -610,15 +609,15 @@ void Areas::populateFromWelshStatsJSON(
     unsigned int year = 0;
     try {
       year = std::stoi(data[COL_YEAR].get_ref<std::string&>());
-      if (yearsFilterEnabled && (year < std::get<0>(*yearsFilter) ||
+      if (yearsFilterEnabled&&  (year < std::get<0>(*yearsFilter) ||
                                  year > std::get<1>(*yearsFilter))) {
         continue;
       }
-    } catch (const nlohmann::detail::type_error &ex) {
+    } catch (const nlohmann::detail::type_error& ex) {
       throw std::out_of_range("Areas::populateFromWelshStatsJSON: "
                               "Column specification did not match file for "
                               "YEAR!");
-    } catch (const std::bad_cast &ex) {
+    } catch (const std::bad_cast& ex) {
       throw std::out_of_range("Areas::populateFromWelshStatsJSON: "
                               "Column specification did not match file for "
                               "YEAR!");
@@ -628,7 +627,7 @@ void Areas::populateFromWelshStatsJSON(
     double value(0.0);
     try {
       value = data[COL_VALUE];
-    } catch (const nlohmann::detail::type_error &ex) {
+    } catch (const nlohmann::detail::type_error& ex) {
       // dagnabbit, its problably a string!
       value = std::stod((std::string) data[COL_VALUE]);
     }
@@ -636,14 +635,14 @@ void Areas::populateFromWelshStatsJSON(
     // Finally, we add the value to the measure to the area to the areas
     if (existingArea != mAreasByCode.end()) {
       // The area exists, so we'll add to the existing instance
-      Area &area = existingArea->second;
+      Area& area = existingArea->second;
       
       // Determine if a matching Measure exists within the Area
       try {
         // It does!
-        Measure &existingMeasure = area.getMeasure(measureCode);
+        Measure& existingMeasure = area.getMeasure(measureCode);
         existingMeasure.setValue(year, std::move(value));
-      } catch (const std::out_of_range &ex) {
+      } catch (const std::out_of_range& ex) {
         // It does not, so create a new measure
         Measure newMeasure = Measure(measureCode, measureName);
         newMeasure.setValue(year, std::move(value));
@@ -665,35 +664,45 @@ void Areas::populateFromWelshStatsJSON(
   }
 }
 
-
 /*
-  TODO: Areas::populateFromAuthorityByYearCSV(is, cols, areasFilter, yearFilter)
+  TODO: Areas::populateFromAuthorityByYearCSV(is,
+                                              cols,
+                                              areasFilter,
+                                              yearFilter)
 
-  This function imports CSV files that consist of columns containing the
-  authority code followed by years. Each row is an authority code, and then 
-  the value for the years.
+  This function imports CSV files that contain a single measure. The 
+  CSV file consists of columns containing the authority code and years.
+  Each row is either an authority code or a value for a year.
 
-  This code assumes the first column is the authority code.
+  Note that these files do not include the names for areas, instead you 
+  have to rely on the names already populated through 
+  Areas::populateFromAuthorityCodeCSV();
+
+  The datasets that will be parsed by this function are
+   - complete-popu1009-area.csv
+   - complete-popu1009-pop.csv
+   - complete-popu1009-opden.csv
 
   @param is
     The input stream from InputSource
 
   @param cols
-    A map of the enum SourceColumn (see areas.h) to strings that give the
-    column header in the CSV file, which is statically defined in datasets.h
+    A map of the enum BethyYw::SourceColumnMapping (see datasets.h) to strings
+    that give the column header in the CSV file, which is statically defined
+    in datasets.h
 
   @param areasFilter
-    An umodifiable pointer to set of strings for areas to import, or an empty 
-    set if all areas should be imported
+    An umodifiable pointer to set of umodifiable strings for areas to import,
+    or an empty set if all areas should be imported
 
   @param measuresFilter
     An umodifiable pointer to set of strings for measures to import, or an empty 
     set if all measures should be imported
 
   @param yearsFilter
-    An umodifiable pointer to a tuple of two unsigned integers, where if both
-    values are 0, then all years should be imported, otherwise they should be
-    treated as a the range of years to be imported
+    An umodifiable pointer to an umodifiable tuple of two unsigned integers,
+    where if both values are 0, then all years should be imported, otherwise
+    they should be treated as a the range of years to be imported
 
   @return
     void
@@ -721,14 +730,14 @@ void Areas::populateFromWelshStatsJSON(
     std::out_of_range if there are not enough columns in cols
 */
 void Areas::populateFromAuthorityByYearCSV(
-    std::istream &is,
-    const BethYw::SourceColumnMapping &cols,
+    std::istream& is,
+    const BethYw::SourceColumnMapping& cols,
     const std::unordered_set<std::string> * const areasFilter,
     const std::unordered_set<std::string> * const measuresFilter,
     const std::tuple<unsigned int, unsigned int> * const yearsFilter)
     noexcept(false) {
 
-  bool measuresFilterEnabled     = measuresFilter != nullptr &&
+  bool measuresFilterEnabled     = measuresFilter != nullptr&& 
                                    !measuresFilter->empty();
 
   // Get the measure code and name from the static data
@@ -740,16 +749,16 @@ void Areas::populateFromAuthorityByYearCSV(
       measureCode.end(),
       measureCode.begin(),::tolower);
 
-  if (measuresFilterEnabled && measuresFilter->count(measureCode) == 0) {
+  if (measuresFilterEnabled&&  measuresFilter->count(measureCode) == 0) {
     return;
   }
 
   const unsigned int authorityCodeColIdent = (unsigned int) -1;
 
-  bool areasFilterEnabled = areasFilter != nullptr &&
+  bool areasFilterEnabled = areasFilter != nullptr&& 
                             !areasFilter->empty();
-  bool yearsFilterEnabled = yearsFilter != nullptr &&
-                            std::get<0>(*yearsFilter) != 0 &&
+  bool yearsFilterEnabled = yearsFilter != nullptr&& 
+                            std::get<0>(*yearsFilter) != 0&& 
                             std::get<1>(*yearsFilter) != 0;
 
   // Mapping of the column ordering to the year, the authority code
@@ -774,12 +783,12 @@ void Areas::populateFromAuthorityByYearCSV(
           } else {
             colHeaders.push_back(std::stoi(cell));
           }
-        } catch (const std::out_of_range &ex) {
+        } catch (const std::out_of_range& ex) {
           throw std::runtime_error("Areas::populateFromAuthorityCodeCSV: "
                                    "Must specify valid AUTH_CODE column!");
         }
       }
-    } catch(const std::ios_base::failure &ex) {
+    } catch(const std::ios_base::failure& ex) {
     }
   }
   
@@ -809,7 +818,7 @@ void Areas::populateFromAuthorityByYearCSV(
           // As above, if year is == -1, its the authority code
           if (columnIdent == authorityCodeColIdent) {
             // This is the local authority!
-            if (areasFilterEnabled &&
+            if (areasFilterEnabled&& 
                 isLocalAuthorityFiltered(*areasFilter, cell)) {
               break;
             }
@@ -818,7 +827,7 @@ void Areas::populateFromAuthorityByYearCSV(
             localAuthorityCode = cell;
           } else {
             // It's a year value in this column
-            if (yearsFilterEnabled &&
+            if (yearsFilterEnabled&& 
                  (columnIdent < std::get<0>(*yearsFilter) ||
                   columnIdent > std::get<1>(*yearsFilter))) {
               continue;
@@ -841,18 +850,18 @@ void Areas::populateFromAuthorityByYearCSV(
         auto existingArea = mAreasByCode.find(localAuthorityCode);
         if (existingArea != mAreasByCode.end()) {
           // The area exists, so we'll add to the existing instance
-          Area &area = existingArea->second;
+          Area& area = existingArea->second;
 
           // Determine if a matching Measure exists within the Area
           try {
-            Measure &existingMeasure = area.getMeasure(measureCode);
+            Measure& existingMeasure = area.getMeasure(measureCode);
             // It does!
             for (auto it = tempData.begin(); it != tempData.end(); it++) {
               existingMeasure.setValue(
                 static_cast<unsigned int>(it->first),
                 it->second);
             }
-          } catch (const std::out_of_range &ex) {
+          } catch (const std::out_of_range& ex) {
             // It does not, so create a new measure
             Measure newMeasure = Measure(measureCode, measureName);
 
@@ -880,10 +889,10 @@ void Areas::populateFromAuthorityByYearCSV(
           this->setArea(localAuthorityCode, std::move(area));
         }
         lineNo++;
-      } catch (const std::ios_base::failure &ex) {
+      } catch (const std::ios_base::failure& ex) {
       }
     }
-  } catch (const std::exception &ex) {
+  } catch (const std::exception& ex) {
     const std::string err = "Areas::populateFromAuthorityByYearCSV: "
                             "Error on or near line " +
                             std::to_string(lineNo);
@@ -895,14 +904,12 @@ void Areas::populateFromAuthorityByYearCSV(
   TODO: Areas::populate(is, type, cols)
 
   Parse data from an standard input stream, that is of a particular type,
-  and with a given column mapping, filtering for specific area authority codes,
-  measure identifiers, and years, and fill the container.
+  and with a given column mapping.
 
-  This function should look at the type and have off to one of the two 
-  functions you've implemented above (populateFromAuthorityCodeCSV and
-  populateFromWelshStatsJSON).
+  This function should look at the type and hand off to one of the three 
+  functions you've implemented above.
 
-  The function must check if the stream is in working order and has contents.
+  The function must check if the stream is in working order and has content.
 
   @param is
     The input stream from InputSource
@@ -912,8 +919,12 @@ void Areas::populateFromAuthorityByYearCSV(
     data file structure
 
   @param cols
-    A map of the enum SourceColumn (see areas.h) to strings that give the
-    column header in the CSV file, which is statically defined in datasets.h
+    A map of the enum BethyYw::SourceColumnMapping (see datasets.h) to strings
+    that give the column header in the CSV file, which is statically defined
+    in datasets.h
+
+  @return
+    void
 
   @throws 
     std::runtime_error if a parsing error occurs (e.g. due to a malformed file),
@@ -939,12 +950,12 @@ void Areas::populateFromAuthorityByYearCSV(
     Areas data = Areas();
     areas.populate(
       is,
-      BethYw::SourceDataType::WelshStatsJSON,
+      DataType::WelshStatsJSON,
       cols);
 */
-void Areas::populate(std::istream &is,
-                       const BethYw::SourceDataType &type,
-                       const BethYw::SourceColumnMapping &cols)
+void Areas::populate(std::istream& is,
+                       const BethYw::SourceDataType& type,
+                       const BethYw::SourceColumnMapping& cols)
                        noexcept(false) {
   // check if the stream is open and readable
   is.seekg(1, is.beg);
@@ -966,23 +977,21 @@ void Areas::populate(std::istream &is,
 }
 
 /*
-  TODO: Areas::populate(
-    is,
-    type,
-    cols,
-    areasFilter,
-    measuresFilter,
-    yearsFilter)
+  TODO: Areas::populate(is,
+                        type,
+                        cols,
+                        areasFilter,
+                        measuresFilter,
+                        yearsFilter)
 
   Parse data from an standard input stream, that is of a particular type,
-  and with a given column mapping, filtering for specific area authority codes,
-  measure identifiers, and years, and fill the container.
+  and with a given column mapping, filtering for specific areas, measures,
+  and years, and fill the container.
 
-  This function should look at the type and have off to one of the two 
-  functions you've implemented above (populateFromAuthorityCodeCSV and
-  populateFromWelshStatsJSON).
+  This function should look at the type and hand off to one of the three 
+  functions you've implemented above.
 
-  The function must check if the stream is in working order and has contents.
+  The function must check if the stream is in working order and has content.
 
   This overloaded function includes pointers to the three filters for areas,
   measures, and years.
@@ -1000,17 +1009,20 @@ void Areas::populate(std::istream &is,
     in datasets.h
 
   @param areasFilter
-    An umodifiable pointer to set of strings for areas to import, or an empty 
-    set if all areas should be imported
+    An umodifiable pointer to set of umodifiable strings for areas to import,
+    or an empty set if all areas should be imported
 
   @param measuresFilter
-    An umodifiable pointer to set of strings for measures to import, or an empty 
-    set if all measures should be imported
+    An umodifiable pointer to set of umodifiable strings for measures to import,
+    or an empty set if all measures should be imported
 
   @param yearsFilter
-    An umodifiable pointer to a tuple of two unsigned integers, where if both
-    values are 0, then all years should be imported, otherwise they should be
-    treated as a the range of years to be imported
+    An umodifiable pointer to an umodifiable tuple of two unsigned integers,
+    where if both values are 0, then all years should be imported, otherwise
+    they should be treated as a the range of years to be imported
+
+  @return
+    void
 
   @throws 
     std::runtime_error if a parsing error occurs (e.g. due to a malformed file),
@@ -1040,16 +1052,16 @@ void Areas::populate(std::istream &is,
     Areas data = Areas();
     areas.populate(
       is,
-      BethYw::SourceDataType::WelshStatsJSON,
+      DataType::WelshStatsJSON,
       cols,
       &areasFilter,
       &measuresFilter,
       &yearsFilter);
 */
 void Areas::populate(
-    std::istream &is,
-    const BethYw::SourceDataType &type,
-    const BethYw::SourceColumnMapping &cols,
+    std::istream& is,
+    const BethYw::SourceDataType& type,
+    const BethYw::SourceColumnMapping& cols,
     const std::unordered_set<std::string> * const areasFilter,
     const std::unordered_set<std::string> * const measuresFilter,
     const std::tuple<unsigned int, unsigned int> * const yearsFilter)
@@ -1085,7 +1097,7 @@ void Areas::populate(
   TODO: Areas::toJSON()
 
   Convert this Areas object, and all its containing Area instances, and
-  the Measure instances within those all to values.
+  the Measure instances within those, to values.
 
   Use the sample JSON library as above to create this. Construct a blank
   JSON object:
@@ -1093,6 +1105,9 @@ void Areas::populate(
 
   Convert this json object to a string:
     j.dump();
+
+  You then need to loop through your areas, measures and years/values
+  adding this data to the JSON object.
 
   Read the documentation for how to convert your outcome code to JSON:
     https://github.com/nlohmann/json#arbitrary-types-conversions
@@ -1134,7 +1149,7 @@ void Areas::populate(
 
   An empty JSON is "{}" (without the quotes), which you must return if your
   Areas object is empty.
-
+  
   @return
     std::string of JSON
 
@@ -1155,7 +1170,7 @@ std::string Areas::toJSON() const {
   json j;
 
   for (auto areaIt = cbegin(); areaIt != cend(); areaIt++) {
-    const Area &area = areaIt->second;
+    const Area& area = areaIt->second;
     const std::string localAuthorityCode = area.getLocalAuthorityCode();
 
     auto names = area.getNames();
@@ -1167,7 +1182,7 @@ std::string Areas::toJSON() const {
     for (auto measureIt = area.cbegin();
          measureIt != area.cend();
          measureIt++) {
-      const Measure &measure = measureIt->second;
+      const Measure& measure = measureIt->second;
       const std::string measureCodename = measure.getCodename();
 
       for (auto yearIt = measure.cbegin(); yearIt != measure.cend(); yearIt++) {
@@ -1294,7 +1309,7 @@ std::string Areas::toJSON() const {
     Areas areas();
     std::cout << areas << std::end;
 */
-std::ostream &operator<<(std::ostream &os, const Areas &areas) {
+std::ostream& operator<<(std::ostream& os, const Areas& areas) {
   for (auto area = areas.cbegin(); area != areas.cend(); area++) {
     os << area->second;
   }

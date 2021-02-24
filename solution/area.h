@@ -12,11 +12,8 @@
   Measure objects for a given local area, along with names for that area and a
   unique authority code.
 
-  Some code has been provided in your coursework, along with explanatory 
-  comments.
-
   TODO: Read the block comments with TODO in area.cpp to know which 
-  functions and member variables you need to declare in these classes.
+  functions and member variables you need to declare in this class.
  */
 
 #include <iostream>
@@ -32,18 +29,17 @@
 /*
   The Areas class stores the area-based statistics data in a map of measure
   code to Measure object. Here we define this shortcut for the class.
-
-  TODO map: delete
 */
 using Area_c = std::map<std::string, Measure>;
 
 /*
-  An Area consists of a unique authority code, a map of names and a map of 
-  measures (where the measure code is the key and a Measure object is the 
-  value).
+  An Area object consists of a unique authority code, a container for names
+  for the area in any number of different languages, and a container for the
+  Measures objects.
 
-  TODO: You should read the various block comments in the corresponding 
-  implementation file to know what to declare.
+  TODO: Based on your implementation, there may be additional constructors
+  or functions you implement here, and perhaps additional operators you may wish
+  to overload.
 */
 class Area {
 protected:
@@ -53,44 +49,28 @@ protected:
   Area_c mMeasures;
 
 public:
-  Area(const std::string &localAuthorityCode);
+  Area(const std::string& localAuthorityCode);
   ~Area() = default;
 
-  /* 
-  Area(const Area &other)
-      : mLocalAuthorityCode(other.mLocalAuthorityCode),
-        mNames(other.mNames),
-        mMeasures(other.mMeasures) {
-    std::cerr << "!!!! Copy Construct Area" << std::endl;
-  }
-  Area &operator=(const Area &other) {
-    std::cerr << "!!!! Copy Assign Area" << std::endl;
-    mLocalAuthorityCode  = other.mLocalAuthorityCode;
-    mNames = other.mNames;
-    mMeasures  = other.mMeasures;
-    return *this;
-  }
-  */
+  Area(const Area& other) = default;
+  Area& operator=(const Area& other) = default;
+  Area(Area&& other) = default;
+  Area& operator=(Area&& other) = default;
 
-  Area(const Area &other) = default;
-  Area &operator=(const Area &other) = default;
-  Area(Area &&other) = default;
-  Area &operator=(Area &&other) = default;
-
-  const std::string &getLocalAuthorityCode() const;
+  const std::string& getLocalAuthorityCode() const;
 
   const std::string& getName(std::string lang) const;
   const std::map<std::string, std::string>& getNames() const;
-  void setName(std::string lang, const std::string &name);
-  void setName(std::string lang, std::string &&name);
+  void setName(std::string lang, const std::string& name);
+  void setName(std::string lang, std::string&& name);
 
-  void setMeasure(std::string ident, Measure &stat);
-  void setMeasure(std::string ident, Measure &&stat);
+  void setMeasure(std::string ident, Measure& stat);
+  void setMeasure(std::string ident, Measure&& stat);
   Measure& getMeasure(std::string ident);
   size_t size() const noexcept;
 
-  friend std::ostream& operator<<(std::ostream &os, const Area &area);
-  friend bool operator==(const Area &lhs, const Area &rhs);
+  friend std::ostream& operator<<(std::ostream& os, const Area& area);
+  friend bool operator==(const Area& lhs, const Area& rhs);
   
   /*
     Wrapper around underlying iterator functions for ease.

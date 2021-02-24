@@ -8,8 +8,8 @@
 
   AUTHOR: <STUDENT NUMBER>
 
-  This file contains all the helper functions for initialising and running
-  Beth Yw?
+  This file contains declarations for the helper functions for initialising and
+  running Beth Yw?
 
   TODO: Read the block comments with TODO in bethyw.cpp to know which 
   functions you need to declare in this file.
@@ -21,7 +21,7 @@
 
 #include "lib_cxxopts.hpp"
 
-#include "areas.h"
+#include "datasets.h"
 
 const char DIR_SEP =
 #ifdef _WIN32

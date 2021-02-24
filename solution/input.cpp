@@ -30,7 +30,7 @@
   @param source
     A unique identifier for a source (i.e. the location).
 */
-InputSource::InputSource(const std::string &source) : mSource(source) {}
+InputSource::InputSource(const std::string& source) : mSource(source) {}
 
 /*
   TODO: InputSource::getSource()
@@ -51,7 +51,7 @@ const std::string& InputSource::getSource() const { return mSource; }
   @example
     InputFile input("data/areas.csv");
 */
-InputFile::InputFile(const std::string &path)
+InputFile::InputFile(const std::string& path)
     : InputSource(path), mFileStream() {}
 
 /*
@@ -82,7 +82,7 @@ InputFile::~InputFile() {
 std::istream& InputFile::open() {
   try {
     mFileStream.open(mSource, std::ifstream::in);
-  } catch(const std::runtime_error &ex) {
+  } catch(const std::runtime_error& ex) {
     throw std::runtime_error("InputFile::open: Failed to open file " + mSource);
   }
   

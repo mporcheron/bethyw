@@ -8,14 +8,12 @@
 
   AUTHOR: Dr Martin Porcheron
 
-  This file contains information about files in the datasets directory.
-
-  In newer versions of C++, we would store this information as constexpr
-  (constant expressions), that can be baked into out code at compile-time. To
-  ensure we can run our coursework with older versions of C++, and to keep
-  the information in a logical and accessible way for you, for now we adopt
-  this approach which simply loads the information onto the stack and heap
-  as the program executes.
+  This file contains information about the files in the datasets directory. 
+  This file is designed to simulate what might be returned from a
+  dynamically-generated code, although all the information is actually embedded
+  here in code, and constructed as your program begins execution automatically.
+  This is so that you can easily read and understand it (i.e., I didn't want
+  this to be the focus of the coursework).
 
   You must not modify this file as it will be replaced with a fresh copy
   during marking.

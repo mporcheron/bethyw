@@ -11,8 +11,8 @@
   This file contains the implementation of the Measure class. Measure is a
   very simple class that needs to contain a few member variables for its name,
   codename, and a Standard Library container for data. The data you need to 
-  store is values, organised by year (thus an associative container is
-  probably ideal).
+  store is values, organised by year. I'd recommend storing the values as 
+  doubles.
 
   This file contains numerous functions you must implement. Each function you
   must implement has a TODO block comment. 
@@ -50,7 +50,7 @@ Measure::Measure(std::string codename, const std::string &label) {
   TODO: Measure::getCodename()
 
   Retrieve the code for the Measure. This function should be callable from a 
-  constant context.
+  constant context and must promise not to throw an exception.
 
   @return
     The codename for the Measure
@@ -70,7 +70,7 @@ Measure::Measure(std::string codename, const std::string &label) {
   TODO: Measure::getLabel()
 
   Retrieve the human-friendly label for the Measure. This function should be 
-  callable from a constant context.
+  callable from a constant context and must promise not to throw an exception.
 
   @return
     The human-friendly label for the Measure
@@ -158,8 +158,8 @@ Measure::Measure(std::string codename, const std::string &label) {
 /*
   TODO: Measure::size()
 
-  Retrieve the number of years data we have for this measure. This
-  function should be callable from a constant context and should promise to not
+  Retrieve the number of years data we have for this measure. This function
+  should be callable from a constant context and should promise to not
   throw an exception.
 
   @return
@@ -176,7 +176,7 @@ Measure::Measure(std::string codename, const std::string &label) {
 
 
 /*
-  TODO: Measure:: getDifference()
+  TODO: Measure::getDifference()
 
   Calculate the difference between the first and last year imported. This
   function should be callable from a constant context and should promise to not
@@ -195,7 +195,7 @@ Measure::Measure(std::string codename, const std::string &label) {
 
 
 /*
-  TODO: Measure:: getDifferenceAsPercentage()
+  TODO: Measure::getDifferenceAsPercentage()
 
   Calculate the difference between the first and last year imported as a 
   percentage. This function should be callable from a constant context and
@@ -208,13 +208,13 @@ Measure::Measure(std::string codename, const std::string &label) {
   @example
     Measure measure("pop", "Population");
     measure.setValue(1990, 12345678.9);
-    measure.setValue(2010, 123456790);
+    measure.setValue(2010, 12345679.9);
     auto diff = measure.getDifferenceAsPercentage();
 */
 
 
 /*
-  TODO: Measure:: getAverage()
+  TODO: Measure::getAverage()
 
   Calculate the average/mean value for all the values. This function should be
   callable from a constant context and should promise to not throw an exception.
@@ -242,7 +242,7 @@ Measure::Measure(std::string codename, const std::string &label) {
   Years should be printed in chronological order. Three additional columns
   should be included at the end of the output, correspodning to the average
   value across the years, the difference between the first and last year,
-  and the percentage different between the first and last year.
+  and the percentage difference between the first and last year.
 
   If there is no data in this measure, print the name and code, and 
   on the next line print: <no data>
@@ -281,7 +281,7 @@ Measure::Measure(std::string codename, const std::string &label) {
     A second Measure object
 
   @return
-    true if both Measure objects have. the same codename, label and data; false
+    true if both Measure objects have the same codename, label and data; false
     otherwise
 */
 

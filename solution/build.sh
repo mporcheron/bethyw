@@ -22,11 +22,6 @@ elif [ $# -eq 1 ]; then
     if [ ! -f ./${BIN_DIR}/catch.o ]; then
       g++ --std=c++11 -c ./lib_catch_main.cpp -o ./${BIN_DIR}/catch.o
     fi
-    
-    mkdir -p ${BIN_DIR}
-    rm ${EXECUTABLE} 2> /dev/null
-    g++ --std=c++14 -Wall ${SOURCE_FILES} ${MAIN_FILE} -o ${EXECUTABLE}
-    exit
   fi
 fi
 

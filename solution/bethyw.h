@@ -8,8 +8,8 @@
 
   AUTHOR: Dr Martin Porcheron
 
-  This file contains all the helper functions for initialising and running
-  Beth Yw?
+  This file contains declarations for the helper functions for initialising and
+  running Beth Yw?
 
   TODO: Read the block comments with TODO in bethyw.cpp to know which 
   functions you need to declare in this file.
@@ -22,6 +22,7 @@
 
 #include "lib_cxxopts.hpp"
 
+#include "datasets.h"
 #include "areas.h"
 
 /*
@@ -89,9 +90,9 @@ std::tuple<unsigned int, unsigned int> parseYearsArg(
   create the appropriate Area objects inside an Areas object.
 */
 void loadAreas(
-    Areas &areas,
-    const std::string &dir,
-    std::unordered_set<std::string> &filter);
+    Areas& areas,
+    const std::string& dir,
+    std::unordered_set<std::string>& filter);
 
 /*
   Load the datasets in datasetsToImport into the Areas object from files
@@ -105,12 +106,12 @@ void loadAreas(
   tuple.
 */
 void loadDatasets(
-    Areas &cat,
-    const std::string &dir,
-    std::vector<InputFileSource> &datasetsToImport,
-    std::unordered_set<std::string> &areasFilter,
-    std::unordered_set<std::string> &measuresFilter,
-    std::tuple<unsigned int,unsigned int> &yearsFilter) noexcept;
+    Areas& cat,
+    const std::string& dir,
+    std::vector<InputFileSource>& datasetsToImport,
+    std::unordered_set<std::string>& areasFilter,
+    std::unordered_set<std::string>& measuresFilter,
+    std::tuple<unsigned int,unsigned int>& yearsFilter) noexcept;
 
 } // namespace BethYw
 

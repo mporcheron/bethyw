@@ -56,7 +56,7 @@ Areas::Areas() {
   If an Area already exists with the same local authority code, overwrite all
   data contained within the existing Area with those in the new
   Area (i.e. they should be combined, but the new Area's data should take
-  precedence if there is two pieces of data, e.g. names in the same language).
+  precedence, e.g. replace a name with the same language identifier).
 
   @param key
     The local authority code of the Area
@@ -86,7 +86,7 @@ Areas::Areas() {
     An Area object
 
   @throws
-    std::out_of_range if year does not exist in Areas
+    std::out_of_range if an Area does not exist in Areas
 
   @example
     Areas data = Areas();
@@ -101,7 +101,7 @@ Areas::Areas() {
   TODO: Areas::size()
 
   Retrieve the number of Areas within the container. This function should be 
-  callable from a constant context and must not throw an exception.
+  callable from a constant context and must promise not throw an exception.
 
   @return
     The number of Area instances
@@ -181,7 +181,7 @@ void Areas::populateFromAuthorityCodeCSV(
                                           measuresFilter,
                                           yearsFilter)
 
-  Data from Welsh Statistics is in the JSON format, and contains three
+  Data from StatsWales is in the JSON format, and contains three
   top-level keys: odata.metadata, value, odata.nextLink. value contains the
   data we need. Rather than been hierarchical, it contains data as a
   continuous list (e.g. as you would find in a table). For each row in value,
@@ -189,8 +189,8 @@ void Areas::populateFromAuthorityCodeCSV(
 
   Therefore, you need to go through the items in value (in a loop)
   using a JSON library. To help you, I've selected the nlohmann::json
-  library that you must use for your coursework. I've included this in the
-  libs/ folder. Read up on how to use it here: https://github.com/nlohmann/json
+  library that you must use for your coursework. Read up on how to use it here:
+  https://github.com/nlohmann/json
 
   Example of using this library:
     - Reading/parsing in from a stream is very simply using the >> operator:
@@ -222,7 +222,7 @@ void Areas::populateFromAuthorityCodeCSV(
   range specified by the tuple (inclusive).
 
   I've provided the column names for each JSON file that you need to parse
-  as std::string's in datasets.h. This mapping should be passed through to the
+  as std::strings in datasets.h. This mapping should be passed through to the
   cols parameter of this function.
 
   Note that in the JSON format, years are stored as strings, but we need
@@ -290,7 +290,7 @@ void Areas::populateFromAuthorityCodeCSV(
                                               yearFilter)
 
   This function imports CSV files that contain a single measure. The 
-  CSV file consist of columns containing the authority code and years.
+  CSV file consists of columns containing the authority code and years.
   Each row is either an authority code or a value for a year.
 
   Note that these files do not include the names for areas, instead you 
@@ -356,7 +356,7 @@ void Areas::populateFromAuthorityCodeCSV(
   Parse data from an standard input stream, that is of a particular type,
   and with a given column mapping.
 
-  This function should look at the type and have off to one of the three 
+  This function should look at the type and hand off to one of the three 
   functions you've implemented above.
 
   The function must check if the stream is in working order and has content.
@@ -416,17 +416,17 @@ void Areas::populate(std::istream &is,
 
 /*
   TODO: Areas::populate(is,
-                          type,
-                          cols,
-                          areasFilter,
-                          measuresFilter,
-                          yearsFilter)
+                        type,
+                        cols,
+                        areasFilter,
+                        measuresFilter,
+                        yearsFilter)
 
   Parse data from an standard input stream, that is of a particular type,
   and with a given column mapping, filtering for specific areas, measures,
   and years, and fill the container.
 
-  This function should look at the type and have off to one of the three 
+  This function should look at the type and hand off to one of the three 
   functions you've implemented above.
 
   The function must check if the stream is in working order and has content.
@@ -516,7 +516,7 @@ void Areas::populate(
   TODO: Areas::toJSON()
 
   Convert this Areas object, and all its containing Area instances, and
-  the Measure instances within those all to values.
+  the Measure instances within those, to values.
 
   Use the sample JSON library as above to create this. Construct a blank
   JSON object:
@@ -525,7 +525,7 @@ void Areas::populate(
   Convert this json object to a string:
     j.dump();
 
-  You then need to loop through your areas, measurea and years/values
+  You then need to loop through your areas, measures and years/values
   adding this data to the JSON object.
 
   Read the documentation for how to convert your outcome code to JSON:

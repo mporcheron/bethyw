@@ -8,10 +8,10 @@
 
   AUTHOR: <STUDENT NUMBER>
 
-  This file contains input source handlers. There are two classes: InputSource
-  and InputFile. InputSource is abstract (i.e. it contains a pure virtual
-  function). InputFile is a concrete derivation of InputSource, for input
-  from files.
+  This file contains declarations for the input source handlers. There are
+  two classes: InputSource and InputFile. InputSource is abstract (i.e. it
+  contains a pure virtual function). InputFile is a concrete derivation of
+  InputSource, for input from files.
 
   Although only one class derives from InputSource, we have implemented our
   code this way to support future expansion of input from different sources
@@ -36,7 +36,8 @@
   to overload.
 */
 class InputSource {
-  // TODO: Infer the declaration of InputSource
+protected:
+  InputSource(const std::string& source);
 };
 
 /*
@@ -48,6 +49,8 @@ class InputSource {
   to overload.
 */
 class InputFile : public InputSource {
+public:
+  InputFile(const std::string& filePath);
 };
 
 #endif // SRC_INPUT_H_

@@ -17,9 +17,9 @@
   TODO: This file contains numerous functions you must implement. Each one
   is denoted with a TODO in the block comment. Note that some code has been
   provided in some functions to get you started, but you should read through
-  this code and make sure it is safe. You may need to remove or modify the
-  provided code to get your program to work fully. You may implement additional
-  functions not specified.
+  this code and make sure it is safe and complete. You may need to remove or
+  modify the provided code to get your program to work fully. You may implement
+  additional functions not specified.
 */
 
 #include <iostream>
@@ -30,6 +30,7 @@
 
 #include "lib_cxxopts.hpp"
 
+#include "areas.h"
 #include "datasets.h"
 #include "bethyw.h"
 #include "input.h"
@@ -38,7 +39,8 @@
   Run Beth Yw?, parsing the command line arguments, importing the data,
   and outputting the requested data to the standard output/error.
 
-  Hint: cxxopts.parse() throws exceptions you'll need to catch
+  Hint: cxxopts.parse() throws exceptions you'll need to catch. Read the cxxopts
+  documentation for more information.
 
   @param argc
     Number of program arguments
@@ -105,8 +107,8 @@ cxxopts::Options BethYw::cxxoptsSetup() {
   cxxopts::Options cxxopts(
         "bethyw",
         "Student ID: " + STUDENT_NUMBER + "\n\n"
-        "This program is designed to parse Official UK/Welsh Government"
-        " statistics data files and answer \"what is…?\" questions.\n");
+        "This program is designed to parse official Welsh Government"
+        " statistics data files.\n");
     
   cxxopts.add_options()(
       "dir",
@@ -151,7 +153,7 @@ cxxopts::Options BethYw::cxxoptsSetup() {
   should be imported. If it is included, it should be a comma-separated list of 
   datasets to import (based on their key in the map InputFiles::DATASETS in 
   datasets.h). If the argument contains the value "all", all datasets should be 
-  imported.
+  imported (case-insensitively).
 
   This function validates the passed in dataset names against the codes in
   InputFiles::DATASETS. If an invalid code is entered, throw a
@@ -177,6 +179,7 @@ cxxopts::Options BethYw::cxxoptsSetup() {
 std::vector<BethYw::InputFileSource> BethYw::parseDatasetsArg(
     cxxopts::ParseResult& args) {
   // This function is incomplete, but to get you started...
+  // You may want to delete much of these // comments too!
 
   // Retrieve all valid datasets, see datasets.h
   size_t numDatasets = InputFiles::NUM_DATASETS;
@@ -185,14 +188,14 @@ std::vector<BethYw::InputFileSource> BethYw::parseDatasetsArg(
   // Create the container for the return type
   std::vector<InputFileSource> datasetsToImport;
 
-  // You can get the std::vector of arguments from cxxopts like this:
+  // You can get the std::vector of arguments from cxxopts like this.
   // Note that this function will throw an exception if datasets is not set as 
-  // an argument
+  // an argument. Check the documentation! Read it and understand it.
   auto inputDatasets = args["datasets"].as<std::vector<std::string>>();
 
   // You now need to compare the strings in this vector to the keys in
   // allDatasets above. Populate datasetsToImport with the values
-  // from the map allDatasets above and then return a vector
+  // from allDatasets above and then return a vector
 
   // You'll want to ignore/remove the following lines of code, they simply
   // import all datasets (for now) as an example to get you started
@@ -206,7 +209,8 @@ std::vector<BethYw::InputFileSource> BethYw::parseDatasetsArg(
   TODO: BethYw::parseAreasArg()
   
   Parses the areas command line argument, which is optional. If it doesn't 
-  exist or exists and contains "all" as value, all areas should be imported.
+  exist or exists and contains "all" as value, all areas should be imported,
+  i.e. the filter should be an empty set.
 
   Unlike datasets we can't check the validity of the values as it depends
   on each individual file imported (which hasn't happened until runtime).
@@ -339,9 +343,9 @@ std::unordered_set<std::string> BethYw::parseAreasArg(
   The actual filtering will be done by the Areas::populate() function, thus 
   you need to merely pass pointers on to these flters.
 
-  This function should not throw an exception. If there is an error/exception
-  thrown in any function called by thus function, catch it and output
-  'Error importing dataset:', followed by a new line and then the output
+  This function should promise not to throw an exception. If there is an
+  error/exception thrown in any function called by thus function, catch it and
+  output 'Error importing dataset:', followed by a new line and then the output
   of the what() function on the exception.
 
   @param areas

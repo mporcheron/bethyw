@@ -8,8 +8,8 @@
 
   AUTHOR: Dr Martin Porcheron
 
-  This file contains the implementation for the Area class. Area are relatively
-  simple classes that contain a local authority code, a container of names in
+  This file contains the implementation for the Area class. Area is a relatively
+  simple class that contains a local authority code, a container of names in
   different languages (perhaps stored in an associative container?) and a series
   of Measure objects (also in some form of container).
 
@@ -36,7 +36,7 @@
   @example
     Area("W06000023");
 */
-Area::Area(const std::string &localAuthorityCode)
+Area::Area(const std::string& localAuthorityCode)
     : mLocalAuthorityCode(localAuthorityCode),
       mNames(),
       mNamesList(),
@@ -57,15 +57,15 @@ Area::Area(const std::string &localAuthorityCode)
     ...
     auto authCode = area.getLocalAuthorityCode();
 */
-const std::string &Area::getLocalAuthorityCode() const {
+const std::string& Area::getLocalAuthorityCode() const {
   return mLocalAuthorityCode;
 }
 
 /*
   TODO: Area::getName(lang)
 
-  Get a name for the Area in a specific language. This function should be 
-  callable from a constant context.
+  Get a name for the Area in a specific language. This function should not
+  modify the class instance.
 
   @param lang
     A three-leter language code in ISO 639-3 format, e.g. cym or eng
@@ -74,7 +74,7 @@ const std::string &Area::getLocalAuthorityCode() const {
     The name for the area in the given language
 
   @throws
-    std::out_of_range if lang is not a set language
+    std::out_of_range if lang does not correspond to a language
 
   @example
     Area area("W06000023");
@@ -124,7 +124,7 @@ const std::map<std::string, std::string>& Area::getNames() const {
     area.setName("eng", "Powys");
     area.setName("cym", "Powys");
 */
-void Area::setName(std::string lang, const std::string &name) {
+void Area::setName(std::string lang, const std::string& name) {
   std::transform(lang.begin(), lang.end(), lang.begin(), ::tolower);
 
   const std::string alphabet = "abcdefghijklmnopqrstuvwxyz";
@@ -142,7 +142,7 @@ void Area::setName(std::string lang, const std::string &name) {
   mNames.emplace(lang, name);
 }
 
-void Area::setName(std::string lang, std::string &&name) {
+void Area::setName(std::string lang, std::string&& name) {
   std::transform(lang.begin(), lang.end(), lang.begin(), ::tolower);
 
   const std::string alphabet = "abcdefghijklmnopqrstuvwxyz";
@@ -163,7 +163,7 @@ void Area::setName(std::string lang, std::string &&name) {
 /*
   TODO: Area::getMeasure(key)
 
-  Retrieve a Measure object given its codename. This function should be case
+  Retrieve a Measure objectm given its codename. This function should be case
   insensitive.
 
   @param key
@@ -190,7 +190,7 @@ Measure& Area::getMeasure(std::string key) {
   
   try {
     return mMeasures.at(key);
-  } catch (const std::out_of_range &ex) {
+  } catch (const std::out_of_range& ex) {
     throw std::out_of_range("No measure found matching " + key);
   }
 }
@@ -228,12 +228,12 @@ Measure& Area::getMeasure(std::string key) {
 
     area.setMeasure(code, measure);
 */
-void Area::setMeasure(std::string key, Measure &value) {
+void Area::setMeasure(std::string key, Measure& value) {
   std::transform(key.begin(), key.end(), key.begin(), ::tolower);
   
   auto existingIt = mMeasures.find(key);
   if (existingIt != mMeasures.end()) {
-    Measure &existingMeasure = existingIt->second;
+    Measure& existingMeasure = existingIt->second;
 
     existingMeasure.setLabel(value.getLabel());
     for (auto it = value.begin(); it != value.end(); it++) {
@@ -245,12 +245,12 @@ void Area::setMeasure(std::string key, Measure &value) {
   mMeasures.emplace(key, value);
 }
 
-void Area::setMeasure(std::string key, Measure &&value) {
+void Area::setMeasure(std::string key, Measure&& value) {
   std::transform(key.begin(), key.end(), key.begin(), ::tolower);
   
   auto existingIt = mMeasures.find(key);
   if (existingIt != mMeasures.end()) {
-    Measure &existingMeasure = existingIt->second;
+    Measure& existingMeasure = existingIt->second;
 
     existingMeasure.setLabel(value.getLabel());
     for (auto it = value.begin(); it != value.end(); it++) {
@@ -265,8 +265,8 @@ void Area::setMeasure(std::string key, Measure &&value) {
 /*
   TODO: Area::size()
 
-  Retrieve the number of Measures we have for this Area. This function
-  should not modify the object or throw an exception.
+  Retrieve the number of Measures we have for this Area. This function should be 
+  callable from a constant context and must promise not throw an exception.
 
   @return
     The size of the Area (i.e. the number of Measures)
@@ -314,15 +314,15 @@ size_t Area::size() const noexcept {
   @example
     Area area("W06000023");
     area.setName("eng", "Powys");
-    std::cout << area << std::end;
+    std::cout << area << std::endl;
 */
-std::ostream& operator<<(std::ostream &os, const Area &area) {
+std::ostream& operator<<(std::ostream& os, const Area& area) {
   bool hasName = false;
 
   try {
     os << area.getName("eng");
     hasName = true;
-  } catch(const std::out_of_range &ex) {
+  } catch(const std::out_of_range& ex) {
   }
   
   try {
@@ -331,7 +331,7 @@ std::ostream& operator<<(std::ostream &os, const Area &area) {
       os << " / ";
     }
     os << name;
-  } catch(const std::out_of_range &ex) {
+  } catch(const std::out_of_range& ex) {
   }
   
   if (!hasName) {
@@ -374,9 +374,9 @@ std::ostream& operator<<(std::ostream &os, const Area &area) {
 
     bool eq = area1 == area2;
 */
-bool operator==(const Area &lhs, const Area &rhs) {
-  return lhs.mLocalAuthorityCode == rhs.mLocalAuthorityCode &&
-         lhs.mNames              == rhs.mNames &&
-         lhs.mNamesList          == rhs.mNamesList &&
+bool operator==(const Area& lhs, const Area& rhs) {
+  return lhs.mLocalAuthorityCode == rhs.mLocalAuthorityCode&& 
+         lhs.mNames              == rhs.mNames&& 
+         lhs.mNamesList          == rhs.mNamesList&& 
          lhs.mMeasures           == rhs.mMeasures;
 }

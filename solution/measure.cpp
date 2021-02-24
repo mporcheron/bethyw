@@ -46,7 +46,7 @@
     std::string label = "Population";
     Measure measure(codename, label);
 */
-Measure::Measure(std::string codename, const std::string &label)
+Measure::Measure(std::string codename, const std::string& label)
     : mLabel(label), mData(), mSum(0) {
   std::transform(codename.begin(),
                  codename.end(),
@@ -59,7 +59,7 @@ Measure::Measure(std::string codename, const std::string &label)
   TODO: Measure::getCodename()
 
   Retrieve the code for the Measure. This function should be callable from a 
-  constant context.
+  constant context and must promise not to throw an exception.
 
   @return
     The codename for the Measure
@@ -73,13 +73,13 @@ Measure::Measure(std::string codename, const std::string &label)
     ...
     auto code = measure.getCodename();
 */
-const std::string& Measure::getCodename() const { return mCodename; }
+const std::string& Measure::getCodename() const noexcept { return mCodename; }
 
 /*
   TODO: Measure::getLabel()
 
   Retrieve the human-friendly label for the Measure. This function should be 
-  callable from a constant context.
+  callable from a constant context and must promise not to throw an exception.
 
   @return
     The human-friendly label for the Measure
@@ -93,7 +93,7 @@ const std::string& Measure::getCodename() const { return mCodename; }
     ...
     auto label = measure.getLabel();
 */
-const std::string& Measure::getLabel() const { return mLabel; }
+const std::string& Measure::getLabel() const noexcept { return mLabel; }
 
 /*
   TODO: Measure::setLabel(label)
@@ -109,7 +109,7 @@ const std::string& Measure::getLabel() const { return mLabel; }
     ...
     measure.setLabel("New Population");
 */
-void Measure::setLabel(const std::string &label) { mLabel = label; }
+void Measure::setLabel(const std::string& label) { mLabel = label; }
 
 /*
   TODO: Measure::getValue(key)
@@ -137,10 +137,10 @@ void Measure::setLabel(const std::string &label) { mLabel = label; }
     ...
     auto value = measure.getValue(1999); // returns 12345678.9
 */
-Measure_t& Measure::getValue(const int &key) {
+Measure_t& Measure::getValue(const int& key) {
   try {
     return mData.at(key);
-  } catch (const std::out_of_range &ex) {
+  } catch (const std::out_of_range& ex) {
     throw std::out_of_range("No value found for year " + std::to_string(key));
   }
 }
@@ -167,7 +167,7 @@ Measure_t& Measure::getValue(const int &key) {
 
     measure.setValue(1999, 12345678.9);
 */
-void Measure::setValue(const int &key, const Measure_t &value) {
+void Measure::setValue(const int& key, const Measure_t& value) {
   auto existingIt = mData.find(key);
   if (existingIt != mData.end()) {
     mSum -= existingIt->second;
@@ -178,7 +178,7 @@ void Measure::setValue(const int &key, const Measure_t &value) {
   mData.emplace(key, value);
 }
 
-void Measure::setValue(const int &key, const Measure_t &&value) {
+void Measure::setValue(const int& key, const Measure_t&& value) {
   auto existingIt = mData.find(key);
   if (existingIt != mData.end()) {
     mSum -= existingIt->second;
@@ -193,7 +193,8 @@ void Measure::setValue(const int &key, const Measure_t &&value) {
   TODO: Measure::size()
 
   Retrieve the number of years data we have for this measure. This function
-  should not modify the object or throw an exception.
+  should be callable from a constant context and should promise to not
+  throw an exception.
 
   @return
     The size of the measure
@@ -211,10 +212,11 @@ size_t Measure::size() const noexcept {
 }
 
 /*
-  TODO: Measure:: getDifference()
+  TODO: Measure::getDifference()
 
   Calculate the difference between the first and last year imported. This
-  function should not modify the object or throw an exception.
+  function should be callable from a constant context and should promise to not
+  throw an exception.
 
   @return
     The difference/change in value from the first to the last year, or 0 if it
@@ -235,10 +237,11 @@ Measure_t Measure::getDifference() const noexcept {
 }
 
 /*
-  TODO: Measure:: getDifferenceAsPercentage()
+  TODO: Measure::getDifferenceAsPercentage()
 
   Calculate the difference between the first and last year imported as a 
-  percentage. This function should not modify the object or throw an exception.
+  percentage. This function should be callable from a constant context and
+  should promise to not throw an exception.
 
   @return
     The difference/change in value from the first to the last year as a decminal
@@ -247,7 +250,7 @@ Measure_t Measure::getDifference() const noexcept {
   @example
     Measure measure("pop", "Population");
     measure.setValue(1990, 12345678.9);
-    measure.setValue(2010, 123456790);
+    measure.setValue(2010, 12345679.9);
     auto diff = measure.getDifferenceAsPercentage();
 */
 double Measure::getDifferenceAsPercentage() const noexcept {
@@ -255,14 +258,14 @@ double Measure::getDifferenceAsPercentage() const noexcept {
     return 0;
   }
 
-  return getDifference() / cbegin()->second * 100;
+  return getDifference() / cbegin()->second * 100.0;
 }
 
 /*
-  TODO: Measure:: getAverage()
+  TODO: Measure::getAverage()
 
-  Calculate the average/mean value for all the values. This function should not
-  modify the object or throw an exception.
+  Calculate the average/mean value for all the values. This function should be
+  callable from a constant context and should promise to not throw an exception.
 
   @return
     The average value for all the years, or 0 if it cannot be calculated
@@ -293,7 +296,7 @@ double Measure::getAverage() const noexcept {
   Years should be printed in chronological order. Three additional columns
   should be included at the end of the output, correspodning to the average
   value across the years, the difference between the first and last year,
-  and the percentage different between the first and last year.
+  and the percentage difference between the first and last year.
 
   If there is no data in this measure, print the name and code, and 
   on the next line print: <no data>
@@ -317,7 +320,7 @@ double Measure::getAverage() const noexcept {
     measure.setValue(1999, 12345678.9);
     std::cout << measure << std::end;
 */
-std::ostream& operator<<(std::ostream &os, const Measure &measure) {
+std::ostream& operator<<(std::ostream& os, const Measure& measure) {
   os << measure.getLabel() << " (" << measure.getCodename();
   os << ") "  << std::endl;
 
@@ -390,10 +393,10 @@ std::ostream& operator<<(std::ostream &os, const Measure &measure) {
     A second Measure object
 
   @return
-    true if both Measure objects have. the same codename, label and data; false
+    true if both Measure objects have the same codename, label and data; false
     otherwise
 */
-bool operator==(const Measure &lhs, const Measure &rhs) {
+bool operator==(const Measure& lhs, const Measure& rhs) {
   return lhs.mCodename == rhs.mCodename &&
          lhs.mLabel    == rhs.mLabel &&
          lhs.mData     == rhs.mData &&

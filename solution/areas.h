@@ -20,14 +20,10 @@
         |         (i.e. in English and Welsh), and a map of various Measure 
         |         objects.
         |
-        +-> Areas A simple class that contains a map of all Area objects,
-                  indexed by the local authority code.
-
-  Some code has been provided in your coursework, along with explanatory 
-  comments.
+        +-> Areas A class that contains all Area objects.
 
   TODO: Read the block comments with TODO in areas.cpp to know which 
-  functions and member variables you need to declare in these classes.
+  functions and member variables you need to declare in this class.
  */
 
 #include <iostream>
@@ -42,19 +38,18 @@
 #include "area.h"
 
 /*
-  A shortcut for filters based on strings such as categorisations e.g. area,
+  An alias for filters based on strings such as categorisations e.g. area,
   and measures.
 */
 using StringFilterSet = std::unordered_set<std::string>;
 
 /*
-  A shortcut for a year filter.
+  An alias for a year filter.
 */
 using YearFilterTuple = std::tuple<unsigned int, unsigned int>;
 
 /*
-  Shortcut for the data within an Areas() object that maps authority codes
-  to an area name.
+  An alias for the data within an Areas object stores Area objects.
 
   TODO: you should remove the declaration of the Null class below, and give
   AreasContainer a valid Standard Library container of your choosing.
@@ -64,12 +59,11 @@ using AreasContainerNamesToAuthorityCodes = std::map<std::string, std::string>;
 
 /*
   Areas is a class that stores all the data categorised by area. The 
-  underlying Standard Library container is customisable using the Container
-  template parameter (with the default set to whatever AreasContainer is aliasing
-  above).
+  underlying Standard Library container is customisable using the alias above.
 
-  TODO: You should read the various block comments in the corresponding 
-  implementation file to know what to declare.
+  TODO: Based on your implementation, there may be additional constructors
+  or functions you implement here, and perhaps additional operators you may wish
+  to overload.
 */
 class Areas {
 protected:
@@ -80,55 +74,55 @@ public:
   Areas();
   ~Areas() = default;
 
-  Areas(const Areas &other) = delete;
-  Areas &operator=(const Areas &other) = delete;
-  Areas(Areas &&other) = default;
-  Areas &operator=(Areas &&ither) = default;
+  Areas(const Areas& other) = delete;
+  Areas& operator=(const Areas& other) = delete;
+  Areas(Areas&& other) = default;
+  Areas& operator=(Areas&& other) = default;
 
   size_t wildcardCountSet(
-    const std::unordered_set<std::string> &needles,
+    const std::unordered_set<std::string>& needles,
     const std::string& haystack) const;
   bool isLocalAuthorityFiltered(
-      const std::unordered_set<std::string> &areasFilter,
+      const std::unordered_set<std::string>& areasFilter,
       const std::string localAuthorityCode)
       noexcept;
     
-  void setArea(std::string &ident, Area &stat);
-  void setArea(std::string &ident, Area &&stat);
-  Area &getArea(const std::string &areaCode);
+  void setArea(std::string& ident, Area& stat);
+  void setArea(std::string& ident, Area&& stat);
+  Area& getArea(const std::string& areaCode);
   size_t size() const noexcept;
   
   void populateFromAuthorityCodeCSV(
-      std::istream &is,
-      const BethYw::SourceColumnMapping &cols,
-      const std::unordered_set<std::string> * const areas = nullptr)
+      std::istream& is,
+      const BethYw::SourceColumnMapping& cols,
+      const StringFilterSet * const areas = nullptr)
       noexcept(false);
 
   void populateFromAuthorityByYearCSV(
-      std::istream &is,
-      const BethYw::SourceColumnMapping &cols,
+      std::istream& is,
+      const BethYw::SourceColumnMapping& cols,
       const StringFilterSet * const areasFilter = nullptr,
       const StringFilterSet * const measuresFilter = nullptr,
       const YearFilterTuple * const yearsFilter = nullptr)
       noexcept(false);
 
   void populateFromWelshStatsJSON(
-      std::istream &is,
-      const BethYw::SourceColumnMapping &cols,
+      std::istream& is,
+      const BethYw::SourceColumnMapping& cols,
       const StringFilterSet * const areasFilter = nullptr,
       const StringFilterSet * const measuresFilter = nullptr,
       const YearFilterTuple * const yearsFilter = nullptr)
       noexcept(false);
 
   void populate(
-      std::istream &is,
-      const BethYw::SourceDataType &type,
-      const BethYw::SourceColumnMapping &cols) noexcept(false);
+      std::istream& is,
+      const BethYw::SourceDataType& type,
+      const BethYw::SourceColumnMapping& cols) noexcept(false);
 
   void populate(
-      std::istream &is,
-      const BethYw::SourceDataType &type,
-      const BethYw::SourceColumnMapping &cols,
+      std::istream& is,
+      const BethYw::SourceDataType& type,
+      const BethYw::SourceColumnMapping& cols,
       const StringFilterSet * const areasFilter = nullptr,
       const StringFilterSet * const measuresFilter = nullptr,
       const YearFilterTuple * const yearsFilter = nullptr)
@@ -136,7 +130,7 @@ public:
 
   std::string toJSON() const;
 
-  friend std::ostream &operator<<(std::ostream &os, const Areas &areas);
+  friend std::ostream& operator<<(std::ostream& os, const Areas& areas);
   
   /*
     Wrapper around underlying iterator functions for ease.

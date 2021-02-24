@@ -20,14 +20,10 @@
         |         (i.e. in English and Welsh), and a map of various Measure 
         |         objects.
         |
-        +-> Areas A simple class that contains a map of all Area objects,
-                  indexed by the local authority code.
-
-  Some code has been provided in your coursework, along with explanatory 
-  comments.
+        +-> Areas A class that contains all Area objects.
 
   TODO: Read the block comments with TODO in areas.cpp to know which 
-  functions and member variables you need to declare in these classes.
+  functions and member variables you need to declare in this class.
  */
 
 #include <iostream>
@@ -39,19 +35,18 @@
 #include "area.h"
 
 /*
-  A shortcut for filters based on strings such as categorisations e.g. area,
+  An alias for filters based on strings such as categorisations e.g. area,
   and measures.
 */
 using StringFilterSet = std::unordered_set<std::string>;
 
 /*
-  A shortcut for a year filter.
+  An alias for a year filter.
 */
 using YearFilterTuple = std::tuple<unsigned int, unsigned int>;
 
 /*
-  Shortcut for the data within an Areas() object that maps authority codes
-  to an area name.
+  An alias for the data within an Areas object stores Area objects.
 
   TODO: you should remove the declaration of the Null class below, and give
   AreasContainer a valid Standard Library container of your choosing.
@@ -72,20 +67,20 @@ public:
   Areas();
   
   void populateFromAuthorityCodeCSV(
-      std::istream &is,
-      const BethYw::SourceColumnMapping &cols,
-      const std::unordered_set<std::string> * const areas = nullptr)
+      std::istream& is,
+      const BethYw::SourceColumnMapping& cols,
+      const StringFilterSet * const areas = nullptr)
       noexcept(false);
 
   void populate(
-      std::istream &is,
-      const BethYw::SourceDataType &type,
-      const BethYw::SourceColumnMapping &cols) noexcept(false);
+      std::istream& is,
+      const BethYw::SourceDataType& type,
+      const BethYw::SourceColumnMapping& cols) noexcept(false);
 
   void populate(
-      std::istream &is,
-      const BethYw::SourceDataType &type,
-      const BethYw::SourceColumnMapping &cols,
+      std::istream& is,
+      const BethYw::SourceDataType& type,
+      const BethYw::SourceColumnMapping& cols,
       const StringFilterSet * const areasFilter = nullptr,
       const StringFilterSet * const measuresFilter = nullptr,
       const YearFilterTuple * const yearsFilter = nullptr)

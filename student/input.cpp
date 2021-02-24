@@ -27,7 +27,9 @@
   @param source
     A unique identifier for a source (i.e. the location).
 */
-
+InputSource::InputSource(const std::string& source) {
+  throw std::logic_error("InputSource::InputSource() has not been implemented!");
+}
 
 /*
   TODO: InputSource::getSource()
@@ -50,7 +52,9 @@
   @example
     InputFile input("data/areas.csv");
 */
-
+InputFile::InputFile(const std::string& filePath) : InputSource(filePath) {
+  throw std::logic_error("InputFile::InputFile() has not been implemented!");
+}
 
 /*
   TODO: InputFile::open()

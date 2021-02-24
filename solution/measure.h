@@ -10,11 +10,8 @@
 
   This file contains the decalaration of the Measure class.
 
-  Some code has been provided in your coursework, along with explanatory 
-  comments.
-
   TODO: Read the block comments with TODO in measure.cpp to know which 
-  functions and member variables you need to declare in these classes.
+  functions and member variables you need to declare in this class.
  */
 
 #include <iterator>
@@ -41,11 +38,12 @@ using Measure_t = double;
 using Measure_c = std::map<int, Measure_t>;
 
 /*
-  The Measure class contains a measure code, label, and a map of year:value
-  mappings.
+  The Measure class contains a measure code, label, and a container for readings
+  from across a number of years.
 
-  TODO: You should read the various block comments in the corresponding 
-  implementation file to know what to implement.
+  TODO: Based on your implementation, there may be additional constructors
+  or functions you implement here, and perhaps additional operators you may wish
+  to overload.
 */
 class Measure {
 private:
@@ -55,41 +53,29 @@ private:
   double mSum;
 
 public:
-  Measure(std::string code, const std::string &label);
+  Measure(std::string code, const std::string& label);
   ~Measure() = default;
 
-  Measure(const Measure &other) = default;
-  Measure &operator=(const Measure &other) = default;
-  Measure(Measure &&other) = default;
-  Measure &operator=(Measure &&other) = default;
+  Measure(const Measure& other) = default;
+  Measure& operator=(const Measure& other) = default;
+  Measure(Measure&& other) = default;
+  Measure& operator=(Measure&& other) = default;
 
-  // Measure(const Measure &other)
-  //     : mCodename(other.mCodename), mLabel(other.mLabel), mData(other.mData) {
-  //   std::cerr << "!!!! Copy Construct Measure " << mLabel << std::endl;
-  // }
-  // Measure &operator=(const Measure &other) {
-  //   std::cerr << "!!!! Copy Assign Measure " << other.mLabel << std::endl;
-  //   mCodename = other.mCodename;
-  //   mLabel    = other.mLabel;
-  //   mData     = other.mData;
-  //   return *this;
-  // }
+  const std::string& getCodename() const noexcept;
+  const std::string& getLabel() const noexcept;
+  void setLabel(const std::string& label);
 
-  const std::string &getCodename() const;
-  const std::string &getLabel() const;
-  void setLabel(const std::string &label);
-
-  Measure_t &getValue(const int &key);
-  void setValue(const int &key, const Measure_t &value);
-  void setValue(const int &key, const Measure_t &&value);
+  Measure_t& getValue(const int& key);
+  void setValue(const int& key, const Measure_t& value);
+  void setValue(const int& key, const Measure_t&& value);
   size_t size() const noexcept;
 
   Measure_t getDifference() const noexcept;
   double getDifferenceAsPercentage() const noexcept;
   double getAverage() const noexcept;
 
-  friend std::ostream &operator<<(std::ostream &os, const Measure &measure);
-  friend bool operator==(const Measure &lhs, const Measure &rhs);
+  friend std::ostream& operator<<(std::ostream& os, const Measure& measure);
+  friend bool operator==(const Measure& lhs, const Measure& rhs);
 
   /*
     Wrapper around underlying iterator functions for ease.

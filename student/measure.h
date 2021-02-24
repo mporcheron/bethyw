@@ -10,17 +10,14 @@
 
   This file contains the decalaration of the Measure class.
 
-  Some code has been provided in your coursework, along with explanatory 
-  comments.
-
   TODO: Read the block comments with TODO in measure.cpp to know which 
-  functions and member variables you need to declare in these classes.
+  functions and member variables you need to declare in this class.
  */
 
 #include <string>
 
 /*
-  The Measure class contains a measure code, label, and a container readings
+  The Measure class contains a measure code, label, and a container for readings
   from across a number of years.
 
   TODO: Based on your implementation, there may be additional constructors
