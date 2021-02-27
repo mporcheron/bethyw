@@ -1,4 +1,4 @@
-@ECHO off
+@ECHO on
 
 SET bin_dir=bin
 SET tests_dir=tests
