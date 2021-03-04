@@ -1,5 +1,5 @@
-#ifndef SRC_AREAS_H
-#define SRC_AREAS_H
+#ifndef AREAS_H
+#define AREAS_H
 
 /*
   +---------------------------------------+
@@ -51,15 +51,22 @@ using YearFilterTuple = std::tuple<unsigned int, unsigned int>;
 /*
   An alias for the data within an Areas object stores Area objects.
 
-  TODO: you should remove the declaration of the Null class below, and give
-  AreasContainer a valid Standard Library container of your choosing.
+  TODO: you should remove the declaration of the Null class below, and set
+  AreasContainer to a valid Standard Library container of your choosing.
 */
+// class Null { };
 using AreasContainer = std::map<std::string, Area>;
 using AreasContainerNamesToAuthorityCodes = std::map<std::string, std::string>;
 
 /*
   Areas is a class that stores all the data categorised by area. The 
   underlying Standard Library container is customisable using the alias above.
+
+  To understand the functions declared below, read the comments in areas.cpp
+  and the coursework worksheet. Briefly: populate() is called by bethyw.cpp to
+  populate data inside an Areas instance. This function will hand off the
+  specific parsing of code to other functions, based on the value of 
+  BethYw::SourceDataType.
 
   TODO: Based on your implementation, there may be additional constructors
   or functions you implement here, and perhaps additional operators you may wish
@@ -164,4 +171,4 @@ public:
   }
 };
 
-#endif // SRC_AREAS_H
+#endif // AREAS_H

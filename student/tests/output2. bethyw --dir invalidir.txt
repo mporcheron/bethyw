@@ -1,2 +1,0 @@
-Error importing dataset:
-InputFile::open: Failed to open file invaliddir/areas.csv

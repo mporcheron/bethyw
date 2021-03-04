@@ -151,19 +151,19 @@ cxxopts::Options BethYw::cxxoptsSetup() {
 }
 
 /*
-  TODO: BethYw::parseDatasetsArg()
+  TODO: BethYw::parseDatasetsArg(args)
 
   Parse the datasets argument passed into the command line. 
 
   The datasets argument is optional, and if it is not included, all datasets 
   should be imported. If it is included, it should be a comma-separated list of 
-  datasets to import (based on their key in the map InputFiles::DATASETS in 
-  datasets.h). If the argument contains the value "all", all datasets should be 
-  imported (case-insensitively).
+  datasets to import. If the argument contains the value "all"
+  (case-insensitive), all datasets should be imported.
 
   This function validates the passed in dataset names against the codes in
-  InputFiles::DATASETS. If an invalid code is entered, throw a
-  std::invalid_argument with the message: No dataset matches key: <input code>
+  DATASETS array in the InputFiles namespace in datasets.h. If an invalid code
+  is entered, throw a std::invalid_argument with the message:
+  No dataset matches key: <input code>
   where <input name> is the name supplied by the user through the argument.
 
   @param args
@@ -236,11 +236,11 @@ std::vector<BethYw::InputFileSource> BethYw::parseDatasetsArg(
 }
 
 /*
-  TODO: BethYw::parseAreasArg()
+  TODO: BethYw::parseAreasArg(args)
   
   Parses the areas command line argument, which is optional. If it doesn't 
-  exist or exists and contains "all" as value, all areas should be imported,
-  i.e. the filter should be an empty set.
+  exist or exists and contains "all" as value (any case), all areas should be
+  imported, i.e., the filter should be an empty set.
 
   Unlike datasets we can't check the validity of the values as it depends
   on each individual file imported (which hasn't happened until runtime).
@@ -285,10 +285,11 @@ std::unordered_set<std::string> BethYw::parseAreasArg(
 }
 
 /*
-  TODO: BethYw::parseMeasuresArg()
+  TODO: BethYw::parseMeasuresArg(args)
 
   Parse the measures command line argument, which is optional. If it doesn't 
-  exist or exists and contains "all" as value, all measures should be imported.
+  exist or exists and contains "all" as value (any case), all measures should
+  be imported.
 
   Unlike datasets we can't check the validity of the values as it depends
   on each individual file imported (which hasn't happened until runtime).
@@ -308,7 +309,6 @@ std::unordered_set<std::string> BethYw::parseAreasArg(
     std::invalid_argument if the argument contains an invalid measures value
     with the message: Invalid input for measures argument
 */
-
 std::unordered_set<std::string> BethYw::parseMeasuresArg(
     cxxopts::ParseResult& args) {
   std::unordered_set<std::string> measures(0);
@@ -340,7 +340,7 @@ std::unordered_set<std::string> BethYw::parseMeasuresArg(
 }
 
 /*
-  TODO: BethYw::parseYearsArg()
+  TODO: BethYw::parseYearsArg(args)
 
   Parse the years command line argument. Years is either a four digit year 
   value, or two four digit year values separated by a hyphen (i.e. either 
@@ -412,13 +412,15 @@ std::tuple<unsigned int, unsigned int>BethYw::parseYearsArg(
     Local authority code,Name (eng),Name (cym)
 
   Hint: To implement this function. First you will need create an InputFile 
-  object with the filename of the areas file, open it, and then pass the file 
-  to the Areas::populate() function, which will take a pointer to 
-  `areasFilter`.
+  object with the filename of the areas file, open it, and then pass reference 
+  to the stream to the Areas::populate() function.
+
+  Hint 2: you can retrieve the specific filename for a dataset, e.g. for the 
+  areas.csv file, from the InputFileSource's FILE member variable
 
   @param areas
     An Areas instance that should be modified (i.e. the populate() function
-    in it should be called)
+    in the instance should be called)
 
   @param dir
     Directory where the areas.csv file is
@@ -460,7 +462,7 @@ void BethYw::loadAreas(Areas& areas,
                              measuresFilter,
                              yearsFilter)
 
-  Import datasets from `datasetsToImport` as files in `dir` into areas,
+  Import datasets from `datasetsToImport` as files in `dir` into areas, and
   filtering them with the `areasFilter`, `measuresFilter`, and `yearsFilter`.
 
   The actual filtering will be done by the Areas::populate() function, thus 

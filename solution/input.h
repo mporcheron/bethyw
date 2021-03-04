@@ -1,5 +1,5 @@
-#ifndef SRC_INPUT_H_
-#define SRC_INPUT_H_
+#ifndef INPUT_H_
+#define INPUT_H_
 
 /*
   +---------------------------------------+
@@ -28,11 +28,11 @@
   InputSource is an abstract/purely virtual base class for all input source 
   types. In future versions of our application, we may support multiple input 
   data sources such as files and web pages. Therefore, this virtual class 
-  will allow us to mix/match sources as needed. For now, we can just ignore
-  it and focus on InputFile (next class down!).
+  will allow us to mix/match sources as needed.
 
-  TODO: You should read the various block comments in the corresponding 
-  implementation file to know what to declare.
+  TODO: Based on your implementation of this class and of dervived classes,
+  there may be additional constructors or functions you implement here,
+  and perhaps additional operators you may wish to overload.
 */
 class InputSource {
 protected:
@@ -65,4 +65,4 @@ public:
   virtual std::istream& open();
 };
 
-#endif // SRC_INPUT_H_
+#endif // INPUT_H_

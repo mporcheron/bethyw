@@ -13,7 +13,8 @@
   by the functions in data.cpp. See the header file for additional comments.
   
   Each function you must implement has a TODO in its comment block. You may
-  have to implement additional functions.
+  have to implement additional functions. You may implement additional
+  functions not specified.
  */
 
 #include <exception>
@@ -73,7 +74,8 @@ InputFile::~InputFile() {
     A standard input stream reference
 
   @throws
-    std::runtime_error if there is an issue opening the file
+    std::runtime_error if there is an issue opening the file, with the message:
+    InputFile::open: Failed to open file <file name>
 
   @example
     InputFile input("data/areas.csv");

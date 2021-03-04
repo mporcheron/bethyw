@@ -41,7 +41,7 @@ namespace BethYw {
   unique integer (0-indexed). Or, you can set the value by giving the name
   followed by = <value> (e.g. AuthorityCodeCSV=1).
 
-  This enum specifies the format types that the InputSource class can parse.
+  This enum specifies the format types that the Areas class can parse.
   We could have implemented an if statement that parsed a string for the data
   type, or perhaps used integers. But with a enum both in code and to anyone
   who just glances at the code can infer the meaning.
@@ -59,7 +59,7 @@ enum SourceDataType {
   "Year_Code"). Here we create another enum for these column headings for
   the parser.
 
-  Each input passed to the Areas() object will have to specifiy a
+  Each input passed to the Areas object will have to specifiy a
   an unordered map to match each of these enum values into a string that
   the source contains.
 */
@@ -88,13 +88,13 @@ using SourceColumnMapping = std::unordered_map<SourceColumn, std::string>;
   datasets in the data directory.
 */
 struct InputFileSource {
-  // CODE is the string used in t he program arguments
+  // CODE is the string used in the program arguments
   const std::string CODE;
 
   // NAME is the name given to this dataset
   const std::string NAME;
 
-  // FILE is the name of the file in the data directory
+  // FILE is the name of the file in the datasets directory
   const std::string FILE;
 
   // PARSER is a SourceDataType that tells the populate() function in Areas how
@@ -102,7 +102,7 @@ struct InputFileSource {
   const SourceDataType PARSER;
 
   // COLS is a map of the column headings for this dataset
-  //   - the key is a SourceColumns enum value, which is defined in data.h
+  //   - the key is a SourceColumn enum value
   //   - the value is the name of the column in the data file
   const SourceColumnMapping COLS;
 };
@@ -229,7 +229,7 @@ const InputFileSource DATASETS[NUM_DATASETS] = { POPDEN,
                                                  TRAINS,
                                                  COMPLETE_POPDEN,
                                                  COMPLETE_POP,
-                                                 COMPLETE_AREA};
+                                                 COMPLETE_AREA };
 
 } // namespace InputFiles
 

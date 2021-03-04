@@ -1,5 +1,5 @@
-#ifndef SRC_MEASURE_H_
-#define SRC_MEASURE_H_
+#ifndef MEASURE_H_
+#define MEASURE_H_
 
 /*
   +---------------------------------------+
@@ -109,4 +109,4 @@ public:
   }
 };
 
-#endif // SRC_MEASURE_H_
+#endif // MEASURE_H_

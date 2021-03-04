@@ -11,8 +11,8 @@
   This file contains the implementation of the Measure class. Measure is a
   very simple class that needs to contain a few member variables for its name,
   codename, and a Standard Library container for data. The data you need to 
-  store is values, organised by year (thus an associative container is
-  probably ideal).
+  store is values, organised by year. I'd recommend storing the values as 
+  doubles.
 
   This file contains numerous functions you must implement. Each function you
   must implement has a TODO block comment. 
@@ -59,7 +59,8 @@ Measure::Measure(std::string codename, const std::string& label)
   TODO: Measure::getCodename()
 
   Retrieve the code for the Measure. This function should be callable from a 
-  constant context and must promise not to throw an exception.
+  constant context and must promise to not modify the state of the instance or 
+  throw an exception.
 
   @return
     The codename for the Measure
@@ -79,7 +80,8 @@ const std::string& Measure::getCodename() const noexcept { return mCodename; }
   TODO: Measure::getLabel()
 
   Retrieve the human-friendly label for the Measure. This function should be 
-  callable from a constant context and must promise not to throw an exception.
+  callable from a constant context and must promise to not modify the state of 
+  the instance and to not throw an exception.
 
   @return
     The human-friendly label for the Measure
@@ -124,6 +126,7 @@ void Measure::setLabel(const std::string& label) { mLabel = label; }
 
   @throws
     std::out_of_range if year does not exist in Measure with the message
+    No value found for year <year>
 
   @return
     The value
@@ -193,8 +196,8 @@ void Measure::setValue(const int& key, const Measure_t&& value) {
   TODO: Measure::size()
 
   Retrieve the number of years data we have for this measure. This function
-  should be callable from a constant context and should promise to not
-  throw an exception.
+  should be callable from a constant context and must promise to not change
+  the state of the instance or throw an exception.
 
   @return
     The size of the measure
@@ -215,8 +218,8 @@ size_t Measure::size() const noexcept {
   TODO: Measure::getDifference()
 
   Calculate the difference between the first and last year imported. This
-  function should be callable from a constant context and should promise to not
-  throw an exception.
+  function should be callable from a constant context and must promise to not
+  change the state of the instance or throw an exception.
 
   @return
     The difference/change in value from the first to the last year, or 0 if it
@@ -226,7 +229,7 @@ size_t Measure::size() const noexcept {
     Measure measure("pop", "Population");
     measure.setValue(1999, 12345678.9);
     measure.setValue(1999, 12345679.9);
-    auto diff = measure.getDifference(); // returns 1
+    auto diff = measure.getDifference(); // returns 1.0
 */
 Measure_t Measure::getDifference() const noexcept {
   if (size() == 0) {
@@ -241,7 +244,7 @@ Measure_t Measure::getDifference() const noexcept {
 
   Calculate the difference between the first and last year imported as a 
   percentage. This function should be callable from a constant context and
-  should promise to not throw an exception.
+  must promise to not change the state of the instance or throw an exception.
 
   @return
     The difference/change in value from the first to the last year as a decminal
@@ -265,7 +268,8 @@ double Measure::getDifferenceAsPercentage() const noexcept {
   TODO: Measure::getAverage()
 
   Calculate the average/mean value for all the values. This function should be
-  callable from a constant context and should promise to not throw an exception.
+  callable from a constant context and must promise to not change the state of 
+  the instance or throw an exception.
 
   @return
     The average value for all the years, or 0 if it cannot be calculated

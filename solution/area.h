@@ -1,5 +1,5 @@
-#ifndef SRC_AREA_H_
-#define SRC_AREA_H_
+#ifndef AREA_H_
+#define AREA_H_
 
 /*
   +---------------------------------------+
@@ -104,4 +104,4 @@ public:
   }
 };
 
-#endif // SRC_AREA_H_
+#endif // AREA_H_

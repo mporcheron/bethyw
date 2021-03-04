@@ -47,7 +47,7 @@ Area::Area(const std::string& localAuthorityCode)
   TODO: Area::getLocalAuthorityCode()
 
   Retrieve the local authority code for this Area. This function should be 
-  callable from a constant context.
+  callable from a constant context and not modify the state of the instance.
   
   @return
     The Area's local authority code
@@ -64,8 +64,8 @@ const std::string& Area::getLocalAuthorityCode() const {
 /*
   TODO: Area::getName(lang)
 
-  Get a name for the Area in a specific language. This function should not
-  modify the class instance.
+  Get a name for the Area in a specific language.  This function should be 
+  callable from a constant context and not modify the state of the instance.
 
   @param lang
     A three-leter language code in ISO 639-3 format, e.g. cym or eng
@@ -74,13 +74,16 @@ const std::string& Area::getLocalAuthorityCode() const {
     The name for the area in the given language
 
   @throws
-    std::out_of_range if lang does not correspond to a language
+    std::out_of_range if lang does not correspond to a language of a name stored
+    inside the Area instance
 
   @example
     Area area("W06000023");
-    area.setName("eng", "Powys");
+    std::string langCode  = "eng";
+    std::string langValue = "Powys";
+    area.setName(langCode, langValue);
     ...
-    auto name = area.getName("eng");
+    auto name = area.getName(langCode);
 */
 const std::string& Area::getName(std::string lang) const {
   std::transform(lang.begin(), lang.end(), lang.begin(), ::tolower);
@@ -96,7 +99,9 @@ const std::string& Area::getName(std::string lang) const {
 
   @example
     Area area("W06000023");
-    area.setName("eng", "Powys");
+    std::string langCode  = "eng";
+    std::string langValue = "Powys";
+    area.setName(langCode, langValue);
     ...
     auto names = area.getNames();
 */
@@ -114,7 +119,7 @@ const std::map<std::string, std::string>& Area::getNames() const {
     e.g. cym or eng, which should be converted to lowercase
 
   @param name
-    The name of the Area in this language
+    The name of the Area in `lang`
 
   @throws
     std::invalid_argument if lang is not a three letter alphabetic code
@@ -163,8 +168,8 @@ void Area::setName(std::string lang, std::string&& name) {
 /*
   TODO: Area::getMeasure(key)
 
-  Retrieve a Measure objectm given its codename. This function should be case
-  insensitive.
+  Retrieve a Measure object, given its codename. This function should be case
+  insensitive when searching for a measure.
 
   @param key
     The codename for the measure you want to retrieve
@@ -173,17 +178,16 @@ void Area::setName(std::string lang, std::string&& name) {
     A Measure object
 
   @throws
-    std::out_of_range if there is no measure with the given code with message:
+    std::out_of_range if there is no measure with the given code, throwing
+    the message:
     No measure found matching <codename>
 
   @example
     Area area("W06000023");
-    area.setName("eng", "Powys");
-
     Measure measure("Pop", "Population");
     area.setMeasure("Pop", measure);
     ...
-    auto measure2 = area.at("pop");
+    auto measure2 = area.getMeasure("pop");
 */
 Measure& Area::getMeasure(std::string key) {
   std::transform(key.begin(), key.end(), key.begin(), ::tolower);
@@ -203,10 +207,10 @@ Measure& Area::getMeasure(std::string key) {
 
   If a Measure already exists with the same codename in this Area, overwrite any
   values contained within the existing Measure with those in the new Measure
-  passed into this function. The resulting Measure should be a combination of
-  the two Measures instances.
+  passed into this function. The resulting Measure stored inside the Area
+  instance should be a combination of the two Measures instances.
 
-  @param key
+  @param codename
     The codename for the Measure
 
   @param measure
@@ -217,8 +221,6 @@ Measure& Area::getMeasure(std::string key) {
 
   @example
     Area area("W06000023");
-    area.setName("eng", "Powys");
-
     std::string codename = "Pop";
     std::string label = "Population";
     Measure measure(codename, label);
@@ -226,7 +228,7 @@ Measure& Area::getMeasure(std::string key) {
     double value = 12345678.9;
     measure.setValue(1999, value);
 
-    area.setMeasure(code, measure);
+    area.setMeasure(codename, measure);
 */
 void Area::setMeasure(std::string key, Measure& value) {
   std::transform(key.begin(), key.end(), key.begin(), ::tolower);
@@ -266,14 +268,17 @@ void Area::setMeasure(std::string key, Measure&& value) {
   TODO: Area::size()
 
   Retrieve the number of Measures we have for this Area. This function should be 
-  callable from a constant context and must promise not throw an exception.
+  callable from a constant context, not modify the state of the instance, and
+  must promise not throw an exception.
 
   @return
-    The size of the Area (i.e. the number of Measures)
+    The size of the Area (i.e., the number of Measures)
 
   @example
     Area area("W06000023");
-    area.setName("eng", "Powys");
+    std::string langCode  = "eng";
+    std::string langValue = "Powys";
+    area.setName(langCode, langValue);
 
     std::string codename = "Pop";
     std::string label = "Population";
@@ -289,10 +294,11 @@ size_t Area::size() const noexcept {
 /*
   TODO: operator<<(os, area)
 
-  Overload the stream output operator.
+  Overload the stream output operator as a free/global function.
 
   Output the name of the Area in English and Welsh, followed by the local
-  authority code. Then output all the measures for the area.
+  authority code. Then output all the measures for the area (see the coursework
+  worksheet for specific formatting).
 
   If the Area only has only one name, output this. If the area has no names,
   output the name "Unnamed".
@@ -313,7 +319,9 @@ size_t Area::size() const noexcept {
 
   @example
     Area area("W06000023");
-    area.setName("eng", "Powys");
+    std::string langCode  = "eng";
+    std::string langValue = "Powys";
+    area.setName(langCode, langValue);
     std::cout << area << std::endl;
 */
 std::ostream& operator<<(std::ostream& os, const Area& area) {
@@ -354,9 +362,9 @@ std::ostream& operator<<(std::ostream& os, const Area& area) {
 /*
   TODO: operator==(lhs, rhs)
 
-  Overload the == operator for two Area objects. Two Area objects
-  are only equal when their local authority code, all names, and all data are
-  equal.
+  Overload the == operator for two Area objects as a global/free function. Two
+  Area objects are only equal when their local authority code, all names, and
+  all data are equal.
 
   @param lhs
     An Area object
