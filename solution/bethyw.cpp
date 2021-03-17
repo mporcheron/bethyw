@@ -442,9 +442,8 @@ void BethYw::loadAreas(Areas& areas,
   const std::string fileAreas = dir + InputFiles::AREAS.FILE;
 
   try {
-    InputSource *source = new InputFile(fileAreas);
-    std::istream& stream = source->open();
-    areas.populate(stream,
+    auto source = std::make_unique<InputFile>(fileAreas);
+    areas.populate(source->open(),
                    InputFiles::AREAS.PARSER,
                    InputFiles::AREAS.COLS,
                    &areasFilter);
@@ -519,15 +518,13 @@ void BethYw::loadDatasets(
        dataset != datasetsToImport.end();
        dataset++) {
     try {
-      InputSource *source = new InputFile(dir + dataset->FILE);
-      std::istream& stream = source->open();
-      areas.populate(stream,
+      auto source = std::make_unique<InputFile>(dir + dataset->FILE);
+      areas.populate(source->open(),
                      dataset->PARSER,
                      dataset->COLS,
                      &areasFilter,
                      &measuresFilter,
                      &yearsFilter);
-      delete source;
     } catch (const std::runtime_error& ex) {
       std::cerr << "Error importing dataset:\n" << ex.what() << std::endl;
       std::exit(1);

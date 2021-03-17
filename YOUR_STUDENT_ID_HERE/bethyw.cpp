@@ -252,7 +252,7 @@ std::unordered_set<std::string> BethYw::parseAreasArg(
 
   Unlike datasets we can't check the validity of the values as it depends
   on each individual file imported (which hasn't happened until runtime).
-  Therefore, we simply fetch the list of areas and later pass it to the
+  Therefore, we simply fetch the list of measures and later pass it to the
   Areas::populate() function.
 
   The filtering of inputs should be case insensitive.

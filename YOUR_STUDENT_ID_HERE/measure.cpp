@@ -191,7 +191,7 @@ Measure::Measure(std::string codename, const std::string &label) {
   @example
     Measure measure("pop", "Population");
     measure.setValue(1999, 12345678.9);
-    measure.setValue(1999, 12345679.9);
+    measure.setValue(2001, 12345679.9);
     auto diff = measure.getDifference(); // returns 1.0
 */
 
@@ -228,8 +228,8 @@ Measure::Measure(std::string codename, const std::string &label) {
   @example
     Measure measure("pop", "Population");
     measure.setValue(1999, 12345678.9);
-    measure.setValue(1999, 12345679.9);
-    auto diff = measure.getDifference(); // returns 1
+    measure.setValue(2001, 12345679.9);
+    auto diff = measure.getAverage(); // returns 12345678.4
 */
 
 

@@ -353,10 +353,10 @@ void Areas::populateFromAuthorityCodeCSV(
       // Third column is the title in Welsh
       getline(s, nameWelsh, ',');
 
-      if (areasFilterEnabled&& 
-          wildcardCountSet(*areasFilter, localAuthorityCode) == 0&& 
-          wildcardCountSet(*areasFilter, nameEnglish) == 0&& 
-            wildcardCountSet(*areasFilter, nameWelsh) == 0) {
+      if (areasFilterEnabled &&
+          wildcardCountSet(*areasFilter, localAuthorityCode) == 0 &&
+          wildcardCountSet(*areasFilter, nameEnglish) == 0 &&
+          wildcardCountSet(*areasFilter, nameWelsh) == 0) {
         continue;
       }
 
@@ -535,12 +535,12 @@ void Areas::populateFromWelshStatsJSON(
 
   // Determine whether the respective area, measures, and years filters
   // are enabled or not
-  bool areasFilterEnabled    = areasFilter != nullptr&& 
+  bool areasFilterEnabled    = areasFilter != nullptr &&
                                !areasFilter->empty();
-  bool measuresFilterEnabled = measuresFilter != nullptr&& 
+  bool measuresFilterEnabled = measuresFilter != nullptr &&
                                !measuresFilter->empty();
-  bool yearsFilterEnabled    = yearsFilter != nullptr&& 
-                               std::get<0>(*yearsFilter) != 0&& 
+  bool yearsFilterEnabled    = yearsFilter != nullptr &&
+                               std::get<0>(*yearsFilter) != 0 &&
                                std::get<1>(*yearsFilter) != 0;
 
   // Now loop through each row in the JSON file
@@ -565,7 +565,7 @@ void Areas::populateFromWelshStatsJSON(
     if (areasFilterEnabled) {
       // Welsh names aren't in the JSON data, so we can only check local
       // authority codes and English names by default
-      if (wildcardCountSet(*areasFilter, localAuthorityCode) == 0&& 
+      if (wildcardCountSet(*areasFilter, localAuthorityCode) == 0 &&
           wildcardCountSet(*areasFilter, areaNameEnglish) == 0) {
 
         // But, if the area already exists, we might have a Welsh name for it 
@@ -603,7 +603,7 @@ void Areas::populateFromWelshStatsJSON(
         measureCode.begin(),
         measureCode.end(),
         measureCode.begin(),::tolower);
-    if (measuresFilterEnabled&&  measuresFilter->count(measureCode) == 0) {
+    if (measuresFilterEnabled && measuresFilter->count(measureCode) == 0) {
       continue;
     }
     
@@ -611,7 +611,7 @@ void Areas::populateFromWelshStatsJSON(
     unsigned int year = 0;
     try {
       year = std::stoi(data[COL_YEAR].get_ref<std::string&>());
-      if (yearsFilterEnabled&&  (year < std::get<0>(*yearsFilter) ||
+      if (yearsFilterEnabled && (year < std::get<0>(*yearsFilter) ||
                                  year > std::get<1>(*yearsFilter))) {
         continue;
       }
@@ -751,16 +751,16 @@ void Areas::populateFromAuthorityByYearCSV(
       measureCode.end(),
       measureCode.begin(),::tolower);
 
-  if (measuresFilterEnabled&&  measuresFilter->count(measureCode) == 0) {
+  if (measuresFilterEnabled && measuresFilter->count(measureCode) == 0) {
     return;
   }
 
   const unsigned int authorityCodeColIdent = (unsigned int) -1;
 
-  bool areasFilterEnabled = areasFilter != nullptr&& 
+  bool areasFilterEnabled = areasFilter != nullptr &&
                             !areasFilter->empty();
-  bool yearsFilterEnabled = yearsFilter != nullptr&& 
-                            std::get<0>(*yearsFilter) != 0&& 
+  bool yearsFilterEnabled = yearsFilter != nullptr &&
+                            std::get<0>(*yearsFilter) != 0 &&
                             std::get<1>(*yearsFilter) != 0;
 
   // Mapping of the column ordering to the year, the authority code
@@ -820,7 +820,7 @@ void Areas::populateFromAuthorityByYearCSV(
           // As above, if year is == -1, its the authority code
           if (columnIdent == authorityCodeColIdent) {
             // This is the local authority!
-            if (areasFilterEnabled&& 
+            if (areasFilterEnabled &&
                 isLocalAuthorityFiltered(*areasFilter, cell)) {
               break;
             }
@@ -829,7 +829,7 @@ void Areas::populateFromAuthorityByYearCSV(
             localAuthorityCode = cell;
           } else {
             // It's a year value in this column
-            if (yearsFilterEnabled&& 
+            if (yearsFilterEnabled &&
                  (columnIdent < std::get<0>(*yearsFilter) ||
                   columnIdent > std::get<1>(*yearsFilter))) {
               continue;

@@ -228,7 +228,7 @@ size_t Measure::size() const noexcept {
   @example
     Measure measure("pop", "Population");
     measure.setValue(1999, 12345678.9);
-    measure.setValue(1999, 12345679.9);
+    measure.setValue(2001, 12345679.9);
     auto diff = measure.getDifference(); // returns 1.0
 */
 Measure_t Measure::getDifference() const noexcept {
