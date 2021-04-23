@@ -188,27 +188,27 @@ std::vector<BethYw::InputFileSource> BethYw::parseDatasetsArg(
   auto& allDatasets = InputFiles::DATASETS;
   std::vector<InputFileSource> datasetsToImport;
 
+  bool importAllValues = false;
+
+  std::vector<std::string> inputDatasets;
   try {
-    std::vector<std::string> inputDatasets;
-    try {
-      inputDatasets = args["datasets"].as<std::vector<std::string>>();
-    } catch (const std::bad_cast& ex) {
-      throw std::invalid_argument("Invalid input for dataset argument");
-    } catch (const std::domain_error& ex) {
-      throw BethYw::ImportAllValues();
-    }
+    inputDatasets = args["datasets"].as<std::vector<std::string>>();
+  } catch (const std::bad_cast& ex) {
+    throw std::invalid_argument("Invalid input for dataset argument");
+  } catch (const std::domain_error& ex) {
+    importAllValues = true;
+  }
 
-    if (inputDatasets.empty()) {
-      throw BethYw::ImportAllValues();
-    }
-
+  if (!importAllValues) {
     for (auto inputDataset = inputDatasets.begin();
          inputDataset != inputDatasets.end();
          inputDataset++) {
       std::string code = *inputDataset;
       std::transform(code.begin(), code.end(), code.begin(), ::tolower);
+
       if (code == "all") {
-        throw BethYw::ImportAllValues();
+        importAllValues = true;
+        break;
       }
 
       bool match = false;
@@ -220,18 +220,20 @@ std::vector<BethYw::InputFileSource> BethYw::parseDatasetsArg(
           break;
         } 
       }
-      
+    
       if (!match) {
         throw std::invalid_argument("No dataset matches key: " + code);
       }
     }
-  } catch (const BethYw::ImportAllValues& ex) {
+  }
+  
+  if (importAllValues || inputDatasets.empty()) {
     datasetsToImport.clear();
     for (size_t i = 0; i < numDatasets; i++) {
       datasetsToImport.push_back(allDatasets[i]);
     }
   }
-
+  
   return datasetsToImport;
 }
 
@@ -395,7 +397,6 @@ std::tuple<unsigned int, unsigned int>BethYw::parseYearsArg(
     throw std::invalid_argument("Invalid input for years argument");
   } catch (const std::invalid_argument& ex) {
     throw std::invalid_argument("Invalid input for years argument");
-  } catch (const BethYw::ImportAllValues& ex) {
   }
 
   return years;

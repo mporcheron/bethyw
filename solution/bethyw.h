@@ -43,14 +43,6 @@ namespace BethYw {
 const std::string STUDENT_NUMBER = "987654";
 
 /*
-  The ImportAllValues class is an exception that is thrown by the command
-  line argument parser functions below if all the values match.
-
-  TODO map: remove this class
-*/
-class ImportAllValues {};
-
-/*
   Run Beth Yw?, parsing the command line arguments and acting upon them.
 */
 int run(int argc, char *argv[]);
